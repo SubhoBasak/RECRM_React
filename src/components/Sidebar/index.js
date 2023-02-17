@@ -57,7 +57,7 @@ const Sidebar = () => {
         onClick={() => setCurSel(3)}
       >
         <BsFileEarmarkBarGraphFill />
-        LEADs
+        LEAD
       </Link>
     </div>
   );
