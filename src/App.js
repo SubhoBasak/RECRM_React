@@ -12,6 +12,7 @@ import Requirements from "./pages/Requirements";
 import ContactDetails from "./pages/ContactDetails";
 import Project from "./pages/Project";
 import Property from "./pages/Property";
+import AgentDetails from "./pages/AgentDetails";
 
 const App = () => {
   return (
@@ -29,7 +30,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/all_contacts" element={<AllContacts />} />
-            <Route path="/contact_details" element={<ContactDetails />} />
+            <Route path="/agent_details" element={<AgentDetails />} />
+            <Route path="/client_details" element={<ContactDetails />} />
             <Route path="/project" element={<Project />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/property" element={<Property />} />

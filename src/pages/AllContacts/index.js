@@ -1,8 +1,9 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Button,
   Col,
+  Dropdown,
   FormControl,
   InputGroup,
   ListGroup,
@@ -19,8 +20,6 @@ import { GoSettings } from "react-icons/go";
 import ContactCard from "../../components/ContactCard";
 
 const AllContacts = () => {
-  const navigate = useNavigate();
-
   return (
     <>
       <nav>
@@ -38,13 +37,29 @@ const AllContacts = () => {
         <Button variant="outline-primary" className="d-flex my-auto">
           <GoSettings />
         </Button>
-        <Button
-          className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/contact_details")}
-        >
-          <IoPersonAddSharp className="me-2" />
-          Add New Contact
-        </Button>
+        <Dropdown>
+          <Dropdown.Toggle
+            variant="primary"
+            className="btn-sm ms-3 shadow"
+            id="dropdown-basic"
+          >
+            <IoPersonAddSharp className="me-2" />
+            Add New Contact
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Link className="dropdown-item" to="/client_details">
+              Client
+            </Link>
+            <Link className="dropdown-item" to="/company_details">
+              Company
+            </Link>
+            <Dropdown.Divider />
+            <Link className="dropdown-item" to="/agent_details">
+              Agent
+            </Link>
+          </Dropdown.Menu>
+        </Dropdown>
       </nav>
       <Row className="w-100">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
@@ -73,6 +88,12 @@ const AllContacts = () => {
               100
             </h1>
             <p className="text-secondary">Clients</p>
+          </div>
+          <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
+            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+              32
+            </h1>
+            <p className="text-secondary">Companies</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
