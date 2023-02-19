@@ -14,35 +14,73 @@ import "./style.css";
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdViewHeadline, MdHistory } from "react-icons/md";
 
-const PersonCard = (props) => {
+const ContactCard = ({ data, selected, setSelected }) => {
+  function roleClass(r) {
+    switch (r) {
+      case "company":
+        return "success";
+      case "agent":
+        return "warning";
+      default:
+        return "primary";
+    }
+  }
+
+  function selectContact() {
+    let indx = selected.findIndex(
+      (cnt) => cnt.id === data._id && cnt.role === data.role
+    );
+
+    if (indx > -1)
+      setSelected(
+        selected.filter(
+          (cnt) => !(cnt.id === data._id && cnt.role === data.role)
+        )
+      );
+    else setSelected([...selected, { id: data._id, role: data.role }]);
+  }
+
   return (
-    <ListGroupItem className="person-card bg-white py-3">
+    <ListGroupItem className="person-card bg-white py-3" draggable>
       <Row>
         <Col lg="1" className="d-flex align-items-center">
-          <FormCheck className="ms-1" />
+          <FormCheck
+            checked={
+              selected.findIndex(
+                (cnt) => cnt.id === data._id && cnt.role === data.role
+              ) > -1
+            }
+            className="ms-1"
+            onChange={selectContact}
+          />
         </Col>
         <Col className="d-flex align-items-center">
-          <p className="fs-6 my-0">Person fullname</p>
+          <p className="fs-6 my-0 d-block text-turncate">{data.name}</p>
         </Col>
         <Col lg="1" className="d-flex align-items-center">
-          <Alert
-            variant={props.role === "agent" ? "warning" : "primary"}
-            className="p-0 px-2 m-0"
-          >
-            {props.role}
+          <Alert variant={roleClass(data.role)} className="p-0 px-2 m-0">
+            {data.role}
           </Alert>
         </Col>
         <Col className="d-flex align-items-center">
-          <p className="text-grey my-0 fw-light">Person address</p>
+          <p className="text-grey my-0 fw-light text-turncate">
+            {data.address1}
+          </p>
         </Col>
         <Col className="d-flex align-items-center">
-          <a href="mailto:customer@email.com" className="fw-light">
-            person@email.com
+          <a
+            {...(data.email ? { href: `mailto:${data.email}` } : {})}
+            className="fw-light text-turncate"
+          >
+            {data.email || "Email not present"}
           </a>
         </Col>
         <Col className="d-flex align-items-center">
-          <a href="tel:9876543210" className="fw-light">
-            +91 9876543210
+          <a
+            {...(data.phone ? { href: `tel:${data.phone}` } : {})}
+            className="fw-light text-turncate"
+          >
+            {data.phone || "Number not present"}
           </a>
         </Col>
         <Col lg="1" className="d-flex justify-content-end">
@@ -72,4 +110,4 @@ const PersonCard = (props) => {
   );
 };
 
-export default PersonCard;
+export default ContactCard;

@@ -5,13 +5,70 @@ import "./style.css";
 
 // icons
 import { ImSearch } from "react-icons/im";
-import { MdAdd } from "react-icons/md";
+import { MdDeleteSweep } from "react-icons/md";
 import { GoSettings } from "react-icons/go";
+import { BsHouseFill, BsEraserFill, BsFolderFill } from "react-icons/bs";
+
+// components
+import Bug from "../../components/Bug";
 import PropertyCard from "../../components/PropertyCard";
-import ProjectCard from "../../components/ProjectCard";
+import FolderCard from "../../components/FolderCard";
+import Loading from "../../components/Loading";
+import ConnectionLost from "../../components/ConnectionLost";
+import NoRecords from "../../components/NoRecords";
 
 const Properties = () => {
+  const [properties, setProperties] = React.useState([]);
+  const [folders, setFolders] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [connLost, setConnLost] = React.useState(false);
+  const [gotBug, setGotBug] = React.useState(false);
+  const [selected, setSelected] = React.useState([]);
+
   const navigate = useNavigate();
+
+  async function getProperties() {
+    fetch(process.env.REACT_APP_BASE_URL + "/folder")
+      .then((res) => {
+        setConnLost(false);
+        setLoading(false);
+        if (res.status === 200)
+          res
+            .json()
+            .then((data) => {
+              setProperties(data[0]);
+              setFolders(data[1]);
+            })
+            .catch(() => setGotBug(true));
+      })
+      .catch(() => {
+        setConnLost(true);
+        setLoading(false);
+      });
+  }
+
+  function showData() {
+    if (loading) return <Loading />;
+    else if (connLost) return <ConnectionLost />;
+    else if (gotBug) return <Bug />;
+    else if (properties.length === 0 && folders.length === 0)
+      return <NoRecords />;
+    else
+      return (
+        <div className="d-flex flex-wrap w-100 p-3">
+          {folders.map((data, i) => (
+            <FolderCard key={i} {...{ data, selected, setSelected }} />
+          ))}
+          {properties.map((data, i) => (
+            <PropertyCard key={i} {...{ data, selected, setSelected }} />
+          ))}
+        </div>
+      );
+  }
+
+  React.useEffect(() => {
+    getProperties();
+  }, []);
 
   return (
     <>
@@ -35,15 +92,15 @@ const Properties = () => {
           className="ms-3 my-auto d-flex align-items-center btn-sm"
           onClick={() => navigate("/project")}
         >
-          <MdAdd className="me-1" />
-          Project
+          <BsFolderFill className="me-1" />
+          New Folder
         </Button>
         <Button
           className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
           onClick={() => navigate("/property")}
         >
-          <MdAdd className="me-1" />
-          Property
+          <BsHouseFill className="me-1" />
+          New Property
         </Button>
       </nav>
       <Row className="w-100">
@@ -72,26 +129,41 @@ const Properties = () => {
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              100
+              {folders.length}
             </h1>
-            <p className="text-secondary">Projects</p>
+            <p className="text-secondary">Folders</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              75
+              {properties.length}
             </h1>
             <p className="text-secondary">Properties</p>
           </div>
         </Col>
       </Row>
-      <div className="d-flex flex-wrap w-100 p-3">
-        <ProjectCard />
-        <ProjectCard />
-        <ProjectCard />
-        {[1, 2, 3, 4, 5].map((i) => (
-          <PropertyCard key={i} />
-        ))}
-      </div>
+      {selected.length > 0 && (
+        <div className="w-100 px-3 d-flex align-items-center justify-content-between">
+          <p className="m-2 fs-6 fw-bold">{selected.length} selected</p>
+          <div className="d-flex">
+            <Button
+              variant="outline-primary"
+              className="btn-sm my-auto d-flex align-items-center"
+              onClick={() => setSelected([])}
+            >
+              <BsEraserFill className="me-2" />
+              Unselect all
+            </Button>
+            <Button
+              variant="primary"
+              className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+            >
+              <MdDeleteSweep className="me-2" />
+              Delete Contacts
+            </Button>
+          </div>
+        </div>
+      )}
+      {showData()}
     </>
   );
 };

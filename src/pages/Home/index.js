@@ -49,13 +49,6 @@ const Home = () => {
               className="d-flex flex-column align-items-center border-end px-4 py-1 my-4"
               style={{ maxHeight: "fit-content" }}
             >
-              <h1 style={{ fontFamily: "pacifico" }}>8</h1>
-              <p className="text-secondary">Projects</p>
-            </div>
-            <div
-              className="d-flex flex-column align-items-center border-end px-4 py-1 my-4"
-              style={{ maxHeight: "fit-content" }}
-            >
               <h1 style={{ fontFamily: "pacifico" }}>44</h1>
               <p className="text-secondary">Clients</p>
             </div>

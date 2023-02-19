@@ -9,10 +9,11 @@ import Home from "./pages/Home";
 import AllContacts from "./pages/AllContacts";
 import Properties from "./pages/Properties";
 import Requirements from "./pages/Requirements";
-import ContactDetails from "./pages/ContactDetails";
+import ClientDetails from "./pages/ClientDetails";
 import Project from "./pages/Project";
 import Property from "./pages/Property";
 import AgentDetails from "./pages/AgentDetails";
+import CompanyDetails from "./pages/CompanyDetails";
 
 const App = () => {
   return (
@@ -31,7 +32,8 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/all_contacts" element={<AllContacts />} />
             <Route path="/agent_details" element={<AgentDetails />} />
-            <Route path="/client_details" element={<ContactDetails />} />
+            <Route path="/client_details" element={<ClientDetails />} />
+            <Route path="/company_details" element={<CompanyDetails />} />
             <Route path="/project" element={<Project />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/property" element={<Property />} />

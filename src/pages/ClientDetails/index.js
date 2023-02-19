@@ -17,9 +17,9 @@ const ContactDetails = () => {
     phone: "",
     dob: "",
     gender: "",
-    oc: "",
-    a1: "",
-    a2: "",
+    occupation: "",
+    address1: "",
+    address2: "",
     city: "",
     state: "",
     country: "",
@@ -37,10 +37,26 @@ const ContactDetails = () => {
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addPerson = (e) => {
+  const addClient = (e) => {
     e.preventDefault();
     setValidated(true);
-    !e.currentTarget.checkValidity() && e.stopPropagation();
+
+    if (!e.currentTarget.checkValidity()) return e.stopPropagation();
+
+    let tmpData = {};
+    for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
+
+    fetch(process.env.REACT_APP_BASE_URL + "/client", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tmpData),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          setValidated(false);
+        }
+      })
+      .catch();
   };
 
   return (
@@ -73,10 +89,10 @@ const ContactDetails = () => {
           />
           <div>
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              Contact Details
+              Client Details
             </h1>
             <p className="text-secondary fw-light mb-0">
-              View and edit person details
+              View and edit client details
             </p>
           </div>
         </Col>
@@ -105,7 +121,7 @@ const ContactDetails = () => {
           <Form
             noValidate
             validated={validated}
-            onSubmit={addPerson}
+            onSubmit={addClient}
             className="p-3 bg-white rounded-4 mb-3"
           >
             <p className="text-secondary">Personal details</p>
@@ -207,8 +223,8 @@ const ContactDetails = () => {
                   type="text"
                   maxLength="100"
                   placeholder="Address line 1"
-                  value={formData.a1}
-                  onChange={setField("a1")}
+                  value={formData.address1}
+                  onChange={setField("address1")}
                   required
                 />
               </FloatingLabel>
@@ -222,8 +238,8 @@ const ContactDetails = () => {
                   type="text"
                   maxLength="100"
                   placeholder="Address line 2"
-                  value={formData.a2}
-                  onChange={setField("a2")}
+                  value={formData.address2}
+                  onChange={setField("address2")}
                 />
               </FloatingLabel>
               <Form.Control.Feedback type="invalid">

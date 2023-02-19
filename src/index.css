@@ -56,9 +56,6 @@ nav p{
   font-size: 24px;
   font-family: Pacifico;
 }
-.list-group:nth-child(even){
-  background:red !important;
-}
 .alert-warning{
   border: none !important;
   background: #fff2c4;

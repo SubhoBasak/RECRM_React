@@ -1,36 +1,30 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Col,
-  Form,
-  Row,
-  Button,
-  FormSelect,
-  Modal,
-  FloatingLabel,
-} from "react-bootstrap";
+import { Col, Form, Row, Button, Modal, ListGroup } from "react-bootstrap";
+import FloatingLabel from "react-bootstrap/FloatingLabel";
 import "./style.css";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
 import { AiOutlineClear } from "react-icons/ai";
 import { TbArrowBack } from "react-icons/tb";
+import RemarkCard from "../../components/RemarkCard";
+import RepresentativeCard from "../../components/RepresentativeCard";
 
-const Property = () => {
-  const [image, setImage] = React.useState("");
+const CompanyDetails = () => {
   const [formData, setFormData] = React.useState({
-    title: "",
-    details: "",
-    category: "",
-    price: "",
-    area: "",
-    address1: "",
-    address2: "",
+    name: "",
+    email: "",
+    phone: "",
+    industry: "",
+    a1: "",
+    a2: "",
     city: "",
     state: "",
     country: "",
     zip: "",
     landmark: "",
+    about: "",
   });
   const [validated, setValidated] = React.useState(false);
   const [clrModal, setClrModal] = React.useState(false);
@@ -41,34 +35,16 @@ const Property = () => {
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addProperty = (e) => {
+  const addPerson = (e) => {
     e.preventDefault();
-
-    if (!e.currentTarget.checkValidity()) {
-      setValidated(true);
-      e.stopPropagation();
-    }
-
-    let tmpData = {};
-    for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
-
-    fetch(process.env.REACT_APP_BASE_URL + "/property", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(tmpData),
-    })
-      .then((res) => {
-        if (res.status === 200) {
-          setValidated(false);
-        }
-      })
-      .catch();
+    setValidated(true);
+    !e.currentTarget.checkValidity() && e.stopPropagation();
   };
 
   return (
     <>
       <nav>
-        <p className="text-primary">Add new property</p>
+        <p className="text-primary">Add new contact</p>
         <Button
           variant="outline-primary"
           className="d-flex my-auto ms-auto"
@@ -78,7 +54,7 @@ const Property = () => {
         </Button>
         <Button
           className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/properties")}
+          onClick={() => navigate("/all_contacts")}
         >
           <TbArrowBack className="me-2" />
           Return
@@ -88,17 +64,17 @@ const Property = () => {
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}
-            alt="property"
+            alt="people"
             width="128"
             height="128"
             className="mx-5"
           />
           <div>
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              Property Details
+              Company Details
             </h1>
             <p className="text-secondary fw-light mb-0">
-              View and edit property details
+              View and edit company details
             </p>
           </div>
         </Col>
@@ -108,51 +84,37 @@ const Property = () => {
           sm="12"
           className="d-flex justify-content-center align-items-center"
         >
+          <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
+            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+              100
+            </h1>
+            <p className="text-secondary">Requirements</p>
+          </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
               75
             </h1>
-            <p className="text-secondary">Looking</p>
+            <p className="text-secondary">Remarks</p>
           </div>
         </Col>
       </Row>
       <Row className="w-100 m-0 p-0">
-        <Col lg="9">
+        <Col lg="9" className="order-2 order-lg-1">
           <Form
             noValidate
             validated={validated}
-            onSubmit={addProperty}
-            className="p-3 bg-white rounded mb-3"
+            onSubmit={addPerson}
+            className="p-3 bg-white rounded-4 mb-3"
           >
-            <div className="d-flex mb-5">
-              <div className="mx-auto upload-image">
-                <img
-                  src={
-                    image
-                      ? URL.createObjectURL(image)
-                      : "https://picsum.photos/512"
-                  }
-                  alt="property"
-                  width="150"
-                  height="150"
-                  className="rounded-circle"
-                  style={{ objectFit: "cover" }}
-                />
-                <input
-                  type="file"
-                  accept="image/jpg, image/jpeg, image/png"
-                  onChange={(e) => setImage(e.target.files[0])}
-                />
-              </div>
-            </div>
+            <p className="text-secondary">Company details</p>
             <Form.Group className="mb-3">
-              <FloatingLabel label="Title">
+              <FloatingLabel label="Name">
                 <Form.Control
                   type="text"
+                  placeholder="Name"
                   maxLength="100"
-                  placeholder="Title"
-                  value={formData.title}
-                  onChange={setField("title")}
+                  value={formData.name}
+                  onChange={setField("name")}
                   required
                 />
               </FloatingLabel>
@@ -160,96 +122,63 @@ const Property = () => {
                 This field is required!
               </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Category">
-                <FormSelect
-                  value={formData.category}
-                  onChange={setField("category")}
-                  required
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  <option value="1">Residential</option>
-                  <option value="2">Commercial</option>
-                  <option value="3">Others</option>
-                </FormSelect>
-              </FloatingLabel>
-            </Form.Group>
             <Row>
               <Col lg="6">
                 <Form.Group className="mb-3">
-                  <FloatingLabel label="Price" className="mb-3">
+                  <FloatingLabel label="Email" className="mb-3">
                     <Form.Control
-                      type="number"
-                      placeholder="Price"
-                      value={formData.price}
-                      min={0}
-                      onChange={setField("price")}
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={setField("email")}
                     />
                   </FloatingLabel>
                   <Form.Control.Feedback type="invalid">
-                    Please enter a valid price!
+                    Please enter a valid email address!
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col lg="6">
                 <Form.Group className="mb-3">
-                  <FloatingLabel label="Area (sqft)">
+                  <FloatingLabel label="Phone">
                     <Form.Control
-                      type="number"
-                      min={0}
-                      placeholder="Area"
-                      value={formData.area}
-                      onChange={setField("area")}
+                      type="text"
+                      maxLength="20"
+                      placeholder="Phone"
+                      pattern="[+]?[0-9 -]*"
+                      value={formData.phone}
+                      onChange={setField("phone")}
                     />
                   </FloatingLabel>
                   <Form.Control.Feedback type="invalid">
-                    Please enter a valid area!
+                    Please enter a valid phone number!
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col lg="6">
                 <Form.Group className="mb-3">
-                  <FloatingLabel label="Gender">
-                    <FormSelect
-                      value={formData.gender}
-                      onChange={setField("gender")}
-                    >
-                      <option value="">Select</option>
-                      <option value="1">Male</option>
-                      <option value="2">Female</option>
-                      <option value="3">Others</option>
-                    </FormSelect>
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Date of Birth">
+                  <FloatingLabel label="Industry">
                     <Form.Control
-                      type="date"
+                      type="text"
                       className="d-flex"
-                      min={new Date().toISOString().substring(0, 10)}
-                      value={formData.dob}
-                      onChange={setField("dob")}
+                      maxLength="100"
+                      placeholder="Industry"
+                      value={formData.industry}
+                      onChange={setField("industry")}
                     />
                   </FloatingLabel>
-                  <Form.Control.Feedback type="invalid">
-                    Invalid date of birth!
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
-            <p className="text-secondary mt-5">Location</p>
+            <p className="text-secondary mt-5">Address details</p>
             <Form.Group className="mb-3">
               <FloatingLabel label="Address line 1">
                 <Form.Control
                   type="text"
                   maxLength="100"
                   placeholder="Address line 1"
-                  value={formData.address1}
-                  onChange={setField("address1")}
+                  value={formData.a1}
+                  onChange={setField("a1")}
                   required
                 />
               </FloatingLabel>
@@ -263,8 +192,8 @@ const Property = () => {
                   type="text"
                   maxLength="100"
                   placeholder="Address line 2"
-                  value={formData.address2}
-                  onChange={setField("address2")}
+                  value={formData.a2}
+                  onChange={setField("a2")}
                 />
               </FloatingLabel>
               <Form.Control.Feedback type="invalid">
@@ -336,32 +265,69 @@ const Property = () => {
                 />
               </FloatingLabel>
             </Form.Group>
+            <p className="text-secondary mt-5">Other details</p>
             <Form.Group className="mb-3">
-              <FloatingLabel label="Details">
+              <FloatingLabel label="About">
                 <Form.Control
                   maxLength="500"
                   as={"textarea"}
-                  placeholder="Details"
+                  placeholder="About"
                   className="form-control bg-light"
-                  value={formData.details}
-                  onChange={setField("details")}
+                  value={formData.about}
+                  onChange={setField("about")}
                   style={{ height: "12rem" }}
                 />
               </FloatingLabel>
             </Form.Group>
-            <div className="d-flex my-2">
+            <div className="d-flex py-3">
               <Button
                 type="submit"
                 variant="primary"
-                className="mx-auto btn-sm"
+                className="btn-sm shadow mx-auto"
               >
                 <FiUserCheck className="me-2" />
-                Add Property
+                Add Now
               </Button>
             </div>
           </Form>
+          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+            Representatives
+          </h1>
+          <ListGroup variant="flush" className="rounded-4 mt-1">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <RepresentativeCard key={i} role="Employee" />
+            ))}
+          </ListGroup>
+          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+            Notes
+          </h1>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <RemarkCard key={i} />
+          ))}
         </Col>
-        <Col lg="3"></Col>
+        <Col lg="3" className="order-1 order-lg-2">
+          <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
+            <img
+              src={require("../../assets/svgs/person.svg").default}
+              width="180"
+              height="180"
+              alt="person"
+              className="my-3"
+            />
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Add Representative
+            </Button>
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              View Clients
+            </Button>
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Add Remark
+            </Button>
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Delete
+            </Button>
+          </div>
+        </Col>
       </Row>
       <Modal
         size="sm"
@@ -374,11 +340,14 @@ const Property = () => {
         </Modal.Header>
         <Modal.Body>Do you really want to clear all the fields?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setClrModal(false)}>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setClrModal(false)}
+          >
             Close
           </Button>
           <Button
-            variant="primary"
+            variant="outline-danger"
             onClick={() => {
               setClrModal(false);
             }}
@@ -406,7 +375,7 @@ const Property = () => {
           <Button
             variant="primary"
             onClick={() => {
-              navigate("/properties");
+              navigate("/agent");
               setCancelModal(false);
             }}
           >
@@ -418,4 +387,4 @@ const Property = () => {
   );
 };
 
-export default Property;
+export default CompanyDetails;

@@ -1,10 +1,10 @@
 import React from "react";
-import { Card, Button } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import "./style.css";
 
-const ProjectCard = () => {
+const FolderCard = () => {
   return (
-    <Card className="mt-4 ms-4 border-0" style={{ width: "260px" }}>
+    <Card className="mt-4 ms-4 border-0" style={{ width: "260px" }} draggable>
       <Card.Img
         variant="top"
         src="https://picsum.photos/512"
@@ -26,7 +26,7 @@ const ProjectCard = () => {
             className="my-2 py-2 d-flex flex-column justify-content-center align-items-center border-end"
             style={{ width: "33%" }}
           >
-            <p className="fw-bold mb-0">128</p>
+            <p className="text-primary fw-bold mb-0">128</p>
             <span className="text-black-50" style={{ fontSize: "10px" }}>
               Residential
             </span>
@@ -35,7 +35,7 @@ const ProjectCard = () => {
             className="my-2 py-2 d-flex flex-column justify-content-center align-items-center border-end"
             style={{ width: "33%" }}
           >
-            <p className="fw-bold mb-0">32</p>
+            <p className="text-primary fw-bold mb-0">32</p>
             <span className="text-black-50" style={{ fontSize: "10px" }}>
               Commercial
             </span>
@@ -44,7 +44,7 @@ const ProjectCard = () => {
             className="my-2 py-2 d-flex flex-column justify-content-center align-items-center"
             style={{ width: "33%" }}
           >
-            <p className="fw-bold mb-0">17</p>
+            <p className="text-primary fw-bold mb-0">17</p>
             <span className="text-black-50" style={{ fontSize: "10px" }}>
               Institutional
             </span>
@@ -53,17 +53,9 @@ const ProjectCard = () => {
         <p className="fw-light" style={{ fontSize: "12px" }}>
           Some quick example text to quick example text to
         </p>
-        <div className="d-flex">
-          <Button variant="outline-primary" className="w-50 btn-sm m-1">
-            Properties
-          </Button>
-          <Button variant="primary" className="w-50 btn-sm m-1">
-            Details
-          </Button>
-        </div>
       </Card.Body>
     </Card>
   );
 };
 
-export default ProjectCard;
+export default FolderCard;
