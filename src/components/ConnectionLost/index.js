@@ -5,7 +5,7 @@ import "./style.css";
 // icons
 import { HiOutlineRefresh } from "react-icons/hi";
 
-const ConnectionLost = ({ retry }) => {
+const ConnectionLost = ({ retry, cancel }) => {
   return (
     <div className="d-flex flex-column justify-content-center align-items-center my-5">
       <img
@@ -15,15 +15,22 @@ const ConnectionLost = ({ retry }) => {
         alt="connection"
       />
       <h3>Connection Lost!!!</h3>
-      <p>Please check your connection and try again.</p>
-      <Button
-        variant="primary"
-        className="btn-sm shadow d-flex align-items-center"
-        onClick={() => window.location.reload()}
-      >
-        <HiOutlineRefresh className="me-2" />
-        Retry Now
-      </Button>
+      <p>Please check your network and try again.</p>
+      <div className="d-flex justify-content-center align-items-center">
+        {cancel && (
+          <Button variant="outline-primary" className="btn-sm me-2" onClick={cancel}>
+            Cancel
+          </Button>
+        )}
+        <Button
+          variant="primary"
+          className="btn-sm shadow d-flex align-items-center"
+          onClick={retry || (() => window.location.reload())}
+        >
+          <HiOutlineRefresh className="me-2" />
+          Retry Now
+        </Button>
+      </div>
     </div>
   );
 };

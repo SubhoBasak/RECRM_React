@@ -12,6 +12,7 @@ import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
 import RemarkCard from "../../components/RemarkCard";
+import ConnectionLostModal from "../../components/ConnectionLostModal";
 
 const AgentDetails = () => {
   const [formData, setFormData] = React.useState({
@@ -534,6 +535,7 @@ const AgentDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <ConnectionLostModal show={true} />
     </>
   );
 };
