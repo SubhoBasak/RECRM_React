@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, Button, FormSelect, Modal } from "react-bootstrap";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import "./style.css";
@@ -11,31 +11,40 @@ import { TbArrowBack } from "react-icons/tb";
 import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
-import RemarkCard from "../../components/RemarkCard";
+import NoteCard from "../../components/NoteCard";
+import NoteModal from "../../components/NoteModal";
+import NoRecords from "../../components/NoRecords";
+import Loading from "../../components/Loading";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 
 const AgentDetails = () => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { id } = useParams();
+
   const [formData, setFormData] = React.useState({
-    name: "",
-    email: "",
-    phone: "",
-    dob: "",
-    gender: "",
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    country: "",
-    zip: "",
-    landmark: "",
-    deals: "",
+    name: state?.name || "",
+    email: state?.email || "",
+    phone: state?.phone || "",
+    dob: state?.dob || "",
+    gender: state?.gender || "",
+    address1: state?.address1 || "",
+    address2: state?.address2 || "",
+    city: state?.city || "",
+    state: state?.state || "",
+    country: state?.country || "",
+    zip: state?.zip || "",
+    landmark: state?.landmark || "",
+    deals: state?.deals || "",
   });
-  const [view, setView] = React.useState(false);
+  const [view, setView] = React.useState(id ? true : false);
   const [validated, setValidated] = React.useState(false);
   const [clrModal, setClrModal] = React.useState(false);
   const [cancelModal, setCancelModal] = React.useState(false);
-
-  const navigate = useNavigate();
+  const [connLost, setConnLost] = React.useState(false);
+  const [noteModal, setNoteModal] = React.useState(false);
+  const [notes, setNotes] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -57,12 +66,88 @@ const AgentDetails = () => {
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
+        setConnLost(false);
         if (res.status === 200) {
           setValidated(false);
         }
       })
-      .catch();
+      .catch(() => setConnLost(true));
   };
+
+  function showNotes() {
+    if (loading) return <Loading />;
+    else if (notes.length === 0)
+      return (
+        <>
+          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+            Notes
+          </h1>
+          <NoRecords />
+        </>
+      );
+    else
+      return (
+        <>
+          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+            Notes
+          </h1>
+          {notes.map((data, i) => (
+            <NoteCard
+              key={i}
+              data={data}
+              url="/agentNote"
+              remove={() =>
+                setNotes(notes.filter((note) => note._id !== data._id))
+              }
+            />
+          ))}
+        </>
+      );
+  }
+
+  React.useEffect(() => {
+    async function getDetails() {
+      fetch(
+        process.env.REACT_APP_BASE_URL +
+          "/agent?" +
+          new URLSearchParams({ id, details: state?.name ? false : true })
+      )
+        .then((res) => {
+          setLoading(false);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => {
+                if (data.details) {
+                  setFormData({
+                    name: data.details.name || "",
+                    email: data.details.email || "",
+                    phone: data.details.phone || "",
+                    dob: data.details.dob || "",
+                    gender: data.details.gender || "",
+                    address1: data.details.address1 || "",
+                    address2: data.details.address2 || "",
+                    city: data.details.city || "",
+                    state: data.details.state || "",
+                    country: data.details.country || "",
+                    zip: data.details.zip || "",
+                    landmark: data.details.landmark || "",
+                    deals: data.details.deals || "",
+                  });
+                }
+
+                setNotes(data.notes);
+              })
+              .catch();
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+      setLoading(true);
+    }
+
+    getDetails();
+  }, [id, state]);
 
   return (
     <>
@@ -259,10 +344,10 @@ const AgentDetails = () => {
                     onChange={setField("name")}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Row>
                 <Col lg="6">
@@ -273,11 +358,12 @@ const AgentDetails = () => {
                         placeholder="Email"
                         value={formData.email}
                         onChange={setField("email")}
+                        required
                       />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter a valid email address!
+                      </Form.Control.Feedback>
                     </FloatingLabel>
-                    <Form.Control.Feedback type="invalid">
-                      Please enter a valid email address!
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col lg="6">
@@ -291,10 +377,10 @@ const AgentDetails = () => {
                         value={formData.phone}
                         onChange={setField("phone")}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter a valid phone number!
+                      </Form.Control.Feedback>
                     </FloatingLabel>
-                    <Form.Control.Feedback type="invalid">
-                      Please enter a valid phone number!
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col lg="6">
@@ -322,10 +408,10 @@ const AgentDetails = () => {
                         value={formData.dob}
                         onChange={setField("dob")}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        Invalid date of birth!
+                      </Form.Control.Feedback>
                     </FloatingLabel>
-                    <Form.Control.Feedback type="invalid">
-                      Invalid date of birth!
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
               </Row>
@@ -340,10 +426,10 @@ const AgentDetails = () => {
                     onChange={setField("address1")}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3">
                 <FloatingLabel label="Address line 2">
@@ -354,10 +440,10 @@ const AgentDetails = () => {
                     value={formData.address2}
                     onChange={setField("address2")}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Row>
                 <Col lg="6">
@@ -445,17 +531,12 @@ const AgentDetails = () => {
                   className="btn-sm shadow mx-auto"
                 >
                   <FiUserCheck className="me-2" />
-                  Add Now
+                  {state?.name ? "Update" : "Add Now"}
                 </Button>
               </div>
             </Form>
           )}
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Notes
-          </h1>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <RemarkCard key={i} />
-          ))}
+          {showNotes()}
         </Col>
         <Col lg="3" className="order-1 order-lg-2">
           <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
@@ -472,8 +553,12 @@ const AgentDetails = () => {
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               View Clients
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              Add Remark
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setNoteModal(true)}
+            >
+              Add Note
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               Delete
@@ -535,7 +620,14 @@ const AgentDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <ConnectionLostModal show={true} />
+      <ConnectionLostModal show={connLost} />
+      <NoteModal
+        agent={id}
+        show={noteModal}
+        hide={() => setNoteModal(false)}
+        add={(data) => setNotes([data, ...notes])}
+        url="/agentNote"
+      />
     </>
   );
 };

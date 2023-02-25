@@ -16,6 +16,7 @@ import FolderCard from "../../components/FolderCard";
 import Loading from "../../components/Loading";
 import ConnectionLost from "../../components/ConnectionLost";
 import NoRecords from "../../components/NoRecords";
+import FolderModal from "../../components/FolderModal";
 
 const Properties = () => {
   const [properties, setProperties] = React.useState([]);
@@ -24,8 +25,38 @@ const Properties = () => {
   const [connLost, setConnLost] = React.useState(false);
   const [gotBug, setGotBug] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
+  const [addFolder, setAddFolder] = React.useState(false);
 
   const navigate = useNavigate();
+
+  function delProperties() {
+    let folders = [];
+    let properties = [];
+
+    for (let sel in selected) {
+      sel = selected[sel];
+
+      if (sel.type === "fld") folders.push(sel.id);
+      else if (sel.type === "prpt") folders.push(sel.id);
+    }
+
+    fetch(process.env.REACT_APP_BASE_URL + "/folder", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folders, properties }),
+    })
+      .then((res) => {
+        setLoading(false);
+        if (res.status === 200) {
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+        setConnLost(true);
+      });
+      
+    setLoading(true);
+  }
 
   async function getProperties() {
     fetch(process.env.REACT_APP_BASE_URL + "/folder")
@@ -36,8 +67,18 @@ const Properties = () => {
           res
             .json()
             .then((data) => {
-              setProperties(data[0]);
-              setFolders(data[1]);
+              setFolders(
+                data[0].map((fld) => {
+                  fld.type = "fld";
+                  return fld;
+                })
+              );
+              setProperties(
+                data[1].map((prpt) => {
+                  prpt.type = "prpt";
+                  return prpt;
+                })
+              );
             })
             .catch(() => setGotBug(true));
       })
@@ -90,7 +131,7 @@ const Properties = () => {
         <Button
           variant="outline-primary"
           className="ms-3 my-auto d-flex align-items-center btn-sm"
-          onClick={() => navigate("/project")}
+          onClick={() => setAddFolder(true)}
         >
           <BsFolderFill className="me-1" />
           New Folder
@@ -156,6 +197,7 @@ const Properties = () => {
             <Button
               variant="primary"
               className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+              onClick={delProperties}
             >
               <MdDeleteSweep className="me-2" />
               Delete Contacts
@@ -164,6 +206,7 @@ const Properties = () => {
         </div>
       )}
       {showData()}
+      <FolderModal show={addFolder} hide={() => setAddFolder(false)} />
     </>
   );
 };

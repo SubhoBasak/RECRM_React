@@ -10,7 +10,6 @@ import AllContacts from "./pages/AllContacts";
 import Properties from "./pages/Properties";
 import Requirements from "./pages/Requirements";
 import ClientDetails from "./pages/ClientDetails";
-import Project from "./pages/Project";
 import Property from "./pages/Property";
 import AgentDetails from "./pages/AgentDetails";
 import CompanyDetails from "./pages/CompanyDetails";
@@ -31,12 +30,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/all_contacts" element={<AllContacts />} />
-            <Route path="/agent_details" element={<AgentDetails />} />
-            <Route path="/client_details" element={<ClientDetails />} />
-            <Route path="/company_details" element={<CompanyDetails />} />
-            <Route path="/project" element={<Project />} />
+            <Route path="/agent_details/:id?" element={<AgentDetails />} />
+            <Route path="/client_details/:id?" element={<ClientDetails />} />
+            <Route path="/company_details/:id?" element={<CompanyDetails />} />
             <Route path="/properties" element={<Properties />} />
-            <Route path="/property" element={<Property />} />
+            <Route path="/property/:id?" element={<Property />} />
             <Route path="/requirements" element={<Requirements />} />
           </Routes>
         </div>

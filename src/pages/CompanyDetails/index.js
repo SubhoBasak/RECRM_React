@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Col,
   Form,
@@ -19,40 +19,67 @@ import { TbArrowBack } from "react-icons/tb";
 import { BsToggleOff, BsToggleOn } from "react-icons/bs";
 
 // components
-import RemarkCard from "../../components/RemarkCard";
+import NoteCard from "../../components/NoteCard";
+import Loading from "../../components/Loading";
 import RepresentativeCard from "../../components/RepresentativeCard";
+import ConnectionLostModal from "../../components/ConnectionLostModal";
+import RepresentativeModal from "../../components/RepresentativeModal";
 
 const CompanyDetails = () => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { id } = useParams();
+
   const [formData, setFormData] = React.useState({
-    name: "",
-    email: "",
-    phone: "",
-    industry: "",
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    country: "",
-    zip: "",
-    landmark: "",
-    source: "",
-    agent: "",
-    about: "",
+    name: state?.name || "",
+    email: state?.email || "",
+    phone: state?.phone || "",
+    industry: state?.industry || "",
+    address1: state?.address1 || "",
+    address2: state?.address2 || "",
+    city: state?.city || "",
+    state: state?.state || "",
+    country: state?.country || "",
+    zip: state?.zip || "",
+    landmark: state?.landmark || "",
+    source: state?.source || "",
+    agent: state?.agent || "",
+    about: state?.about || "",
   });
   const [validated, setValidated] = React.useState(false);
   const [clrModal, setClrModal] = React.useState(false);
   const [cancelModal, setCancelModal] = React.useState(false);
-  const [view, setView] = React.useState(false);
-
-  const navigate = useNavigate();
+  const [connLost, setConnLost] = React.useState(false);
+  const [reprModal, setReprModal] = React.useState(false);
+  const [view, setView] = React.useState(state?.name ? true : false);
+  const [notes, setNotes] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addPerson = (e) => {
+  const addCompany = (e) => {
     e.preventDefault();
-    setValidated(true);
-    !e.currentTarget.checkValidity() && e.stopPropagation();
+
+    if (!e.currentTarget.checkValidity()) {
+      setValidated(true);
+      e.stopPropagation();
+    }
+
+    let tmpData = {};
+    for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
+
+    fetch(process.env.REACT_APP_BASE_URL + "/company", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tmpData),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          setValidated(false);
+        }
+      })
+      .catch(() => setConnLost(true));
   };
 
   function delCompany() {
@@ -64,8 +91,39 @@ const CompanyDetails = () => {
       .then((res) => {
         if (res.status === 200) navigate("/all_contacts");
       })
-      .catch();
+      .catch(() => setConnLost(true));
   }
+
+  function showNotes() {
+    if (loading) return <Loading />;
+  }
+
+  React.useEffect(() => {
+    async function getDetails() {
+      fetch(
+        process.env.REACT_APP_BASE_URL +
+          "/company?" +
+          new URLSearchParams({
+            id,
+            details: state?.name ? false : true,
+          })
+      )
+        .then((res) => {
+          setLoading(false);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => {
+                setNotes(data.notes);
+              })
+              .catch();
+        })
+        .catch(() => setLoading(false));
+      setLoading(true);
+    }
+
+    getDetails();
+  }, [id, state]);
 
   return (
     <>
@@ -253,7 +311,7 @@ const CompanyDetails = () => {
             <Form
               noValidate
               validated={validated}
-              onSubmit={addPerson}
+              onSubmit={addCompany}
               className="p-3 bg-white rounded-4 mb-3"
             >
               <p className="text-secondary">Company details</p>
@@ -267,10 +325,10 @@ const CompanyDetails = () => {
                     onChange={setField("name")}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Row>
                 <Col lg="6">
@@ -282,10 +340,10 @@ const CompanyDetails = () => {
                         value={formData.email}
                         onChange={setField("email")}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter a valid email address!
+                      </Form.Control.Feedback>
                     </FloatingLabel>
-                    <Form.Control.Feedback type="invalid">
-                      Please enter a valid email address!
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col lg="6">
@@ -299,10 +357,10 @@ const CompanyDetails = () => {
                         value={formData.phone}
                         onChange={setField("phone")}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter a valid phone number!
+                      </Form.Control.Feedback>
                     </FloatingLabel>
-                    <Form.Control.Feedback type="invalid">
-                      Please enter a valid phone number!
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col lg="6">
@@ -331,10 +389,10 @@ const CompanyDetails = () => {
                     onChange={setField("address1")}
                     required
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3">
                 <FloatingLabel label="Address line 2">
@@ -345,10 +403,10 @@ const CompanyDetails = () => {
                     value={formData.address2}
                     onChange={setField("address2")}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    This field is required!
+                  </Form.Control.Feedback>
                 </FloatingLabel>
-                <Form.Control.Feedback type="invalid">
-                  This field is required!
-                </Form.Control.Feedback>
               </Form.Group>
               <Row>
                 <Col lg="6">
@@ -489,12 +547,7 @@ const CompanyDetails = () => {
               <RepresentativeCard key={i} role="Employee" />
             ))}
           </ListGroup>
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Notes
-          </h1>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <RemarkCard key={i} />
-          ))}
+          {showNotes()}
         </Col>
         <Col lg="3" className="order-1 order-lg-2">
           <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
@@ -505,16 +558,24 @@ const CompanyDetails = () => {
               alt="person"
               className="my-3"
             />
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setReprModal(true)}
+            >
               Add Representative
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               View Clients
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              Add Remark
+              Add Note
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={delCompany}
+            >
               Delete
             </Button>
           </div>
@@ -574,6 +635,8 @@ const CompanyDetails = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <RepresentativeModal show={reprModal} hide={() => setReprModal(false)} />
+      <ConnectionLostModal show={connLost} hide={() => setConnLost(false)} />
     </>
   );
 };

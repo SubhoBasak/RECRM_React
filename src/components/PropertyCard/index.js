@@ -16,16 +16,18 @@ const PropertyCard = ({ data, selected, setSelected }) => {
     }
   }
 
-  function selectContact() {
+  function selectProperty() {
     let indx = selected.findIndex(
-      (prpt) => prpt.id === data._id && prpt.type === 1
+      (prpt) => prpt.id === data._id && prpt.type === "prpt"
     );
 
     if (indx > -1)
       setSelected(
-        selected.filter((prpt) => !(prpt.id === data._id && prpt.type === 1))
+        selected.filter(
+          (prpt) => !(prpt.id === data._id && prpt.type === "prpt")
+        )
       );
-    else setSelected([...selected, { id: data._id, type: 1 }]);
+    else setSelected([...selected, { id: data._id, type: "prpt" }]);
   }
 
   return (
@@ -33,11 +35,11 @@ const PropertyCard = ({ data, selected, setSelected }) => {
       <FormCheck
         checked={
           selected.findIndex(
-            (prpt) => prpt.id === data._id && prpt.type === 1
+            (prpt) => prpt.id === data._id && prpt.type === "prpt"
           ) > -1
         }
-        className="position-absolute top-0 m-1 shadow"
-        onChange={selectContact}
+        className="position-absolute top-0 m-1 pb-0"
+        onChange={selectProperty}
       />
       <Card.Img
         variant="top"
@@ -72,7 +74,7 @@ const PropertyCard = ({ data, selected, setSelected }) => {
         </div>
         <div className="d-flex align-items-center">
           <p className="fw-bold d-flex flex-column align-items-center p-2 me-2 border-end">
-            25
+            {data.look || 0}
             <span
               className="fw-light text-black-50"
               style={{ fontSize: "10px" }}

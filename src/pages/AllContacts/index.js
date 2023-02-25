@@ -7,6 +7,7 @@ import {
   FormControl,
   InputGroup,
   ListGroup,
+  Modal,
   Row,
 } from "react-bootstrap";
 import "./style.css";
@@ -33,6 +34,41 @@ const AllContacts = () => {
   const [loading, setLoading] = React.useState(true);
   const [selected, setSelected] = React.useState([]);
   const [search, setSearch] = React.useState("");
+  const [deleteModal, setDeleteModal] = React.useState(false);
+
+  function delContacts() {
+    let clients = [];
+    let companies = [];
+    let agents = [];
+
+    for (let cnt in selected) {
+      cnt = selected[cnt];
+      if (cnt.role === "client") clients.push(cnt.id);
+      else if (cnt.role === "company") companies.push(cnt.id);
+      else if (cnt.role === "agent") agents.push(cnt.id);
+    }
+
+    fetch(process.env.REACT_APP_BASE_URL + "/contacts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clients, companies, agents }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          setContacts(
+            contacts.filter((cnt) => {
+              for (let sel in selected) {
+                sel = selected[sel];
+                if (cnt._id === sel.id && cnt.role === sel.role) return false;
+              }
+              return true;
+            })
+          );
+          setSelected([]);
+        }
+      })
+      .catch(() => setConnLost(true));
+  }
 
   async function getAllContacts() {
     fetch(process.env.REACT_APP_BASE_URL + "/contacts")
@@ -223,11 +259,17 @@ const AllContacts = () => {
             </h1>
             <p className="text-secondary">Companies</p>
           </div>
-          <div className="p-3 px-4 d-flex flex-column align-items-center">
+          <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
               {agentCount}
             </h1>
             <p className="text-secondary">Agents</p>
+          </div>
+          <div className="p-3 px-4 d-flex flex-column align-items-center">
+            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+              {clientCount + companyCount + agentCount}
+            </h1>
+            <p className="text-secondary">Total</p>
           </div>
         </Col>
       </Row>
@@ -245,6 +287,7 @@ const AllContacts = () => {
             <Button
               variant="primary"
               className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+              onClick={delContacts}
             >
               <MdDeleteSweep className="me-2" />
               Delete Contacts
@@ -253,6 +296,13 @@ const AllContacts = () => {
         </div>
       )}
       {showData()}
+      <Modal show={deleteModal} onHide={() => setDeleteModal(false)}>
+        <Modal.Title>Warning!</Modal.Title>
+        <Modal.Body>
+          <p>Do you really want to delete these contacts?</p>
+        </Modal.Body>
+        <Modal.Footer></Modal.Footer>
+      </Modal>
     </>
   );
 };
