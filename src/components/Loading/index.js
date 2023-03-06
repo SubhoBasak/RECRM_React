@@ -1,6 +1,5 @@
 import React from "react";
 import { Spinner } from "react-bootstrap";
-import "./style.css";
 
 const Loading = () => {
   return (

@@ -1,8 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Col, Form, Row, Button, FormSelect, Modal } from "react-bootstrap";
+import { Col, Form, Row, Button, FormSelect } from "react-bootstrap";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
-import "./style.css";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
@@ -11,11 +10,16 @@ import { TbArrowBack } from "react-icons/tb";
 import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
+import Loading from "../../components/Loading";
 import NoteCard from "../../components/NoteCard";
 import NoteModal from "../../components/NoteModal";
 import NoRecords from "../../components/NoRecords";
-import Loading from "../../components/Loading";
+import DeleteModal from "../../components/DeleteModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
+
+// utils
+import { genderCodedText } from "../../utils/codedText";
 
 const AgentDetails = () => {
   const navigate = useNavigate();
@@ -37,25 +41,62 @@ const AgentDetails = () => {
     landmark: state?.landmark || "",
     deals: state?.deals || "",
   });
+  const [timestamps, setTimestamps] = React.useState({
+    createdAt: state?.createdAt || "",
+    modifiedAt: state?.modifiedAt || "",
+  });
   const [view, setView] = React.useState(id ? true : false);
   const [validated, setValidated] = React.useState(false);
-  const [clrModal, setClrModal] = React.useState(false);
-  const [cancelModal, setCancelModal] = React.useState(false);
   const [connLost, setConnLost] = React.useState(false);
   const [noteModal, setNoteModal] = React.useState(false);
   const [notes, setNotes] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
+  const [clearIt, setClearIt] = React.useState(false);
+  const [cancelIt, setCancelIt] = React.useState(false);
+  const [deleteIt, setDeleteIt] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addAgent = (e) => {
+  function clearFormData() {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      dob: "",
+      gender: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      country: "",
+      zip: "",
+      landmark: "",
+      deals: "",
+    });
+  }
+
+  function returnHandler() {
+    if (id) {
+      for (let key in formData)
+        if (formData[key] !== state[key]) return setCancelIt(true);
+    } else {
+      for (let key in formData)
+        if (formData[key] !== "") return setCancelIt(true);
+    }
+
+    navigate("/all_contacts");
+  }
+
+  function addAgent(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
       setValidated(true);
       return e.stopPropagation();
     }
+
+    setValidated(false);
 
     let tmpData = {};
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
@@ -68,14 +109,16 @@ const AgentDetails = () => {
       .then((res) => {
         setConnLost(false);
         if (res.status === 200) {
-          setValidated(false);
+          setView(true);
+          setTimestamps({ createdAt: new Date() });
         }
       })
       .catch(() => setConnLost(true));
-  };
+  }
 
   function showNotes() {
-    if (loading) return <Loading />;
+    if (!id) return;
+    else if (loading) return <Loading />;
     else if (notes.length === 0)
       return (
         <>
@@ -134,6 +177,10 @@ const AgentDetails = () => {
                     landmark: data.details.landmark || "",
                     deals: data.details.deals || "",
                   });
+                  setTimestamps({
+                    createdAt: data.details.createdAt,
+                    modifiedAt: data.details.modifiedAt,
+                  });
                 }
 
                 setNotes(data.notes);
@@ -146,26 +193,28 @@ const AgentDetails = () => {
       setLoading(true);
     }
 
-    getDetails();
+    id && getDetails();
   }, [id, state]);
 
   return (
     <>
       <nav>
-        <p className="text-primary">Add new contact</p>
+        <p className="text-primary me-auto">Add new contact</p>
+        {!view && !id && (
+          <Button
+            variant="outline-primary"
+            className="d-flex my-auto me-3"
+            onClick={() => setClearIt(true)}
+          >
+            <AiOutlineClear />
+          </Button>
+        )}
         <Button
-          variant="outline-primary"
-          className="d-flex my-auto ms-auto"
-          onClick={() => setClrModal(true)}
-        >
-          <AiOutlineClear />
-        </Button>
-        <Button
-          className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/all_contacts")}
+          className="my-auto d-flex align-items-center btn-sm shadow"
+          onClick={returnHandler}
         >
           <TbArrowBack className="me-2" />
-          Return
+          {id ? "Return" : "Cancel"}
         </Button>
       </nav>
       <Row className="w-100">
@@ -253,7 +302,7 @@ const AgentDetails = () => {
               {formData.gender && (
                 <Col lg="6">
                   <label className="text-secondary">Gender</label>
-                  <p>{formData.gender}</p>
+                  <p>{genderCodedText(formData.gender)}</p>
                 </Col>
               )}
               {formData.dob && (
@@ -309,22 +358,54 @@ const AgentDetails = () => {
                   <p>{formData.landmark}</p>
                 </Col>
               )}
-
-              {formData.deals && (
-                <>
-                  <h5
-                    className="mb-3 mt-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Other info
-                  </h5>
-                  <hr />
-                  <Col lg="12">
-                    <label className="text-secondary">Deals in</label>
-                    <p>{formData.deals}</p>
-                  </Col>
-                </>
-              )}
+              {formData.deals ||
+                (timestamps.createdAt && (
+                  <>
+                    <h5
+                      className="mb-3 mt-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Others info
+                    </h5>
+                    <hr />
+                    {formData.deals && (
+                      <Col lg="12">
+                        <label className="text-secondary">Deals in</label>
+                        <p>{formData.deals}</p>
+                      </Col>
+                    )}
+                    {timestamps.createdAt && (
+                      <Col lg="6">
+                        <label className="text-secondary">Created at</label>
+                        <p>
+                          {new Date(timestamps.createdAt).toLocaleDateString(
+                            "default",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </Col>
+                    )}
+                    {timestamps.modifiedAt && (
+                      <Col lg="6">
+                        <label className="text-secondary">Last modified</label>
+                        <p>
+                          {new Date(timestamps.modifiedAt).toLocaleDateString(
+                            "default",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </Col>
+                    )}
+                  </>
+                ))}
             </Row>
           ) : (
             <Form
@@ -560,73 +641,49 @@ const AgentDetails = () => {
             >
               Add Note
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setDeleteIt(true)}
+            >
               Delete
             </Button>
           </div>
         </Col>
       </Row>
-      <Modal
-        size="sm"
-        show={clrModal}
-        onHide={() => setClrModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Do you really want to clear all the fields?</Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={() => setClrModal(false)}
-          >
-            Close
-          </Button>
-          <Button
-            variant="outline-danger"
-            onClick={() => {
-              setClrModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        size="sm"
-        show={cancelModal}
-        onHide={() => setCancelModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Cancelling may cause data loss. Do you really want to proceed?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setCancelModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              navigate("/agent");
-              setCancelModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <ConnectionLostModal show={connLost} />
+      <ConnectionLostModal show={connLost} hide={() => setConnLost(false)} />
       <NoteModal
         agent={id}
         show={noteModal}
         hide={() => setNoteModal(false)}
         add={(data) => setNotes([data, ...notes])}
         url="/agentNote"
+      />
+      <ConfirmModal
+        show={clearIt}
+        hide={() => setClearIt(false)}
+        msg="Do you really want to clear all the fields?"
+        yes={() => clearFormData()}
+      />
+      <ConfirmModal
+        show={cancelIt}
+        hide={() => setCancelIt(false)}
+        msg="Cancelling it may result data loss. Do you really want to proceed?"
+        yes={() => {
+          clearFormData();
+          navigate("/all_contacts");
+        }}
+      />
+      <DeleteModal
+        show={deleteIt}
+        hide={() => setDeleteIt(false)}
+        url="/agent"
+        body={{ id }}
+        msg="Do you really want to delete the agent?"
+        remove={() => {
+          setDeleteIt(false);
+          navigate("/all_contacts");
+        }}
       />
     </>
   );

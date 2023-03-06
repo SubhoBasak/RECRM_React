@@ -13,11 +13,14 @@ import ClientDetails from "./pages/ClientDetails";
 import Property from "./pages/Property";
 import AgentDetails from "./pages/AgentDetails";
 import CompanyDetails from "./pages/CompanyDetails";
+import RepresentativeDetails from "./pages/RepresentativeDetails";
 
 const App = () => {
+  const [theme, setTheme] = React.useState(false);
+
   return (
     <HashRouter>
-      <div className="d-flex">
+      <div className={"d-flex" + (theme ? " dark" : "")}>
         <Sidebar />
         <div
           className="bg-light flex-grow-1"
@@ -28,14 +31,21 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={<Home theme={theme} setTheme={setTheme} />}
+            />
             <Route path="/all_contacts" element={<AllContacts />} />
             <Route path="/agent_details/:id?" element={<AgentDetails />} />
             <Route path="/client_details/:id?" element={<ClientDetails />} />
             <Route path="/company_details/:id?" element={<CompanyDetails />} />
-            <Route path="/properties" element={<Properties />} />
+            <Route path="/properties/:folder?" element={<Properties />} />
             <Route path="/property/:id?" element={<Property />} />
             <Route path="/requirements" element={<Requirements />} />
+            <Route
+              path="/representative/:id?"
+              element={<RepresentativeDetails />}
+            />
           </Routes>
         </div>
       </div>

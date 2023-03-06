@@ -12,7 +12,7 @@ const Sidebar = () => {
   const [curSel, setCurSel] = React.useState(0);
 
   return (
-    <div className="sidebar d-flex flex-column">
+    <div className="sidebar d-flex flex-column bg-white">
       <img
         className="my-3 mx-auto rounded-3"
         src={require("../../assets/svgs/logo.svg").default}

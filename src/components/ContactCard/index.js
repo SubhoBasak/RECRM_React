@@ -76,7 +76,7 @@ const ContactCard = ({ data, selected, setSelected }) => {
     <>
       <ListGroupItem className="person-card bg-white py-3" draggable>
         <Row>
-          <Col lg="1" className="d-flex align-items-center">
+          <Col lg="1">
             <FormCheck
               checked={
                 selected.findIndex(
@@ -87,40 +87,35 @@ const ContactCard = ({ data, selected, setSelected }) => {
               onChange={selectContact}
             />
           </Col>
-          <Col className="d-flex align-items-center">
-            <p
-              className="fs-6 my-0 d-block text-turncate"
-              onClick={showDetails}
-            >
-              {data.name}
-            </p>
+          <Col lg="3" className="fs-6 text-turncate" onClick={showDetails}>
+            {data.name}
           </Col>
-          <Col lg="1" className="d-flex align-items-center">
+          <Col lg="1">
             <Alert
               variant={roleClass()}
               className="p-0 px-2 m-0"
               onClick={showDetails}
+              style={{ maxWidth: "fit-content" }}
             >
               {data.role}
             </Alert>
           </Col>
-          <Col className="d-flex align-items-center">
-            <p
-              className="text-grey my-0 fw-light text-turncate"
-              onClick={showDetails}
-            >
-              {data.address1}
-            </p>
+          <Col
+            lg="2"
+            className="text-grey fw-light text-turncate"
+            onClick={showDetails}
+          >
+            {data.address1}
           </Col>
-          <Col className="d-flex align-items-center">
+          <Col lg="2">
             <a
               {...(data.email ? { href: `mailto:${data.email}` } : {})}
-              className="fw-light text-turncate"
+              className="fw-light text-break"
             >
               {data.email || "Email not present"}
             </a>
           </Col>
-          <Col className="d-flex align-items-center">
+          <Col lg="2">
             <a
               {...(data.phone ? { href: `tel:${data.phone}` } : {})}
               className="fw-light text-turncate"
@@ -128,7 +123,7 @@ const ContactCard = ({ data, selected, setSelected }) => {
               {data.phone || "Number not present"}
             </a>
           </Col>
-          <Col lg="1" className="d-flex justify-content-end">
+          <Col lg="1">
             <ButtonGroup className="mb-auto">
               <Button
                 variant="outline-secondary"

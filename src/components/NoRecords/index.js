@@ -1,7 +1,6 @@
 import React from "react";
-import "./style.css";
 
-const ConnectionLost = () => {
+const NoRecords = () => {
   return (
     <div className="d-flex flex-column justify-content-center align-items-center my-5">
       <img
@@ -16,4 +15,4 @@ const ConnectionLost = () => {
   );
 };
 
-export default ConnectionLost;
+export default NoRecords;

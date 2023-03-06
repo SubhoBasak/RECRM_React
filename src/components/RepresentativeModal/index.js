@@ -1,8 +1,7 @@
 import React from "react";
 import { Button, FloatingLabel, Form, Modal, Spinner } from "react-bootstrap";
-import "./style.css";
 
-const RepresentativeModal = (props) => {
+const RepresentativeModal = ({ company, add, hide, show }) => {
   const [formData, setFormData] = React.useState({
     name: "",
     phone: "",
@@ -15,7 +14,7 @@ const RepresentativeModal = (props) => {
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  function addRepr(e) {
+  function handleSubmit(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
@@ -24,14 +23,20 @@ const RepresentativeModal = (props) => {
     }
     setValidated(false);
 
+    let tmpData = { company };
+    for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
+
     fetch(process.env.REACT_APP_BASE_URL + "/repr", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      body: JSON.stringify(tmpData),
     })
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
+          res.json().then((res) => add({ ...tmpData, _id: res.id }));
+          setFormData({ name: "", phone: "", email: "", designation: "" });
+          hide();
         }
       })
       .catch(() => {
@@ -42,7 +47,7 @@ const RepresentativeModal = (props) => {
   }
 
   return (
-    <Modal show={props.show} onHide={props.hide}>
+    <Modal show={show} onHide={hide}>
       <Modal.Header className="pb-0" closeButton />
       <Modal.Body>
         <div className="d-flex align-items-center">
@@ -60,7 +65,7 @@ const RepresentativeModal = (props) => {
             </p>
           </div>
         </div>
-        <Form validated={validated} onSubmit={addRepr} noValidate>
+        <Form validated={validated} onSubmit={handleSubmit} noValidate>
           <Form.Group>
             <FloatingLabel label="Name">
               <Form.Control
@@ -69,11 +74,12 @@ const RepresentativeModal = (props) => {
                 placeholder="Name"
                 value={formData.name}
                 onChange={setField("name")}
+                autoFocus
                 required
               />
-            <Form.Control.Feedback type="invalid">
-              This field is required!
-            </Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                This field is required!
+              </Form.Control.Feedback>
             </FloatingLabel>
           </Form.Group>
           <Form.Group>
@@ -82,7 +88,7 @@ const RepresentativeModal = (props) => {
                 type="text"
                 maxLength={100}
                 placeholder="Designation"
-                value={Form.designation}
+                value={formData.designation}
                 onChange={setField("designation")}
               />
             </FloatingLabel>
@@ -93,7 +99,7 @@ const RepresentativeModal = (props) => {
                 type="text"
                 maxLength={100}
                 placeholder="Phone"
-                value={Form.phone}
+                value={formData.phone}
                 onChange={setField("phone")}
               />
             </FloatingLabel>
@@ -103,7 +109,7 @@ const RepresentativeModal = (props) => {
               <Form.Control
                 type="email"
                 placeholder="Email"
-                value={Form.email}
+                value={formData.email}
                 onChange={setField("email")}
               />
             </FloatingLabel>
@@ -112,7 +118,7 @@ const RepresentativeModal = (props) => {
             <Button
               variant="outline-primary"
               className="btn-sm me-2"
-              onClick={props.hide}
+              onClick={hide}
             >
               Cancel
             </Button>

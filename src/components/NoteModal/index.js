@@ -1,11 +1,10 @@
 import React from "react";
 import { Button, FloatingLabel, Form, Modal, Spinner } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { IoIosSave } from "react-icons/io";
 
-const NoteModal = ({ client, url, hide, show, add }) => {
+const NoteModal = ({ agent, client, url, hide, show, add }) => {
   const [note, setNote] = React.useState("");
   const [validated, setValidated] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -19,10 +18,14 @@ const NoteModal = ({ client, url, hide, show, add }) => {
     }
     setValidated(false);
 
+    let tmpData = {};
+    if (client) tmpData = { client, note };
+    else tmpData = { agent, note };
+
     fetch(process.env.REACT_APP_BASE_URL + url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client, note }),
+      body: JSON.stringify(tmpData),
     })
       .then((res) => {
         setLoading(false);

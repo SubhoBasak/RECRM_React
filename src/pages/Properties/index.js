@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, FormControl, Row, Col, InputGroup } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { ImSearch } from "react-icons/im";
@@ -37,7 +36,7 @@ const Properties = () => {
       sel = selected[sel];
 
       if (sel.type === "fld") folders.push(sel.id);
-      else if (sel.type === "prpt") folders.push(sel.id);
+      else if (sel.type === "prpt") properties.push(sel.id);
     }
 
     fetch(process.env.REACT_APP_BASE_URL + "/folder", {

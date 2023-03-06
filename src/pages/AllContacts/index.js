@@ -1,16 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  Button,
-  Col,
-  Dropdown,
-  FormControl,
-  InputGroup,
-  ListGroup,
-  Modal,
   Row,
+  Col,
+  Button,
+  Dropdown,
+  ListGroup,
+  InputGroup,
+  FormControl,
 } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { ImSearch } from "react-icons/im";
@@ -24,6 +22,7 @@ import ConnectionLost from "../../components/ConnectionLost";
 import NoRecords from "../../components/NoRecords";
 import NotFound from "../../components/NotFound";
 import Loading from "../../components/Loading";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const AllContacts = () => {
   const [contacts, setContacts] = React.useState([]);
@@ -34,7 +33,7 @@ const AllContacts = () => {
   const [loading, setLoading] = React.useState(true);
   const [selected, setSelected] = React.useState([]);
   const [search, setSearch] = React.useState("");
-  const [deleteModal, setDeleteModal] = React.useState(false);
+  const [deleteIt, setDeleteIt] = React.useState(false);
 
   function delContacts() {
     let clients = [];
@@ -117,57 +116,64 @@ const AllContacts = () => {
     if (loading) return <Loading />;
     else if (connLost) return <ConnectionLost />;
     else if (contacts.length === 0) return <NoRecords />;
-    else {
-      let list = contacts.map((data, i) => {
-        let tmp = search.toLowerCase();
 
-        if (
-          tmp === "" ||
-          data.name.toLowerCase().includes(tmp) ||
-          data.address1.toLowerCase().includes(tmp) ||
-          data.email?.toLowerCase().includes(tmp) ||
-          data.phone?.toLowerCase().includes(tmp) ||
-          data.address2?.toLowerCase().includes(tmp) ||
-          data.city?.toLowerCase().includes(tmp) ||
-          data.state?.toLowerCase().includes(tmp) ||
-          data.country?.toLowerCase().includes(tmp) ||
-          data.zip?.toLowerCase().includes(tmp) ||
-          data.landmark?.toLowerCase().includes(tmp)
-        )
-          return <ContactCard key={i} {...{ data, selected, setSelected }} />;
-        return null;
-      });
+    let list = contacts.map((data, i) => {
+      let tmp = search.toLowerCase();
 
-      if (list.every((i) => i === null)) return <NotFound />;
-      return (
-        <>
-          <Row
-            style={{
-              margin: "20px",
-              marginTop: "40px",
-              width: "calc(100% - 40px)",
-            }}
-          >
-            <Col lg="1" />
-            <Col className="fw-bold">Name</Col>
-            <Col lg="1" className="fw-bold">
-              Role
-            </Col>
-            <Col className="fw-bold">Address</Col>
-            <Col className="fw-bold">Email</Col>
-            <Col className="fw-bold">Phone</Col>
-            <Col lg="1" />
-          </Row>
-          <ListGroup
-            variant="flush"
-            className="rounded-4 mt-1"
-            style={{ margin: "20px", width: "calc(100% - 40px)" }}
-          >
-            {list}
-          </ListGroup>
-        </>
-      );
-    }
+      if (
+        tmp === "" ||
+        data.name.toLowerCase().includes(tmp) ||
+        data.address1.toLowerCase().includes(tmp) ||
+        data.email?.toLowerCase().includes(tmp) ||
+        data.phone?.toLowerCase().includes(tmp) ||
+        data.address2?.toLowerCase().includes(tmp) ||
+        data.city?.toLowerCase().includes(tmp) ||
+        data.state?.toLowerCase().includes(tmp) ||
+        data.country?.toLowerCase().includes(tmp) ||
+        data.zip?.toLowerCase().includes(tmp) ||
+        data.landmark?.toLowerCase().includes(tmp)
+      )
+        return <ContactCard key={i} {...{ data, selected, setSelected }} />;
+      return null;
+    });
+
+    if (list.every((i) => i === null)) return <NotFound />;
+    return (
+      <>
+        <Row
+          style={{
+            margin: "20px",
+            marginTop: "40px",
+            width: "calc(100% - 40px)",
+          }}
+        >
+          <Col lg="1" />
+          <Col lg="3" className="fw-bold">
+            Name
+          </Col>
+          <Col lg="1" className="fw-bold">
+            Role
+          </Col>
+          <Col lg="2" className="fw-bold">
+            Address
+          </Col>
+          <Col lg="2" className="fw-bold">
+            Email
+          </Col>
+          <Col lg="2" className="fw-bold">
+            Phone
+          </Col>
+          <Col lg="1" />
+        </Row>
+        <ListGroup
+          variant="flush"
+          className="rounded-4 mt-1"
+          style={{ margin: "20px", width: "calc(100% - 40px)" }}
+        >
+          {list}
+        </ListGroup>
+      </>
+    );
   }
 
   React.useEffect(() => {
@@ -287,7 +293,7 @@ const AllContacts = () => {
             <Button
               variant="primary"
               className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
-              onClick={delContacts}
+              onClick={() => setDeleteIt(true)}
             >
               <MdDeleteSweep className="me-2" />
               Delete Contacts
@@ -296,13 +302,12 @@ const AllContacts = () => {
         </div>
       )}
       {showData()}
-      <Modal show={deleteModal} onHide={() => setDeleteModal(false)}>
-        <Modal.Title>Warning!</Modal.Title>
-        <Modal.Body>
-          <p>Do you really want to delete these contacts?</p>
-        </Modal.Body>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={deleteIt}
+        hide={() => setDeleteIt(false)}
+        msg="Do you really want to delete these contacts?"
+        yes={delContacts}
+      />
     </>
   );
 };

@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { HiOutlineRefresh } from "react-icons/hi";

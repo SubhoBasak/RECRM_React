@@ -1,19 +1,26 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Col, Row } from "react-bootstrap";
-import "./style.css";
+import { Button, Col, Modal, Row } from "react-bootstrap";
 
 // icons
 import { GoSettings } from "react-icons/go";
 import { IoPersonSharp } from "react-icons/io5";
+import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
-const Home = () => {
+const Home = (props) => {
   const navigate = useNavigate();
+
+  const [config, setConfig] = React.useState(false);
+
   return (
     <>
       <nav>
         <p className="text-primary me-auto">Welcome</p>
-        <Button variant="outline-primary" className="d-flex my-auto">
+        <Button
+          variant="outline-primary"
+          className="d-flex my-auto"
+          onClick={() => setConfig(true)}
+        >
           <GoSettings />
         </Button>
         <Button
@@ -72,6 +79,37 @@ const Home = () => {
           </p>
         </Col>
       </Row>
+      <Modal show={config} className="modal-sm" onHide={() => setConfig(false)}>
+        <Modal.Header className="pt-1" closeButton>
+          <Modal.Title>Settings</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex justify-content-between">
+            <label className="text-secondary">Theme</label>
+            <div className="d-flex align-items-center">
+              <p className="mb-0 text-black-50 me-2" style={{ fontSize: 12 }}>
+                Light
+              </p>
+              <button className="fs-5 bg-transparent border-0 m-0 p-1 d-flex align-items-center">
+                {props.theme ? (
+                  <BsToggleOn
+                    className="text-primary"
+                    onClick={() => props.setTheme(false)}
+                  />
+                ) : (
+                  <BsToggleOff
+                    className="text-black-50"
+                    onClick={() => props.setTheme(true)}
+                  />
+                )}
+              </button>
+              <p className="mb-0 text-black-50 ms-2" style={{ fontSize: 12 }}>
+                Dark
+              </p>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };

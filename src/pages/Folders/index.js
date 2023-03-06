@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Col, Form, Accordion, Row, Button, Modal } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";

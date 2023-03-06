@@ -8,65 +8,102 @@ import {
   ButtonGroup,
   Button,
 } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdViewHeadline, MdHistory } from "react-icons/md";
 
-const RepresentativeCard = (props) => {
+// components
+import DeleteModal from "../DeleteModal";
+
+const RepresentativeCard = ({ edit, remove, data, selected, setSelected }) => {
+  const [deleteIt, setDeleteIt] = React.useState(false);
+
+  function selectRepr() {
+    let indx = selected.findIndex((repr) => repr === data._id);
+
+    if (indx > -1) setSelected(selected.filter((repr) => repr !== data._id));
+    else setSelected([...selected, data._id]);
+  }
+
   return (
-    <ListGroupItem className="person-card py-3 bg-white" draggable>
-      <Row>
-        <Col lg="1" className="d-flex align-items-center">
-          <FormCheck className="ms-1" />
-        </Col>
-        <Col className="d-flex align-items-center">
-          <p className="fs-6 my-0">Person fullname</p>
-        </Col>
-        <Col className="d-flex align-items-center">
-          <Alert
-            variant="warning"
-            className="p-0 px-2 m-0"
-            style={{ fontSize: "12px" }}
-          >
-            {props.role}
-          </Alert>
-        </Col>
-        <Col className="d-flex align-items-center">
-          <a href="mailto:customer@email.com" className="fw-light">
-            person@email.com
-          </a>
-        </Col>
-        <Col className="d-flex align-items-center">
-          <a href="tel:9876543210" className="fw-light">
-            +91 9876543210
-          </a>
-        </Col>
-        <Col lg="1" className="d-flex justify-content-end">
-          <ButtonGroup className="mb-auto">
-            <Button
-              variant="outline-secondary"
-              className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+    <>
+      <ListGroupItem className="person-card py-3 bg-white" draggable>
+        <Row>
+          <Col lg="1" className="d-flex align-items-center">
+            <FormCheck
+              checked={selected.findIndex((repr) => repr === data._id) > -1}
+              className="ms-1"
+              onChange={selectRepr}
+            />
+          </Col>
+          <Col className="d-flex align-items-center fs-6" onClick={edit}>
+            {data.name}
+          </Col>
+          <Col className="d-flex align-items-center">
+            <Alert
+              variant="warning"
+              className="p-0 px-2 m-0"
+              style={{ fontSize: "12px" }}
+              onClick={edit}
             >
-              <MdViewHeadline />
-            </Button>
-            <Button
-              variant="outline-secondary"
-              className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+              {data.designation || "-"}
+            </Alert>
+          </Col>
+          <Col>
+            <a
+              className="fw-light"
+              {...(data.email ? { href: "mailto:" + data.email } : {})}
             >
-              <MdHistory />
-            </Button>
-            <Button
-              variant="outline-secondary"
-              className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+              {data.email || "Email not present"}
+            </a>
+          </Col>
+          <Col>
+            <a
+              className="fw-light"
+              {...(data.phone ? { href: "tel:" + data.phone } : {})}
             >
-              <AiOutlineDelete />
-            </Button>
-          </ButtonGroup>
-        </Col>
-      </Row>
-    </ListGroupItem>
+              {data.phone || "Number not present"}
+            </a>
+          </Col>
+          <Col lg="1" className="d-flex justify-content-end">
+            <ButtonGroup>
+              <Button
+                variant="outline-secondary"
+                className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+                onClick={edit}
+              >
+                <MdViewHeadline />
+              </Button>
+              <Button
+                variant="outline-secondary"
+                className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+              >
+                <MdHistory />
+              </Button>
+              <Button
+                variant="outline-secondary"
+                className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+                onClick={() => setDeleteIt(true)}
+              >
+                <AiOutlineDelete />
+              </Button>
+            </ButtonGroup>
+          </Col>
+        </Row>
+      </ListGroupItem>
+      <DeleteModal
+        show={deleteIt}
+        hide={() => setDeleteIt(false)}
+        url="/repr"
+        body={{ id: data._id }}
+        remove={() => {
+          remove();
+          setDeleteIt(false);
+        }}
+        msg="Do you really want to delete this representative?"
+      />
+    </>
   );
 };
 

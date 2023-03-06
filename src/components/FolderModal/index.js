@@ -1,8 +1,7 @@
 import React from "react";
 import { Button, Modal, Form, FloatingLabel, Spinner } from "react-bootstrap";
-import "./style.css";
 
-const FolderModal = (props) => {
+const FolderModal = ({ hide, show }) => {
   const [formData, setFormData] = React.useState({
     name: "",
     info: "",
@@ -12,6 +11,13 @@ const FolderModal = (props) => {
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
+
+  function clearFormData() {
+    setFormData({
+      name: "",
+      info: "",
+    });
+  }
 
   function addFolder(e) {
     e.preventDefault();
@@ -32,8 +38,9 @@ const FolderModal = (props) => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
-          setFormData({ name: "", info: "" });
-          props.hide();
+          setValidated(false);
+          clearFormData();
+          hide();
         }
       })
       .catch(() => {
@@ -43,7 +50,13 @@ const FolderModal = (props) => {
   }
 
   return (
-    <Modal show={props.show} onHide={props.hide}>
+    <Modal
+      show={show}
+      onHide={() => {
+        setValidated(false);
+        hide();
+      }}
+    >
       <Modal.Body>
         <div className="d-flex align-items-center">
           <img
@@ -67,6 +80,8 @@ const FolderModal = (props) => {
                 value={formData.name}
                 placeholder="Folder name"
                 onChange={setField("name")}
+                autoFocus
+                required
               />
               <Form.Control.Feedback type="invalid">
                 Please enter folder name!
@@ -94,7 +109,11 @@ const FolderModal = (props) => {
             <Button
               variant="outline-primary"
               className="btn-sm me-1"
-              onClick={props.hide}
+              onClick={() => {
+                clearFormData();
+                setValidated(false);
+                hide();
+              }}
             >
               Cancel
             </Button>

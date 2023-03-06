@@ -5,25 +5,31 @@ import {
   Form,
   Row,
   Button,
-  Modal,
   ListGroup,
   FloatingLabel,
   FormSelect,
 } from "react-bootstrap";
-import "./style.css";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
-import { AiOutlineClear } from "react-icons/ai";
 import { TbArrowBack } from "react-icons/tb";
+import { MdDeleteSweep } from "react-icons/md";
+import { AiOutlineClear } from "react-icons/ai";
 import { BsToggleOff, BsToggleOn } from "react-icons/bs";
 
 // components
-import NoteCard from "../../components/NoteCard";
 import Loading from "../../components/Loading";
+import NoRecords from "../../components/NoRecords";
+import DeleteModal from "../../components/DeleteModal";
+import ConfirmModal from "../../components/ConfirmModal";
+import CompanyNoteCard from "../../components/CompanyNoteCard";
+import CompanyNoteModal from "../../components/CompanyNoteModal";
 import RepresentativeCard from "../../components/RepresentativeCard";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 import RepresentativeModal from "../../components/RepresentativeModal";
+
+// utils
+import { sourceCodedText } from "../../utils/codedText";
 
 const CompanyDetails = () => {
   const navigate = useNavigate();
@@ -46,25 +52,56 @@ const CompanyDetails = () => {
     agent: state?.agent || "",
     about: state?.about || "",
   });
+  const [timestamps, setTimestamps] = React.useState({
+    createdAt: "",
+    modifiedAt: "",
+  });
   const [validated, setValidated] = React.useState(false);
-  const [clrModal, setClrModal] = React.useState(false);
-  const [cancelModal, setCancelModal] = React.useState(false);
   const [connLost, setConnLost] = React.useState(false);
   const [reprModal, setReprModal] = React.useState(false);
-  const [view, setView] = React.useState(state?.name ? true : false);
+  const [editRepr, setEditRepr] = React.useState({});
+  const [view, setView] = React.useState(id ? true : false);
   const [notes, setNotes] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [reprs, setReprs] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [clearIt, setClearIt] = React.useState(false);
+  const [cancelIt, setCancelIt] = React.useState(false);
+  const [deleteIt, setDeleteIt] = React.useState(false);
+  const [deleteSelected, setDeleteSelected] = React.useState(false);
+  const [selected, setSelected] = React.useState([]);
+  const [addNote, setAddNote] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addCompany = (e) => {
+  function clearFormData() {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      industry: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      country: "",
+      zip: "",
+      landmark: "",
+      source: "",
+      agent: "",
+      about: "",
+    });
+  }
+
+  function addCompany(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
       setValidated(true);
-      e.stopPropagation();
+      return e.stopPropagation();
     }
+
+    setValidated(false);
 
     let tmpData = {};
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
@@ -77,25 +114,122 @@ const CompanyDetails = () => {
       .then((res) => {
         if (res.status === 200) {
           setValidated(false);
+          setView(true);
+          setTimestamps({ createdAt: new Date() });
         }
-      })
-      .catch(() => setConnLost(true));
-  };
-
-  function delCompany() {
-    fetch(process.env.REACT_APP_BASE_URL + "/company", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: "" }),
-    })
-      .then((res) => {
-        if (res.status === 200) navigate("/all_contacts");
       })
       .catch(() => setConnLost(true));
   }
 
-  function showNotes() {
-    if (loading) return <Loading />;
+  function showData() {
+    if (!id) return;
+    else if (loading) return <Loading />;
+
+    return (
+      <>
+        <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+          Representatives
+        </h1>
+        {selected.length > 0 && (
+          <div className="w-100 px-3 d-flex align-items-center justify-content-between">
+            <p className="m-2 fs-6 fw-bold">{selected.length} selected</p>
+            <div className="d-flex">
+              <Button
+                variant="outline-primary"
+                className="btn-sm my-auto"
+                onClick={() => setSelected([])}
+              >
+                Unselect all
+              </Button>
+              <Button
+                variant="primary"
+                className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+                onClick={() => setDeleteSelected(true)}
+              >
+                <MdDeleteSweep className="me-2" />
+                Delete Contacts
+              </Button>
+            </div>
+          </div>
+        )}
+        {reprs.length === 0 ? (
+          <NoRecords />
+        ) : (
+          <>
+            <Row className="text-black-50">
+              <Col lg="1" />
+              <Col className="fw-bold mb-1 mt-3">Name</Col>
+              <Col className="fw-bold mb-1 mt-3">Designation</Col>
+              <Col className="fw-bold mb-1 mt-3">Email</Col>
+              <Col className="fw-bold mb-1 mt-3">Phone</Col>
+              <Col lg="1" />
+            </Row>
+            <ListGroup variant="flush" className="rounded-4 mt-1">
+              {reprs.map((data, i) => (
+                <RepresentativeCard
+                  key={i}
+                  data={data}
+                  selected={selected}
+                  setSelected={setSelected}
+                  edit={() =>
+                    navigate("/representative/" + data._id, {
+                      state: { ...data, company: id },
+                    })
+                  }
+                  remove={() =>
+                    setReprs(reprs.filter((repr) => repr._id !== data._id))
+                  }
+                />
+              ))}
+            </ListGroup>
+          </>
+        )}
+        <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+          Notes
+        </h1>
+        {notes.length === 0 ? (
+          <NoRecords />
+        ) : (
+          <ListGroup variant="flush" className="rounded-4 mt-1">
+            {notes.map((data, i) => (
+              <CompanyNoteCard
+                data={data}
+                key={i}
+                remove={() =>
+                  setNotes(notes.filter((note) => note._id !== data._id))
+                }
+              />
+            ))}
+          </ListGroup>
+        )}
+      </>
+    );
+  }
+
+  function delSelected() {
+    fetch(process.env.REACT_APP_BASE_URL + "/repr", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        selected.length === 1 ? { id: selected[0] } : { ids: selected }
+      ),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          if (selected.length === 1)
+            setReprs(reprs.filter((repr) => repr._id !== selected[0]));
+          else
+            setReprs(
+              reprs.filter((repr) => {
+                for (let sel in selected)
+                  if (selected[sel] === repr._id) return false;
+                return true;
+              })
+            );
+          setSelected([]);
+        }
+      })
+      .catch();
   }
 
   React.useEffect(() => {
@@ -114,7 +248,30 @@ const CompanyDetails = () => {
             res
               .json()
               .then((data) => {
+                if (data.details) {
+                  setFormData({
+                    name: data.details.name || "",
+                    email: data.details.email || "",
+                    phone: data.details.phone || "",
+                    industry: data.details.industry || "",
+                    address1: data.details.address1 || "",
+                    address2: data.details.address2 || "",
+                    city: data.details.city || "",
+                    state: data.details.state || "",
+                    country: data.details.country || "",
+                    zip: data.details.zip || "",
+                    landmark: data.details.landmark || "",
+                    source: data.details.source || "",
+                    agent: data.details.agent || "",
+                    about: data.details.about || "",
+                  });
+                  setTimestamps({
+                    createdAt: data.details.createdAt,
+                    modifiedAt: data.details.modifiedAt,
+                  });
+                }
                 setNotes(data.notes);
+                setReprs(data.reprs);
               })
               .catch();
         })
@@ -122,26 +279,28 @@ const CompanyDetails = () => {
       setLoading(true);
     }
 
-    getDetails();
+    id && getDetails();
   }, [id, state]);
 
   return (
     <>
       <nav>
-        <p className="text-primary">Add new contact</p>
+        <p className="text-primary me-auto">Add new contact</p>
+        {!view && !id && (
+          <Button
+            variant="outline-primary"
+            className="d-flex my-auto me-3"
+            onClick={() => setClearIt(true)}
+          >
+            <AiOutlineClear />
+          </Button>
+        )}
         <Button
-          variant="outline-primary"
-          className="d-flex my-auto ms-auto"
-          onClick={() => setClrModal(true)}
-        >
-          <AiOutlineClear />
-        </Button>
-        <Button
-          className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/all_contacts")}
+          className="my-auto d-flex align-items-center btn-sm shadow"
+          onClick={() => (id ? navigate("/all_contacts") : setCancelIt(true))}
         >
           <TbArrowBack className="me-2" />
-          Return
+          {id ? "Return" : "Cancel"}
         </Button>
       </nav>
       <Row className="w-100">
@@ -170,15 +329,15 @@ const CompanyDetails = () => {
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              100
+              {reprs.length}
             </h1>
-            <p className="text-secondary">Requirements</p>
+            <p className="text-secondary">Represen tatives</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              75
+              {notes.length}
             </h1>
-            <p className="text-secondary">Remarks</p>
+            <p className="text-secondary">Notes</p>
           </div>
         </Col>
       </Row>
@@ -279,7 +438,7 @@ const CompanyDetails = () => {
                   <p>{formData.landmark}</p>
                 </Col>
               )}
-              {formData.source && (
+              {(formData.source || timestamps.createdAt) && (
                 <>
                   <h5
                     className="mb-3 mt-3 text-primary"
@@ -288,11 +447,13 @@ const CompanyDetails = () => {
                     Other info
                   </h5>
                   <hr />
-                  <Col lg="6">
-                    <label className="text-secondary">Source</label>
-                    <p>{formData.source}</p>
-                  </Col>
                 </>
+              )}
+              {formData.source && (
+                <Col lg="6">
+                  <label className="text-secondary">Source</label>
+                  <p>{sourceCodedText(formData.source)}</p>
+                </Col>
               )}
               {formData.agent && (
                 <Col lg="6">
@@ -304,6 +465,36 @@ const CompanyDetails = () => {
                 <Col lg="12">
                   <label className="text-secondary">About</label>
                   <p>{formData.about}</p>
+                </Col>
+              )}
+              {timestamps.createdAt && (
+                <Col lg="6">
+                  <label className="text-secondary">Created at</label>
+                  <p>
+                    {new Date(timestamps.createdAt).toLocaleDateString(
+                      "default",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )}
+                  </p>
+                </Col>
+              )}
+              {timestamps.modifiedAt && (
+                <Col lg="6">
+                  <label className="text-secondary">Last modified</label>
+                  <p>
+                    {new Date(timestamps.modifiedAt).toLocaleDateString(
+                      "default",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )}
+                  </p>
                 </Col>
               )}
             </Row>
@@ -479,7 +670,7 @@ const CompanyDetails = () => {
                   <Form.Group className="mb-3">
                     <FloatingLabel label="Source">
                       <FormSelect
-                        value={formData.agent}
+                        value={formData.source}
                         onChange={setField("source")}
                       >
                         <option value="">Select</option>
@@ -531,23 +722,7 @@ const CompanyDetails = () => {
               </div>
             </Form>
           )}
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Representatives
-          </h1>
-          <Row className="text-black-50">
-            <Col lg="1" />
-            <Col className="fw-bold mb-1 mt-3">Name</Col>
-            <Col className="fw-bold mb-1 mt-3">Designation</Col>
-            <Col className="fw-bold mb-1 mt-3">Email</Col>
-            <Col className="fw-bold mb-1 mt-3">Phone</Col>
-            <Col lg="1" />
-          </Row>
-          <ListGroup variant="flush" className="rounded-4 mt-1">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <RepresentativeCard key={i} role="Employee" />
-            ))}
-          </ListGroup>
-          {showNotes()}
+          {showData()}
         </Col>
         <Col lg="3" className="order-1 order-lg-2">
           <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
@@ -568,75 +743,73 @@ const CompanyDetails = () => {
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               View Clients
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setAddNote(true)}
+            >
               Add Note
             </Button>
             <Button
               variant="primary"
               className="btn-sm mt-3 w-75 shadow"
-              onClick={delCompany}
+              onClick={() => setDeleteIt(true)}
             >
               Delete
             </Button>
           </div>
         </Col>
       </Row>
-      <Modal
-        size="sm"
-        show={clrModal}
-        onHide={() => setClrModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Do you really want to clear all the fields?</Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={() => setClrModal(false)}
-          >
-            Close
-          </Button>
-          <Button
-            variant="outline-danger"
-            onClick={() => {
-              setClrModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        size="sm"
-        show={cancelModal}
-        onHide={() => setCancelModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Cancelling may cause data loss. Do you really want to proceed?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setCancelModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              navigate("/agent");
-              setCancelModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <RepresentativeModal show={reprModal} hide={() => setReprModal(false)} />
+      <ConfirmModal
+        show={clearIt}
+        hide={() => setClearIt(false)}
+        msg="Do you really want to clear all the fields?"
+        yes={() => clearFormData()}
+      />
+      <ConfirmModal
+        show={cancelIt}
+        hide={() => setCancelIt(false)}
+        msg="Cancelling it may result data loss. Do you really want to proceed?"
+        yes={() => {
+          clearFormData();
+          navigate("/all_contacts");
+        }}
+      />
+      <ConfirmModal
+        show={deleteSelected}
+        hide={() => setDeleteSelected(false)}
+        msg="Do you really want to delete the selected contacts?"
+        yes={delSelected}
+      />
+      <RepresentativeModal
+        show={reprModal}
+        hide={() => {
+          setReprModal(false);
+          setEditRepr({});
+        }}
+        add={(data) => setReprs([data, ...reprs])}
+        data={editRepr}
+        company={id}
+      />
       <ConnectionLostModal show={connLost} hide={() => setConnLost(false)} />
+      <DeleteModal
+        show={deleteIt}
+        hide={() => setDeleteIt(false)}
+        url="/company"
+        body={{ id }}
+        msg="Do you really want to delete this company?"
+        remove={() => {
+          setDeleteIt(false);
+          navigate("/all_contacts");
+        }}
+      />
+      <CompanyNoteModal
+        show={addNote}
+        hide={() => setAddNote(false)}
+        company={id}
+        reprs={reprs}
+        add={(data) => setNotes([data, ...notes])}
+      />
     </>
   );
 };

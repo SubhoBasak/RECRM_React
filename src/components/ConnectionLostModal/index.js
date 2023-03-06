@@ -1,6 +1,5 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
-import "./style.css";
 
 // components
 import ConnectionLost from "../ConnectionLost";

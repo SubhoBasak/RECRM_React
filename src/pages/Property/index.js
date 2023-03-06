@@ -1,87 +1,169 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Col,
   Form,
   Row,
   Button,
   FormSelect,
-  Modal,
   FloatingLabel,
+  Spinner,
 } from "react-bootstrap";
-import "./style.css";
 
 // icons
-import { FiUserCheck } from "react-icons/fi";
+import { IoIosSave } from "react-icons/io";
 import { AiOutlineClear } from "react-icons/ai";
 import { TbArrowBack } from "react-icons/tb";
+import { BsToggleOn, BsToggleOff } from "react-icons/bs";
+
+// components
+import DeleteModal from "../../components/DeleteModal";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const Property = () => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { id } = useParams();
+
   const [image, setImage] = React.useState("");
   const [formData, setFormData] = React.useState({
-    title: "",
-    details: "",
-    category: "",
-    price: "",
-    area: "",
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    country: "",
-    zip: "",
-    landmark: "",
+    title: state?.title || "",
+    details: state?.details || "",
+    category: state?.category || "",
+    price: state?.price || "",
+    area: state?.area || "",
+    address1: state?.address1 || "",
+    address2: state?.address2 || "",
+    city: state?.city || "",
+    state: state?.state || "",
+    country: state?.country || "",
+    zip: state?.zip || "",
+    landmark: state?.landmark || "",
+  });
+  const [timestamps, setTimestamps] = React.useState({
+    createdAt: "",
+    modifiedAt: "",
   });
   const [validated, setValidated] = React.useState(false);
-  const [clrModal, setClrModal] = React.useState(false);
-  const [cancelModal, setCancelModal] = React.useState(false);
-
-  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+  const [view, setView] = React.useState(id ? true : false);
+  const [clearIt, setClearIt] = React.useState(false);
+  const [cancelIt, setCancelIt] = React.useState(false);
+  const [deleteIt, setDeleteIt] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
-  const addProperty = (e) => {
+  function clearFormData() {
+    setFormData({
+      title: "",
+      details: "",
+      category: "",
+      price: "",
+      area: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      country: "",
+      zip: "",
+      landmark: "",
+    });
+  }
+
+  function addProperty(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
       setValidated(true);
-      e.stopPropagation();
+      return e.stopPropagation();
     }
 
-    let tmpData = {};
+    setValidated(false);
+
+    let tmpData = id ? { id } : {};
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/property", {
-      method: "POST",
+      method: id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
+        setLoading(false);
         if (res.status === 200) {
           setValidated(false);
+          setView(true);
+          setTimestamps({ createdAt: new Date() });
         }
       })
-      .catch();
-  };
+      .catch(() => {
+        setLoading(false);
+      });
+    setLoading(true);
+  }
+
+  React.useEffect(() => {
+    async function getDetails() {
+      fetch(
+        process.env.REACT_APP_BASE_URL +
+          "/property?" +
+          new URLSearchParams({ id, details: state?.name ? false : true })
+      )
+        .then((res) => {
+          setLoading(false);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => {
+                if (data.details) {
+                  setFormData({
+                    title: data.details.title || "",
+                    details: data.details.details || "",
+                    category: data.details.category || "",
+                    price: data.details.price || "",
+                    area: data.details.area || "",
+                    address1: data.details.address1 || "",
+                    address2: data.details.address2 || "",
+                    city: data.details.city || "",
+                    state: data.details.state || "",
+                    country: data.details.country || "",
+                    zip: data.details.zip || "",
+                    landmark: data.details.landmark || "",
+                  });
+                  setTimestamps({
+                    createdAt: data.details.createdAt || "",
+                    modifiedAt: data.details.modifiedAt || "",
+                  });
+                }
+              })
+              .catch();
+        })
+        .catch(() => setLoading(false));
+    }
+
+    id && getDetails();
+  }, [id, state]);
 
   return (
     <>
       <nav>
-        <p className="text-primary">Add new property</p>
+        <p className="text-primary me-auto">Add new property</p>
+        {!view && !id && (
+          <Button
+            variant="outline-primary"
+            className="d-flex my-auto me-3"
+            onClick={() => setClearIt(true)}
+          >
+            <AiOutlineClear />
+          </Button>
+        )}
         <Button
-          variant="outline-primary"
-          className="d-flex my-auto ms-auto"
-          onClick={() => setClrModal(true)}
-        >
-          <AiOutlineClear />
-        </Button>
-        <Button
-          className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/properties")}
+          className="my-auto d-flex align-items-center btn-sm shadow"
+          onClick={() => (id ? navigate("/properties") : setCancelIt(true))}
         >
           <TbArrowBack className="me-2" />
-          Return
+          {id ? "Return" : "Cancel"}
         </Button>
       </nav>
       <Row className="w-100">
@@ -118,302 +200,376 @@ const Property = () => {
       </Row>
       <Row className="w-100 m-0 p-0">
         <Col lg="9">
-          <Form
-            noValidate
-            validated={validated}
-            onSubmit={addProperty}
-            className="p-3 bg-white rounded mb-3"
-          >
-            <div className="d-flex mb-5">
-              <div className="mx-auto upload-image">
-                <img
-                  src={
-                    image
-                      ? URL.createObjectURL(image)
-                      : "https://picsum.photos/512"
-                  }
-                  alt="property"
-                  width="150"
-                  height="150"
-                  className="rounded-circle"
-                  style={{ objectFit: "cover" }}
-                />
-                <input
-                  type="file"
-                  accept="image/jpg, image/jpeg, image/png"
-                  onChange={(e) => setImage(e.target.files[0])}
-                />
-              </div>
-            </div>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Title">
-                <Form.Control
-                  type="text"
-                  maxLength="100"
-                  placeholder="Title"
-                  value={formData.title}
-                  onChange={setField("title")}
-                  required
-                />
-              </FloatingLabel>
-              <Form.Control.Feedback type="invalid">
-                This field is required!
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Category">
-                <FormSelect
-                  value={formData.category}
-                  onChange={setField("category")}
-                  required
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  <option value="1">Residential</option>
-                  <option value="2">Commercial</option>
-                  <option value="3">Others</option>
-                </FormSelect>
-              </FloatingLabel>
-            </Form.Group>
-            <Row>
+          <div className="d-flex align-items-center justify-content-end">
+            <p className="my-0 me-2 text-black-50" style={{ fontSize: 14 }}>
+              View
+            </p>
+            <button
+              onClick={() => setView(!view)}
+              className="fs-4 bg-transparent border-0"
+            >
+              {view ? (
+                <BsToggleOff className="text-black-50" />
+              ) : (
+                <BsToggleOn className="text-primary" />
+              )}
+            </button>
+            <p className="my-0 mx-2 text-black-50" style={{ fontSize: 14 }}>
+              Edit
+            </p>
+          </div>
+          {view ? (
+            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
               <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Price" className="mb-3">
-                    <Form.Control
-                      type="number"
-                      placeholder="Price"
-                      value={formData.price}
-                      min={0}
-                      onChange={setField("price")}
-                    />
-                  </FloatingLabel>
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a valid price!
-                  </Form.Control.Feedback>
-                </Form.Group>
+                <label className="text-secondary">Title</label>
+                <p>{formData.title || "-"}</p>
               </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Area (sqft)">
-                    <Form.Control
-                      type="number"
-                      min={0}
-                      placeholder="Area"
-                      value={formData.area}
-                      onChange={setField("area")}
-                    />
-                  </FloatingLabel>
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a valid area!
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Gender">
-                    <FormSelect
-                      value={formData.gender}
-                      onChange={setField("gender")}
-                    >
-                      <option value="">Select</option>
-                      <option value="1">Male</option>
-                      <option value="2">Female</option>
-                      <option value="3">Others</option>
-                    </FormSelect>
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Date of Birth">
-                    <Form.Control
-                      type="date"
-                      className="d-flex"
-                      min={new Date().toISOString().substring(0, 10)}
-                      value={formData.dob}
-                      onChange={setField("dob")}
-                    />
-                  </FloatingLabel>
-                  <Form.Control.Feedback type="invalid">
-                    Invalid date of birth!
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-            </Row>
-            <p className="text-secondary mt-5">Location</p>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Address line 1">
-                <Form.Control
-                  type="text"
-                  maxLength="100"
-                  placeholder="Address line 1"
-                  value={formData.address1}
-                  onChange={setField("address1")}
-                  required
-                />
-              </FloatingLabel>
-              <Form.Control.Feedback type="invalid">
-                This field is required!
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Address line 2">
-                <Form.Control
-                  type="text"
-                  maxLength="100"
-                  placeholder="Address line 2"
-                  value={formData.address2}
-                  onChange={setField("address2")}
-                />
-              </FloatingLabel>
-              <Form.Control.Feedback type="invalid">
-                This field is required!
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Row>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="City">
-                    <Form.Control
-                      type="text"
-                      maxLength="100"
-                      placeholder="City"
-                      value={formData.city}
-                      onChange={setField("city")}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="State">
-                    <Form.Control
-                      type="text"
-                      maxLength="100"
-                      placeholder="State"
-                      value={formData.state}
-                      onChange={setField("state")}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Country">
-                    <Form.Control
-                      type="text"
-                      maxLength="100"
-                      placeholder="Country"
-                      value={formData.country}
-                      onChange={setField("country")}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="6">
-                <Form.Group className="mb-3">
-                  <FloatingLabel label="Zip code">
-                    <Form.Control
-                      type="text"
-                      maxLength="100"
-                      placeholder="Zip code"
-                      value={formData.zip}
-                      onChange={setField("zip")}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-            </Row>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Landmark">
-                <Form.Control
-                  type="text"
-                  maxLength="100"
-                  placeholder="Landmark"
-                  value={formData.landmark}
-                  onChange={setField("landmark")}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <FloatingLabel label="Details">
-                <Form.Control
-                  maxLength="500"
-                  as={"textarea"}
-                  placeholder="Details"
-                  className="form-control bg-light"
-                  value={formData.details}
-                  onChange={setField("details")}
-                  style={{ height: "12rem" }}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            <div className="d-flex my-2">
-              <Button
-                type="submit"
-                variant="primary"
-                className="mx-auto btn-sm"
+              {formData.category && (
+                <Col lg="6">
+                  <label className="text-secondary">Category</label>
+                  <p>{formData.category}</p>
+                </Col>
+              )}
+              {formData.price && (
+                <Col lg="6">
+                  <label className="text-secondary">Price</label>
+                  <p>{formData.price}</p>
+                </Col>
+              )}
+              {formData.area && (
+                <Col lg="6">
+                  <label className="text-secondary">Area</label>
+                  <p>{formData.area}</p>
+                </Col>
+              )}
+              {formData.dob && (
+                <Col lg="6">
+                  <label className="text-secondary">Date of birth</label>
+                  <p>{formData.dob}</p>
+                </Col>
+              )}
+              <h5
+                className="mb-3 mt-3 text-primary"
+                style={{ fontFamily: "pacifico" }}
               >
-                <FiUserCheck className="me-2" />
-                Add Property
-              </Button>
-            </div>
-          </Form>
+                Address info
+              </h5>
+              <hr />
+              <Col lg="6">
+                <label className="text-secondary">Address 1</label>
+                <p>{formData.address1 || "-"}</p>
+              </Col>
+              {formData.address2 && (
+                <Col lg="6">
+                  <label className="text-secondary">Address 2</label>
+                  <p>{formData.address2}</p>
+                </Col>
+              )}
+              {formData.city && (
+                <Col lg="6">
+                  <label className="text-secondary">City</label>
+                  <p>{formData.city}</p>
+                </Col>
+              )}
+              {formData.state && (
+                <Col lg="6">
+                  <label className="text-secondary">State</label>
+                  <p>{formData.state}</p>
+                </Col>
+              )}
+              {formData.country && (
+                <Col lg="6">
+                  <label className="text-secondary">Country</label>
+                  <p>{formData.country}</p>
+                </Col>
+              )}
+              {formData.zip && (
+                <Col lg="6">
+                  <label className="text-secondary">Zip code</label>
+                  <p>{formData.zip}</p>
+                </Col>
+              )}
+              {formData.landmark && (
+                <Col lg="6">
+                  <label className="text-secondary">Landmark</label>
+                  <p>{formData.landmark}</p>
+                </Col>
+              )}
+              {timestamps.createdAt && (
+                <>
+                  <h5
+                    className="mb-3 mt-3 text-primary"
+                    style={{ fontFamily: "pacifico" }}
+                  >
+                    Address info
+                  </h5>
+                  <hr />
+                  <Col lg="6">
+                    <label className="text-secondary">Created at</label>
+                    <p>{timestamps.createdAt}</p>
+                  </Col>
+                </>
+              )}
+              {timestamps.modifiedAt && (
+                <Col lg="6">
+                  <label className="text-secondary">Last modified</label>
+                  <p>{timestamps.modifiedAt}</p>
+                </Col>
+              )}
+            </Row>
+          ) : (
+            <Form
+              noValidate
+              validated={validated}
+              onSubmit={addProperty}
+              className="p-3 bg-white rounded mb-3"
+            >
+              <div className="d-flex mb-5">
+                <div className="mx-auto upload-image">
+                  <img
+                    src={
+                      image
+                        ? URL.createObjectURL(image)
+                        : require("../../assets/images/picture.png")
+                    }
+                    alt="property"
+                    width="150"
+                    height="150"
+                    className="rounded-circle"
+                    style={{ objectFit: "cover" }}
+                  />
+                  <input
+                    type="file"
+                    accept="image/jpg, image/jpeg, image/png"
+                    onChange={(e) => setImage(e.target.files[0])}
+                  />
+                </div>
+              </div>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Title">
+                  <Form.Control
+                    type="text"
+                    maxLength="100"
+                    placeholder="Title"
+                    value={formData.title}
+                    onChange={setField("title")}
+                    required
+                  />
+                </FloatingLabel>
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Category">
+                  <FormSelect
+                    value={formData.category}
+                    onChange={setField("category")}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select category
+                    </option>
+                    <option value="1">Residential</option>
+                    <option value="2">Commercial</option>
+                    <option value="3">Others</option>
+                  </FormSelect>
+                </FloatingLabel>
+              </Form.Group>
+              <Row>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Price" className="mb-3">
+                      <Form.Control
+                        type="number"
+                        placeholder="Price"
+                        value={formData.price}
+                        min={0}
+                        onChange={setField("price")}
+                      />
+                    </FloatingLabel>
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a valid price!
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Area (sqft)">
+                      <Form.Control
+                        type="number"
+                        min={0}
+                        placeholder="Area"
+                        value={formData.area}
+                        onChange={setField("area")}
+                      />
+                    </FloatingLabel>
+                    <Form.Control.Feedback type="invalid">
+                      Please enter valid area!
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <p className="text-secondary mt-5">Location</p>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Address line 1">
+                  <Form.Control
+                    type="text"
+                    maxLength="100"
+                    placeholder="Address line 1"
+                    value={formData.address1}
+                    onChange={setField("address1")}
+                    required
+                  />
+                </FloatingLabel>
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Address line 2">
+                  <Form.Control
+                    type="text"
+                    maxLength="100"
+                    placeholder="Address line 2"
+                    value={formData.address2}
+                    onChange={setField("address2")}
+                  />
+                </FloatingLabel>
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Row>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="City">
+                      <Form.Control
+                        type="text"
+                        maxLength="100"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={setField("city")}
+                      />
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="State">
+                      <Form.Control
+                        type="text"
+                        maxLength="100"
+                        placeholder="State"
+                        value={formData.state}
+                        onChange={setField("state")}
+                      />
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Country">
+                      <Form.Control
+                        type="text"
+                        maxLength="100"
+                        placeholder="Country"
+                        value={formData.country}
+                        onChange={setField("country")}
+                      />
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Zip code">
+                      <Form.Control
+                        type="text"
+                        maxLength="100"
+                        placeholder="Zip code"
+                        value={formData.zip}
+                        onChange={setField("zip")}
+                      />
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Landmark">
+                  <Form.Control
+                    type="text"
+                    maxLength="100"
+                    placeholder="Landmark"
+                    value={formData.landmark}
+                    onChange={setField("landmark")}
+                  />
+                </FloatingLabel>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <FloatingLabel label="Details">
+                  <Form.Control
+                    maxLength="500"
+                    as={"textarea"}
+                    placeholder="Details"
+                    className="form-control bg-light"
+                    value={formData.details}
+                    onChange={setField("details")}
+                    style={{ height: "12rem" }}
+                  />
+                </FloatingLabel>
+              </Form.Group>
+              <div className="d-flex my-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="mx-auto btn-sm"
+                >
+                  {loading ? (
+                    <Spinner
+                      as="span"
+                      animation="grow"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                  ) : (
+                    <IoIosSave className="me-2" />
+                  )}
+                  {id ? "Update" : "Add Property"}
+                </Button>
+              </div>
+            </Form>
+          )}
         </Col>
         <Col lg="3"></Col>
       </Row>
-      <Modal
-        size="sm"
-        show={clrModal}
-        onHide={() => setClrModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Do you really want to clear all the fields?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setClrModal(false)}>
-            Close
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setClrModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        size="sm"
-        show={cancelModal}
-        onHide={() => setCancelModal(false)}
-        aria-labelledby="clear-all-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="clear-all-modal">Warning</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Cancelling may cause data loss. Do you really want to proceed?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setCancelModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              navigate("/properties");
-              setCancelModal(false);
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={clearIt}
+        hide={() => setClearIt(false)}
+        msg="Do you really want to clear all the fields?"
+        yes={() => clearFormData()}
+      />
+      <ConfirmModal
+        show={cancelIt}
+        hide={() => setCancelIt(false)}
+        msg="Cancelling it may result data loss. Do you really want to proceed?"
+        yes={() => {
+          clearFormData();
+          navigate("/properties");
+        }}
+      />
+      <DeleteModal
+        show={deleteIt}
+        hide={() => setDeleteIt(false)}
+        url="/property"
+        body={{ id }}
+        msg="Do you really want to delete the property?"
+        remove={() => {
+          setDeleteIt(false);
+          navigate("/all_contacts");
+        }}
+      />
     </>
   );
 };
