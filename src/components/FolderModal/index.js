@@ -100,9 +100,6 @@ const FolderModal = ({ hide, show }) => {
                 onChange={setField("info")}
                 style={{ minHeight: "8rem" }}
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter folder name!
-              </Form.Control.Feedback>
             </FloatingLabel>
           </Form.Group>
           <Modal.Footer>

@@ -14,7 +14,7 @@ import "./style.css";
 
 // icons
 import { AiOutlineDelete } from "react-icons/ai";
-import { MdViewHeadline, MdHistory } from "react-icons/md";
+import { MdViewHeadline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 const ContactCard = ({ data, selected, setSelected }) => {
@@ -131,12 +131,6 @@ const ContactCard = ({ data, selected, setSelected }) => {
                 onClick={showDetails}
               >
                 <MdViewHeadline />
-              </Button>
-              <Button
-                variant="outline-secondary"
-                className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
-              >
-                <MdHistory />
               </Button>
               <Button
                 onClick={() => setDeleteModal(true)}

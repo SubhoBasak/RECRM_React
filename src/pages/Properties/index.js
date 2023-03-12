@@ -53,7 +53,7 @@ const Properties = () => {
         setLoading(false);
         setConnLost(true);
       });
-      
+
     setLoading(true);
   }
 
@@ -199,7 +199,7 @@ const Properties = () => {
               onClick={delProperties}
             >
               <MdDeleteSweep className="me-2" />
-              Delete Contacts
+              Delete Properties
             </Button>
           </div>
         </div>

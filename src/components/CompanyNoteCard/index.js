@@ -16,7 +16,6 @@ const CompanyNoteCard = ({ data, remove }) => {
 
   function deleteNote() {
     setDeleteIt(false);
-    console.log(data);
     fetch(process.env.REACT_APP_BASE_URL + "/companyNote", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },

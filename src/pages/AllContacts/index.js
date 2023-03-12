@@ -69,49 +69,6 @@ const AllContacts = () => {
       .catch(() => setConnLost(true));
   }
 
-  async function getAllContacts() {
-    fetch(process.env.REACT_APP_BASE_URL + "/contacts")
-      .then((res) => {
-        setConnLost(false);
-        setLoading(false);
-        if (res.status === 200)
-          res
-            .json()
-            .then((data) => {
-              setClientCount(data[0]?.length || 0);
-              setCompanyCount(data[1]?.length || 0);
-              setAgentCount(data[2]?.length || 0);
-
-              data[0] = data[0].map((d) => {
-                d.role = "client";
-                return d;
-              });
-
-              data[1] = data[1].map((d) => {
-                d.role = "company";
-                return d;
-              });
-
-              data[2] = data[2].map((d) => {
-                d.role = "agent";
-                return d;
-              });
-
-              setContacts(
-                data[0]
-                  .concat(data[1])
-                  .concat(data[2])
-                  .sort((a, b) => (a.name > b.name ? 1 : -1))
-              );
-            })
-            .catch();
-      })
-      .catch(() => {
-        setConnLost(true);
-        setLoading(false);
-      });
-  }
-
   function showData() {
     if (loading) return <Loading />;
     else if (connLost) return <ConnectionLost />;
@@ -134,10 +91,9 @@ const AllContacts = () => {
         data.landmark?.toLowerCase().includes(tmp)
       )
         return <ContactCard key={i} {...{ data, selected, setSelected }} />;
-      return null;
     });
 
-    if (list.every((i) => i === null)) return <NotFound />;
+    if (list.every((i) => i === null || i === undefined)) return <NotFound />;
     return (
       <>
         <Row
@@ -177,6 +133,49 @@ const AllContacts = () => {
   }
 
   React.useEffect(() => {
+    async function getAllContacts() {
+      fetch(process.env.REACT_APP_BASE_URL + "/contacts")
+        .then((res) => {
+          setConnLost(false);
+          setLoading(false);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => {
+                setClientCount(data[0]?.length || 0);
+                setCompanyCount(data[1]?.length || 0);
+                setAgentCount(data[2]?.length || 0);
+
+                data[0] = data[0].map((d) => {
+                  d.role = "client";
+                  return d;
+                });
+
+                data[1] = data[1].map((d) => {
+                  d.role = "company";
+                  return d;
+                });
+
+                data[2] = data[2].map((d) => {
+                  d.role = "agent";
+                  return d;
+                });
+
+                setContacts(
+                  data[0]
+                    .concat(data[1])
+                    .concat(data[2])
+                    .sort((a, b) => (a.name > b.name ? 1 : -1))
+                );
+              })
+              .catch();
+        })
+        .catch(() => {
+          setConnLost(true);
+          setLoading(false);
+        });
+    }
+
     getAllContacts();
   }, []);
 

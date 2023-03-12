@@ -6,13 +6,15 @@ import Sidebar from "./components/Sidebar";
 
 // pages
 import Home from "./pages/Home";
-import AllContacts from "./pages/AllContacts";
-import Properties from "./pages/Properties";
-import Requirements from "./pages/Requirements";
-import ClientDetails from "./pages/ClientDetails";
+import Lead from "./pages/Lead";
 import Property from "./pages/Property";
+import Properties from "./pages/Properties";
+import AllContacts from "./pages/AllContacts";
+import Requirement from "./pages/Requirement";
 import AgentDetails from "./pages/AgentDetails";
+import ClientDetails from "./pages/ClientDetails";
 import CompanyDetails from "./pages/CompanyDetails";
+import RequirementCompany from "./pages/RequirementCompany";
 import RepresentativeDetails from "./pages/RepresentativeDetails";
 
 const App = () => {
@@ -39,9 +41,14 @@ const App = () => {
             <Route path="/agent_details/:id?" element={<AgentDetails />} />
             <Route path="/client_details/:id?" element={<ClientDetails />} />
             <Route path="/company_details/:id?" element={<CompanyDetails />} />
+            <Route path="/leads" element={<Lead />} />
             <Route path="/properties/:folder?" element={<Properties />} />
             <Route path="/property/:id?" element={<Property />} />
-            <Route path="/requirements" element={<Requirements />} />
+            <Route path="/requirement/:id" element={<Requirement />} />
+            <Route
+              path="/companyRequirement/:id"
+              element={<RequirementCompany />}
+            />
             <Route
               path="/representative/:id?"
               element={<RepresentativeDetails />}

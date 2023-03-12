@@ -22,6 +22,7 @@ import NoteModal from "../../components/NoteModal";
 import NoRecords from "../../components/NoRecords";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
+import RequirementsModal from "../../components/RequirementsModal";
 
 // utils
 import { genderCodedText, sourceCodedText } from "../../utils/codedText";
@@ -55,11 +56,13 @@ const ContactDetails = () => {
   const [validated, setValidated] = React.useState(false);
   const [view, setView] = React.useState(id ? true : false);
   const [notes, setNotes] = React.useState([]);
+  const [rqmns, setRqmns] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [noteModal, setNoteModal] = React.useState(false);
   const [clearIt, setClearIt] = React.useState(false);
   const [cancelIt, setCancelIt] = React.useState(false);
   const [deleteIt, setDeleteIt] = React.useState(false);
+  const [rqmnModal, setRqmnModal] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -84,7 +87,7 @@ const ContactDetails = () => {
     });
   }
 
-  function addClient(e) {
+  function formSubmitHandler(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
@@ -95,18 +98,22 @@ const ContactDetails = () => {
     setValidated(false);
 
     let tmpData = {};
+    id && (tmpData.id = id);
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/client", {
-      method: "POST",
+      method: id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
         if (res.status === 200) {
-          setValidated(false);
           setView(true);
-          setTimestamps({ createdAt: new Date() });
+          setTimestamps(
+            id
+              ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
+              : { createdAt: new Date() }
+          );
         }
       })
       .catch();
@@ -180,6 +187,7 @@ const ContactDetails = () => {
               }
 
               setNotes(data.notes);
+              setRqmns(data.rqmns);
             });
         })
         .catch(() => {
@@ -230,25 +238,27 @@ const ContactDetails = () => {
             </p>
           </div>
         </Col>
-        <Col
-          lg="6"
-          md="6"
-          sm="12"
-          className="d-flex justify-content-center align-items-center"
-        >
-          <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
-            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              100
-            </h1>
-            <p className="text-secondary">Requirements</p>
-          </div>
-          <div className="p-3 px-4 d-flex flex-column align-items-center">
-            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {notes.length}
-            </h1>
-            <p className="text-secondary">Notes</p>
-          </div>
-        </Col>
+        {id && (
+          <Col
+            lg="6"
+            md="6"
+            sm="12"
+            className="d-flex justify-content-center align-items-center"
+          >
+            <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
+              <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+                100
+              </h1>
+              <p className="text-secondary">Requirements</p>
+            </div>
+            <div className="p-3 px-4 d-flex flex-column align-items-center">
+              <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+                {notes.length}
+              </h1>
+              <p className="text-secondary">Notes</p>
+            </div>
+          </Col>
+        )}
       </Row>
       <Row className="w-100 m-0 p-0">
         <Col lg="9" className="order-2 order-lg-1">
@@ -424,7 +434,7 @@ const ContactDetails = () => {
             <Form
               noValidate
               validated={validated}
-              onSubmit={addClient}
+              onSubmit={formSubmitHandler}
               className="p-3 bg-white rounded-4 mb-3"
             >
               <p className="text-secondary">Personal details</p>
@@ -436,6 +446,7 @@ const ContactDetails = () => {
                     maxLength="100"
                     value={formData.name}
                     onChange={setField("name")}
+                    autoFocus
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -483,7 +494,7 @@ const ContactDetails = () => {
                         value={formData.gender}
                         onChange={setField("gender")}
                       >
-                        <option value="">Select</option>
+                        <option value="">Select gender</option>
                         <option value="1">Male</option>
                         <option value="2">Female</option>
                         <option value="3">Others</option>
@@ -622,7 +633,7 @@ const ContactDetails = () => {
                         value={formData.agent}
                         onChange={setField("source")}
                       >
-                        <option value="">Select</option>
+                        <option value="">Select source</option>
                         <option value="1">Direct</option>
                         <option value="2">Agent</option>
                         <option value="3">Website</option>
@@ -669,26 +680,36 @@ const ContactDetails = () => {
               alt="person"
               className="my-3"
             />
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              New Requirement
-            </Button>
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setNoteModal(true)}
-            >
-              Add Note
-            </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              LEAD
-            </Button>
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setDeleteIt(true)}
-            >
-              Delete
-            </Button>
+            {id ? (
+              <>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setRqmnModal(true)}
+                >
+                  Requirements
+                </Button>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setNoteModal(true)}
+                >
+                  Add Note
+                </Button>
+                <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+                  LEAD
+                </Button>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setDeleteIt(true)}
+                >
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <p className="fs-4 text-primary mt-4">Add new client</p>
+            )}
           </div>
         </Col>
       </Row>
@@ -724,6 +745,13 @@ const ContactDetails = () => {
           setDeleteIt(false);
           navigate("/all_contacts");
         }}
+      />
+      <RequirementsModal
+        rqmns={rqmns}
+        setRqmns={setRqmns}
+        show={rqmnModal}
+        client={id}
+        hide={() => setRqmnModal(false)}
       />
     </>
   );

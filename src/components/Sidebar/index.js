@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./style.css";
 
 // icons
@@ -9,7 +9,7 @@ import { FaUserFriends } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 
 const Sidebar = () => {
-  const [curSel, setCurSel] = React.useState(0);
+  const { pathname } = useLocation();
 
   return (
     <div className="sidebar d-flex flex-column bg-white">
@@ -27,34 +27,44 @@ const Sidebar = () => {
         height="128"
       />
       <h1 className="fs-5 mb-5 mx-auto text-center">Subho</h1>
-      <Link
-        to="/"
-        className={curSel === 0 ? "active" : ""}
-        onClick={() => setCurSel(0)}
-      >
+      <Link to="/" className={pathname === "/" ? "active" : ""}>
         <MdSpaceDashboard />
         Dashboard
       </Link>
       <Link
         to="/all_contacts"
-        className={curSel === 1 ? "active" : ""}
-        onClick={() => setCurSel(1)}
+        className={
+          pathname === "/all_contacts" ||
+          pathname.startsWith("/client_details") ||
+          pathname.startsWith("/company_details") ||
+          pathname.startsWith("/agent_details")
+            ? "active"
+            : ""
+        }
       >
         <FaUserFriends />
         Contacts
       </Link>
       <Link
         to="/properties"
-        className={curSel === 2 ? "active" : ""}
-        onClick={() => setCurSel(2)}
+        className={
+          pathname === "/properties" || pathname.startsWith("/property")
+            ? "active"
+            : ""
+        }
       >
         <RiBuilding2Fill />
         Properties
       </Link>
       <Link
-        to="/lead"
-        className={curSel === 3 ? "active" : ""}
-        onClick={() => setCurSel(3)}
+        to="/leads"
+        className={
+          pathname === "/leads" ||
+          pathname.startsWith("/requirement") ||
+          pathname.startsWith("/companyRequirement")
+            ? "active"
+            : ""
+        }
       >
         <BsFileEarmarkBarGraphFill />
         LEAD

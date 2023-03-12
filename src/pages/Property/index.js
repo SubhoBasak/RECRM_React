@@ -353,6 +353,7 @@ const Property = () => {
                     placeholder="Title"
                     value={formData.title}
                     onChange={setField("title")}
+                    autoFocus
                     required
                   />
                 </FloatingLabel>
@@ -542,7 +543,24 @@ const Property = () => {
             </Form>
           )}
         </Col>
-        <Col lg="3"></Col>
+        <Col lg="3">
+          <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
+            <img
+              src={require("../../assets/svgs/person.svg").default}
+              width="180"
+              height="180"
+              alt="person"
+              className="my-3"
+            />
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setDeleteIt(true)}
+            >
+              Delete
+            </Button>
+          </div>
+        </Col>
       </Row>
       <ConfirmModal
         show={clearIt}
@@ -567,7 +585,7 @@ const Property = () => {
         msg="Do you really want to delete the property?"
         remove={() => {
           setDeleteIt(false);
-          navigate("/all_contacts");
+          navigate("/properties");
         }}
       />
     </>

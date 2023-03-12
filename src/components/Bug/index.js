@@ -15,7 +15,11 @@ const Bug = () => {
       />
       <h3>Bad Response!!!</h3>
       <p>Something went wrong! Please try again</p>
-      <Button variant="primary" className="btn-sm d-flex align-items-center">
+      <Button
+        variant="primary"
+        className="btn-sm d-flex align-items-center"
+        onClick={() => window.location.reload()}
+      >
         <HiOutlineRefresh className="me-2" />
         Retry Now
       </Button>

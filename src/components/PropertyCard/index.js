@@ -2,23 +2,13 @@ import React from "react";
 import { Card, Alert, FormCheck, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
+// utils
+import { categoryCodedText } from "../../utils/codedText";
+
 const PropertyCard = ({ data, selected, setSelected }) => {
   const navigate = useNavigate();
 
   const [showPreview, setShowPreview] = React.useState(false);
-
-  function categoryName(c) {
-    switch (c) {
-      case 1:
-        return "Residential";
-      case 2:
-        return "Commercial";
-      case 3:
-        return "Other";
-      default:
-        return "Category not mentioned";
-    }
-  }
 
   function selectProperty() {
     let indx = selected.findIndex(
@@ -70,7 +60,7 @@ const PropertyCard = ({ data, selected, setSelected }) => {
             className="p-0 px-2 mx-auto"
             style={{ fontSize: "12px", maxWidth: "fit-content" }}
           >
-            {categoryName(data.category)}
+            {categoryCodedText(data.category)}
           </Alert>
           <div className="d-flex justify-content-between">
             <p className="text-primary me-2" style={{ fontSize: "12px" }}>

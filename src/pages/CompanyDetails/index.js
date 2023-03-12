@@ -27,6 +27,7 @@ import CompanyNoteModal from "../../components/CompanyNoteModal";
 import RepresentativeCard from "../../components/RepresentativeCard";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 import RepresentativeModal from "../../components/RepresentativeModal";
+import RequirementsCompanyModal from "../../components/RequirementsCompanyModal";
 
 // utils
 import { sourceCodedText } from "../../utils/codedText";
@@ -54,7 +55,7 @@ const CompanyDetails = () => {
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: "",
-    modifiedAt: "",
+    updatedAt: "",
   });
   const [validated, setValidated] = React.useState(false);
   const [connLost, setConnLost] = React.useState(false);
@@ -63,6 +64,7 @@ const CompanyDetails = () => {
   const [view, setView] = React.useState(id ? true : false);
   const [notes, setNotes] = React.useState([]);
   const [reprs, setReprs] = React.useState([]);
+  const [rqmns, setRqmns] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [clearIt, setClearIt] = React.useState(false);
   const [cancelIt, setCancelIt] = React.useState(false);
@@ -70,6 +72,7 @@ const CompanyDetails = () => {
   const [deleteSelected, setDeleteSelected] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNote, setAddNote] = React.useState(false);
+  const [rqmnModal, setRqmnModal] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -93,7 +96,7 @@ const CompanyDetails = () => {
     });
   }
 
-  function addCompany(e) {
+  function formSubmitHandler(e) {
     e.preventDefault();
 
     if (!e.currentTarget.checkValidity()) {
@@ -104,18 +107,22 @@ const CompanyDetails = () => {
     setValidated(false);
 
     let tmpData = {};
+    id && (tmpData.id = id);
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/company", {
-      method: "POST",
+      method: id ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
         if (res.status === 200) {
-          setValidated(false);
           setView(true);
-          setTimestamps({ createdAt: new Date() });
+          setTimestamps(
+            id
+              ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
+              : { createdAt: new Date() }
+          );
         }
       })
       .catch(() => setConnLost(true));
@@ -267,11 +274,12 @@ const CompanyDetails = () => {
                   });
                   setTimestamps({
                     createdAt: data.details.createdAt,
-                    modifiedAt: data.details.modifiedAt,
+                    updatedAt: data.details.updatedAt,
                   });
                 }
                 setNotes(data.notes);
                 setReprs(data.reprs);
+                setRqmns(data.rqmns);
               })
               .catch();
         })
@@ -482,11 +490,11 @@ const CompanyDetails = () => {
                   </p>
                 </Col>
               )}
-              {timestamps.modifiedAt && (
+              {timestamps.updatedAt && (
                 <Col lg="6">
                   <label className="text-secondary">Last modified</label>
                   <p>
-                    {new Date(timestamps.modifiedAt).toLocaleDateString(
+                    {new Date(timestamps.updatedAt).toLocaleDateString(
                       "default",
                       {
                         day: "numeric",
@@ -502,7 +510,7 @@ const CompanyDetails = () => {
             <Form
               noValidate
               validated={validated}
-              onSubmit={addCompany}
+              onSubmit={formSubmitHandler}
               className="p-3 bg-white rounded-4 mb-3"
             >
               <p className="text-secondary">Company details</p>
@@ -514,6 +522,7 @@ const CompanyDetails = () => {
                     maxLength="100"
                     value={formData.name}
                     onChange={setField("name")}
+                    autoFocus
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -673,7 +682,7 @@ const CompanyDetails = () => {
                         value={formData.source}
                         onChange={setField("source")}
                       >
-                        <option value="">Select</option>
+                        <option value="">Select source</option>
                         <option value="1">Direct</option>
                         <option value="2">Agent</option>
                         <option value="3">Website</option>
@@ -691,7 +700,7 @@ const CompanyDetails = () => {
                         value={formData.agent}
                         onChange={setField("agent")}
                       >
-                        <option value="">Select</option>
+                        <option value="">Select agent</option>
                       </FormSelect>
                     </FloatingLabel>
                   </Form.Group>
@@ -736,12 +745,16 @@ const CompanyDetails = () => {
             <Button
               variant="primary"
               className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setRqmnModal(true)}
+            >
+              Requirements
+            </Button>
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
               onClick={() => setReprModal(true)}
             >
               Add Representative
-            </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              View Clients
             </Button>
             <Button
               variant="primary"
@@ -809,6 +822,14 @@ const CompanyDetails = () => {
         company={id}
         reprs={reprs}
         add={(data) => setNotes([data, ...notes])}
+      />
+      <RequirementsCompanyModal
+        show={rqmnModal}
+        hide={() => setRqmnModal(false)}
+        rqmns={rqmns}
+        setRqmns={setRqmns}
+        reprs={reprs}
+        company={id}
       />
     </>
   );

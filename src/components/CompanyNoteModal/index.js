@@ -77,8 +77,9 @@ const CompanyNoteModal = ({ company, hide, show, add, reprs }) => {
             Tag representatives
           </label>
           <div className="d-flex flex-wrap">
-            {tagged.map((repr) => (
+            {tagged.map((repr, i) => (
               <Alert
+                key={i}
                 variant="warning py-0 px-2 ms-1 d-flex align-items-center"
                 style={{ maxHeight: "fit-content" }}
               >

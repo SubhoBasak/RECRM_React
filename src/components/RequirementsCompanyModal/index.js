@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  Alert,
+  Dropdown,
   Button,
   Col,
   FloatingLabel,
@@ -13,16 +15,26 @@ import NoRecords from "../NoRecords";
 
 // icons
 import { MdDeleteSweep } from "react-icons/md";
+import { FiUserPlus } from "react-icons/fi";
+import { IoCloseSharp } from "react-icons/io5";
 
 // components
 import ConfirmModal from "../ConfirmModal";
 import RequirementCard from "../RequirementCard";
 
-const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
+const RequirementsCompanyModal = ({
+  show,
+  hide,
+  rqmns,
+  reprs,
+  setRqmns,
+  company,
+}) => {
   const [validated, setValidated] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNew, setAddNew] = React.useState(false);
   const [deleteIt, setDeleteIt] = React.useState(false);
+  const [tagged, setTagged] = React.useState([]);
   const [formData, setFormData] = React.useState({
     title: "",
     budget: "",
@@ -47,10 +59,10 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
 
     setValidated(false);
 
-    let tmpData = { client };
+    let tmpData = { company };
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
-    fetch(process.env.REACT_APP_BASE_URL + "/rqmn", {
+    fetch(process.env.REACT_APP_BASE_URL + "/rqmnCompany", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(tmpData),
@@ -58,7 +70,7 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
       .then((res) => {
         if (res.status === 200)
           res.json().then((data) => {
-            delete tmpData.client;
+            delete tmpData.company;
             setRqmns([{ _id: data.id, ...tmpData }, ...rqmns]);
             setAddNew(false);
             setFormData({
@@ -76,7 +88,7 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
   }
 
   function delRqmns() {
-    fetch(process.env.REACT_APP_BASE_URL + "/rqmn", {
+    fetch(process.env.REACT_APP_BASE_URL + "/rqmnCompany", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(
@@ -136,7 +148,7 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
           {rqmns.map((data, i) => (
             <RequirementCard
               key={i}
-              url="/rqmn"
+              url="/rqmnCompany"
               data={data}
               selected={selected}
               setSelected={setSelected}
@@ -170,6 +182,55 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
         </Col>
         <Col lg="9">
           <h4 className="w-100 text-center mb-0">Add New Requirement</h4>
+          <label className="text-black-50 mb-3">
+            <FiUserPlus className="me-2" />
+            Tag representatives
+          </label>
+          <div className="d-flex flex-wrap">
+            {tagged.map((repr, i) => (
+              <Alert
+                key={i}
+                variant="warning py-0 px-2 ms-1 d-flex align-items-center"
+                style={{ maxHeight: "fit-content" }}
+              >
+                {repr.name}
+                <IoCloseSharp
+                  onClick={() =>
+                    setTagged(tagged.filter((tmp) => tmp.id !== repr.id))
+                  }
+                />
+              </Alert>
+            ))}
+          </div>
+          <Dropdown autoClose="outside" className="mb-3">
+            <Dropdown.Toggle className="btn-sm">
+              Select Representatives
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {reprs.length === tagged.length ? (
+                <Dropdown.Item className="text-black-50">
+                  All Selected
+                </Dropdown.Item>
+              ) : (
+                reprs.map((repr, i) => {
+                  if (tagged.findIndex((tmp) => tmp.id === repr._id) === -1)
+                    return (
+                      <Dropdown.Item
+                        key={i}
+                        onClick={() =>
+                          setTagged([
+                            { id: repr._id, name: repr.name },
+                            ...tagged,
+                          ])
+                        }
+                      >
+                        {repr.name}
+                      </Dropdown.Item>
+                    );
+                })
+              )}
+            </Dropdown.Menu>
+          </Dropdown>
           <Form
             className="p-3"
             validated={validated}
@@ -359,4 +420,4 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
   );
 };
 
-export default RequirementsModal;
+export default RequirementsCompanyModal;
