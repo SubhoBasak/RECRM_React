@@ -1,10 +1,14 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, FloatingLabel, Form, Modal, Spinner } from "react-bootstrap";
 
 // icons
 import { IoIosSave } from "react-icons/io";
 
 const NoteModal = ({ agent, client, url, hide, show, add }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  
   const [note, setNote] = React.useState("");
   const [validated, setValidated] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -38,6 +42,8 @@ const NoteModal = ({ agent, client, url, hide, show, add }) => {
               hide();
             })
             .catch();
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

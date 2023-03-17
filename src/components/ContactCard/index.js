@@ -15,10 +15,11 @@ import "./style.css";
 // icons
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdViewHeadline } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ContactCard = ({ data, selected, setSelected }) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [deleteModal, setDeleteModal] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -65,6 +66,8 @@ const ContactCard = ({ data, selected, setSelected }) => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) setDeleteModal(false);
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

@@ -1,5 +1,5 @@
 export function genderCodedText(c) {
-  switch (c) {
+  switch (Number.parseInt(c)) {
     case 1:
       return "Male";
     case 2:
@@ -12,7 +12,7 @@ export function genderCodedText(c) {
 }
 
 export function sourceCodedText(c) {
-  switch (c) {
+  switch (Number.parseInt(c)) {
     case 1:
       return "Direct";
     case 2:
@@ -31,7 +31,7 @@ export function sourceCodedText(c) {
 }
 
 export function categoryCodedText(c) {
-  switch (c) {
+  switch (Number.parseInt(c)) {
     case 1:
       return "Residential";
     case 2:
@@ -44,7 +44,7 @@ export function categoryCodedText(c) {
 }
 
 export function mediumCodedText(c) {
-  switch (c) {
+  switch (Number.parseInt(c)) {
     case 1:
       return "Voice Call";
     case 2:

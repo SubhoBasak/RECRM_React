@@ -3,6 +3,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Col, Form, Row, Button, FormSelect } from "react-bootstrap";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 
+// utils
+import { VIEWSTATE } from "../../utils/constants";
+import { genderCodedText } from "../../utils/codedText";
+
 // icons
 import { FiUserCheck } from "react-icons/fi";
 import { AiOutlineClear } from "react-icons/ai";
@@ -16,11 +20,9 @@ import NoteModal from "../../components/NoteModal";
 import NoRecords from "../../components/NoRecords";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
+import ClientsModal from "../../components/ClientsModal";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
-
-// utils
-import { VIEWSTATE } from "../../utils/constants";
-import { genderCodedText } from "../../utils/codedText";
+import InternalServerErrorModal from "../../components/InternalServerErrorModal";
 
 const AgentDetails = () => {
   const navigate = useNavigate();
@@ -49,8 +51,10 @@ const AgentDetails = () => {
   const [view, setView] = React.useState(id ? true : false);
   const [validated, setValidated] = React.useState(false);
   const [noteModal, setNoteModal] = React.useState(false);
+  const [clientModal, setClientModal] = React.useState(false);
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [notes, setNotes] = React.useState([]);
+  const [clients, setClients] = React.useState([]);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -119,7 +123,7 @@ const AgentDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        }
+        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
   }
@@ -146,7 +150,7 @@ const AgentDetails = () => {
             <NoteCard
               key={i}
               data={data}
-              url="/agentNote"
+              url="/agent/note"
               remove={() =>
                 setNotes(notes.filter((note) => note._id !== data._id))
               }
@@ -186,14 +190,16 @@ const AgentDetails = () => {
                     deals: data.details.deals || "",
                   });
                   setTimestamps({
-                    createdAt: data.details.createdAt,
-                    updatedAt: data.details.updatedAt,
+                    createdAt: data.details.createdAt || "",
+                    updatedAt: data.details.updatedAt || "",
                   });
                 }
 
-                setNotes(data.notes);
+                setNotes(data.notes || []);
+                setClients(data.clients || []);
               })
               .catch();
+          else if (res.status === 500) setViewState(VIEWSTATE.serverError);
         })
         .catch(() => {
           setViewState(VIEWSTATE.connLost);
@@ -251,15 +257,15 @@ const AgentDetails = () => {
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              100
+              {clients.length}
             </h1>
             <p className="text-secondary">Clients</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              75
+              {notes.length}
             </h1>
-            <p className="text-secondary">Remarks</p>
+            <p className="text-secondary">Notes</p>
           </div>
         </Col>
       </Row>
@@ -648,7 +654,11 @@ const AgentDetails = () => {
             >
               Add Client
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setClientModal(true)}
+            >
               View Clients
             </Button>
             <Button
@@ -668,6 +678,11 @@ const AgentDetails = () => {
           </div>
         </Col>
       </Row>
+      <ClientsModal
+        show={clientModal}
+        hide={() => setClientModal(false)}
+        clients={clients}
+      />
       <ConnectionLostModal
         show={viewState === VIEWSTATE.connLost}
         hide={() => setViewState(VIEWSTATE.none)}
@@ -677,7 +692,7 @@ const AgentDetails = () => {
         show={noteModal}
         hide={() => setNoteModal(false)}
         add={(data) => setNotes([data, ...notes])}
-        url="/agentNote"
+        url="/agent/note"
       />
       <ConfirmModal
         show={viewState === VIEWSTATE.clear || viewState === VIEWSTATE.cancel}
@@ -706,6 +721,10 @@ const AgentDetails = () => {
           setViewState(VIEWSTATE.none);
           navigate("/all_contacts");
         }}
+      />
+      <InternalServerErrorModal
+        show={viewState === VIEWSTATE.serverError}
+        hide={() => setViewState(VIEWSTATE.none)}
       />
     </>
   );

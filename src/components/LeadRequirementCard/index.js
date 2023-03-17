@@ -10,6 +10,10 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 
+// icons
+import { RiBuilding2Line } from "react-icons/ri";
+import { FiUser } from "react-icons/fi";
+
 const LeadRequirementCard = ({ data }) => {
   const navigate = useNavigate();
 
@@ -172,15 +176,18 @@ const LeadRequirementCard = ({ data }) => {
               </Popover>
             }
           >
-            <Button
-              variant={
-                data.client
-                  ? "outline-primary"
-                  : "outline-secondary text-secondary bg-transparent"
-              }
-              className="p-0 border-0"
-            >
-              {data.client ? data.client.name : data.company.name}
+            <Button variant="outline-primary" className="p-0 border-0">
+              {data.client ? (
+                <>
+                  <RiBuilding2Line className="me-2" />
+                  {data.client.name}
+                </>
+              ) : (
+                <>
+                  <FiUser className="me-2" />
+                  {data.company.name}
+                </>
+              )}
             </Button>
           </OverlayTrigger>
         </Col>

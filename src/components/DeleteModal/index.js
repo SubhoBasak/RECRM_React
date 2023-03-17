@@ -1,7 +1,11 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Modal, Spinner } from "react-bootstrap";
 
 const DeleteModal = ({ show, hide, url, body, remove, msg }) => {
+  const navigate = useNavigate();
+  const {pathname} = useLocation();
+
   const [loading, setLoading] = React.useState(false);
 
   function deleteNow() {
@@ -13,6 +17,8 @@ const DeleteModal = ({ show, hide, url, body, remove, msg }) => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) remove();
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

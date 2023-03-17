@@ -156,27 +156,27 @@ const Lead = () => {
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {leads.length}
+              {leads.filter((l) => !Boolean(l.stage)).length}
             </h1>
-            <p className="text-secondary">Workspaces</p>
+            <p className="text-secondary">Initiated</p>
           </div>
           <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              0
+              {leads.filter((l) => Boolean(l.stage)).length}
             </h1>
-            <p className="text-secondary">Companies</p>
+            <p className="text-secondary">On going</p>
           </div>
           <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              0
+              {leads.filter((l) => l.finally === 1).length}
             </h1>
-            <p className="text-secondary">Agents</p>
+            <p className="text-secondary">Cancelled</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              0
+              {leads.filter((l) => l.finally === 2).length}
             </h1>
-            <p className="text-secondary">Total</p>
+            <p className="text-secondary">Completed</p>
           </div>
         </Col>
       </Row>

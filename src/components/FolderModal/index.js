@@ -1,7 +1,11 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Modal, Form, FloatingLabel, Spinner } from "react-bootstrap";
 
 const FolderModal = ({ hide, show }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [formData, setFormData] = React.useState({
     name: "",
     info: "",
@@ -41,7 +45,8 @@ const FolderModal = ({ hide, show }) => {
           setValidated(false);
           clearFormData();
           hide();
-        }
+        } else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

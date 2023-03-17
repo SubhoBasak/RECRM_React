@@ -5,7 +5,7 @@ import "./style.css";
 // icons
 import { BsFileEarmarkBarGraphFill } from "react-icons/bs";
 import { RiBuilding2Fill } from "react-icons/ri";
-import { FaUserFriends } from "react-icons/fa";
+import { FaUserFriends, FaUsers } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 
 const Sidebar = () => {
@@ -68,6 +68,17 @@ const Sidebar = () => {
       >
         <BsFileEarmarkBarGraphFill />
         LEAD
+      </Link>
+      <Link
+        to="/users"
+        className={
+          pathname === "/users" || pathname.startsWith("/user_details")
+            ? "active"
+            : ""
+        }
+      >
+        <FaUsers />
+        Users
       </Link>
     </div>
   );

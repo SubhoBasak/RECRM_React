@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import {
   Col,
   Form,
@@ -8,6 +8,10 @@ import {
   FormSelect,
   FloatingLabel,
 } from "react-bootstrap";
+
+// utils
+import { genderCodedText, sourceCodedText } from "../../utils/codedText";
+import { VIEWSTATE } from "../../utils/constants";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
@@ -23,9 +27,8 @@ import NoRecords from "../../components/NoRecords";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import RequirementsModal from "../../components/RequirementsModal";
-
-// utils
-import { genderCodedText, sourceCodedText } from "../../utils/codedText";
+import ConnectionLostModal from "../../components/ConnectionLostModal";
+import InternalServerErrorModal from "../../components/InternalServerErrorModal";
 
 const ContactDetails = () => {
   const navigate = useNavigate();
@@ -47,22 +50,25 @@ const ContactDetails = () => {
     zip: state?.zip || "",
     landmark: state?.landmark || "",
     source: state?.source || "",
-    agent: state?.agent || "",
+    agent: state?.agent._id || "",
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: state?.createdAt || "",
     modifiedAt: state?.modifiedAt || "",
   });
+  const [agentDetails, setAgentDetails] = React.useState({
+    name: state?.agent.name || "",
+    email: state?.agent.email || "",
+    address1: state?.agent.address1 || "",
+  });
   const [validated, setValidated] = React.useState(false);
   const [view, setView] = React.useState(id ? true : false);
   const [notes, setNotes] = React.useState([]);
   const [rqmns, setRqmns] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+  const [agents, setAgents] = React.useState([]);
   const [noteModal, setNoteModal] = React.useState(false);
-  const [clearIt, setClearIt] = React.useState(false);
-  const [cancelIt, setCancelIt] = React.useState(false);
-  const [deleteIt, setDeleteIt] = React.useState(false);
   const [rqmnModal, setRqmnModal] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -97,8 +103,7 @@ const ContactDetails = () => {
 
     setValidated(false);
 
-    let tmpData = {};
-    id && (tmpData.id = id);
+    let tmpData = id ? { id } : {};
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/client", {
@@ -114,14 +119,14 @@ const ContactDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        }
+        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
-      .catch();
+      .catch(() => setViewState(VIEWSTATE.connLost));
   }
 
   function showNotes() {
     if (!id) return;
-    else if (loading) return <Loading />;
+    else if (viewState === VIEWSTATE.loading) return <Loading />;
     else if (notes.length === 0)
       return (
         <>
@@ -141,7 +146,7 @@ const ContactDetails = () => {
             <NoteCard
               key={i}
               data={data}
-              url="/clientNote"
+              url="/client/note"
               remove={() =>
                 setNotes(notes.filter((note) => note._id !== data._id))
               }
@@ -159,7 +164,7 @@ const ContactDetails = () => {
           new URLSearchParams({ id, details: state?.name ? false : true })
       )
         .then((res) => {
-          setLoading(false);
+          setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res.json().then((data) => {
               if (data.details) {
@@ -181,19 +186,25 @@ const ContactDetails = () => {
                   agent: data.details.agent || "",
                 });
                 setTimestamps({
-                  createdAt: data.details.createdAt,
-                  modifiedAt: data.details.modifiedAt,
+                  createdAt: data.details.createdAt || "",
+                  modifiedAt: data.details.modifiedAt || "",
+                });
+                setAgentDetails({
+                  name: data.agent?.name || "",
+                  email: data.agent?.email || "",
+                  address1: data.agent?.address1 || "",
                 });
               }
 
-              setNotes(data.notes);
-              setRqmns(data.rqmns);
+              setNotes(data.notes || []);
+              setRqmns(data.rqmns || []);
+              setAgents(data.agents || []);
             });
         })
         .catch(() => {
-          setLoading(false);
+          setViewState(VIEWSTATE.none);
         });
-      setLoading(true);
+      setViewState(VIEWSTATE.loading);
     }
 
     id && getDetails();
@@ -207,14 +218,16 @@ const ContactDetails = () => {
           <Button
             variant="outline-primary"
             className="d-flex my-auto me-3"
-            onClick={() => setClearIt(true)}
+            onClick={() => setViewState(VIEWSTATE.clear)}
           >
             <AiOutlineClear />
           </Button>
         )}
         <Button
           className="my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => (id ? navigate("/all_contacts") : setCancelIt(true))}
+          onClick={() =>
+            id ? navigate("/all_contacts") : setViewState(VIEWSTATE.cancel)
+          }
         >
           <TbArrowBack className="me-2" />
           {id ? "Return" : "Cancel"}
@@ -247,7 +260,7 @@ const ContactDetails = () => {
           >
             <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
               <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-                100
+                {rqmns.length}
               </h1>
               <p className="text-secondary">Requirements</p>
             </div>
@@ -375,7 +388,6 @@ const ContactDetails = () => {
                   <p>{formData.landmark}</p>
                 </Col>
               )}
-
               {(formData.source || timestamps.createdAt) && (
                 <>
                   <h5
@@ -394,9 +406,11 @@ const ContactDetails = () => {
                 </Col>
               )}
               {formData.agent && (
-                <Col lg="6">
+                <Col lg="6" className="d-flex flex-column">
                   <label className="text-secondary">Agent</label>
-                  <p>{formData.agent}</p>
+                  <Link to={"/agent_details/" + formData.agent}>
+                    {agentDetails.name}
+                  </Link>
                 </Col>
               )}
               {timestamps.createdAt && (
@@ -630,7 +644,7 @@ const ContactDetails = () => {
                   <Form.Group className="mb-3">
                     <FloatingLabel label="Source">
                       <FormSelect
-                        value={formData.agent}
+                        value={formData.source}
                         onChange={setField("source")}
                       >
                         <option value="">Select source</option>
@@ -644,18 +658,30 @@ const ContactDetails = () => {
                     </FloatingLabel>
                   </Form.Group>
                 </Col>
-                <Col lg="6">
-                  <Form.Group className="mb-3">
-                    <FloatingLabel label="Agent">
-                      <FormSelect
-                        value={formData.agent}
-                        onChange={setField("agent")}
-                      >
-                        <option value="">Select</option>
-                      </FormSelect>
-                    </FloatingLabel>
-                  </Form.Group>
-                </Col>
+                {Number.parseInt(formData.source) === 2 && (
+                  <Col lg="6">
+                    <Form.Group className="mb-3">
+                      <FloatingLabel label="Agent">
+                        <FormSelect
+                          value={formData.agent._id || formData.agent}
+                          onChange={setField("agent")}
+                          required
+                        >
+                          <option value="">Select</option>
+                          {agents.map((data, i) => (
+                            <option key={i} value={data._id}>
+                              {data.name +
+                                " | " +
+                                data.email +
+                                " | " +
+                                data.address1}
+                            </option>
+                          ))}
+                        </FormSelect>
+                      </FloatingLabel>
+                    </Form.Group>
+                  </Col>
+                )}
               </Row>
               <div className="d-flex py-3">
                 <Button
@@ -702,7 +728,7 @@ const ContactDetails = () => {
                 <Button
                   variant="primary"
                   className="btn-sm mt-3 w-75 shadow"
-                  onClick={() => setDeleteIt(true)}
+                  onClick={() => setViewState(VIEWSTATE.delete)}
                 >
                   Delete
                 </Button>
@@ -714,14 +740,14 @@ const ContactDetails = () => {
         </Col>
       </Row>
       <ConfirmModal
-        show={clearIt}
-        hide={() => setClearIt(false)}
+        show={viewState === VIEWSTATE.clear}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Do you really want to clear all the fields?"
         yes={() => clearFormData()}
       />
       <ConfirmModal
-        show={cancelIt}
-        hide={() => setCancelIt(false)}
+        show={viewState === VIEWSTATE.cancel}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Cancelling it may result data loss. Do you really want to proceed?"
         yes={() => {
           clearFormData();
@@ -731,18 +757,18 @@ const ContactDetails = () => {
       <NoteModal
         client={id}
         show={noteModal}
-        url="/clientNote"
+        url="/client/note"
         hide={() => setNoteModal(false)}
         add={(data) => setNotes([data, ...notes])}
       />
       <DeleteModal
-        show={deleteIt}
-        hide={() => setDeleteIt(false)}
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
         url="/client"
         body={{ id }}
         msg="Do you really want to delete the client?"
         remove={() => {
-          setDeleteIt(false);
+          setViewState(VIEWSTATE.none);
           navigate("/all_contacts");
         }}
       />
@@ -752,6 +778,14 @@ const ContactDetails = () => {
         show={rqmnModal}
         client={id}
         hide={() => setRqmnModal(false)}
+      />
+      <ConnectionLostModal
+        show={viewState === VIEWSTATE.connLost}
+        hide={() => setViewState(VIEWSTATE.none)}
+      />
+      <InternalServerErrorModal
+        show={viewState === VIEWSTATE.serverError}
+        hide={() => setViewState(VIEWSTATE.none)}
       />
     </>
   );

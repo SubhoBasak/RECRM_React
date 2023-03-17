@@ -385,21 +385,6 @@ const RequirementCompany = () => {
                     </FloatingLabel>
                   </Form.Group>
                 </Col>
-                <Col lg="6">
-                  <Form.Group className="mb-3">
-                    <FloatingLabel label="Date of Birth">
-                      <Form.Control
-                        type="date"
-                        className="d-flex"
-                        value={formData.dob}
-                        onChange={setField("dob")}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Invalid date of birth!
-                      </Form.Control.Feedback>
-                    </FloatingLabel>
-                  </Form.Group>
-                </Col>
               </Row>
               <Form.Group className="mb-3">
                 <FloatingLabel label="Occupation">

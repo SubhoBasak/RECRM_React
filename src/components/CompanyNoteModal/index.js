@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -15,6 +16,9 @@ import { FiUserPlus } from "react-icons/fi";
 import { IoCloseSharp } from "react-icons/io5";
 
 const CompanyNoteModal = ({ company, hide, show, add, reprs }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [note, setNote] = React.useState("");
   const [validated, setValidated] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -29,7 +33,7 @@ const CompanyNoteModal = ({ company, hide, show, add, reprs }) => {
     }
     setValidated(false);
 
-    fetch(process.env.REACT_APP_BASE_URL + "/companyNote", {
+    fetch(process.env.REACT_APP_BASE_URL + "/company/note", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ company, note, tagged: tagged.map((x) => x.id) }),
@@ -46,6 +50,8 @@ const CompanyNoteModal = ({ company, hide, show, add, reprs }) => {
               hide();
             })
             .catch();
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

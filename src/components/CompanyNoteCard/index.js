@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Alert, Col, Row, Spinner } from "react-bootstrap";
 
 // icons
@@ -10,13 +10,14 @@ import ConfirmModal from "../ConfirmModal";
 
 const CompanyNoteCard = ({ data, remove }) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [loading, setLoading] = React.useState(false);
   const [deleteIt, setDeleteIt] = React.useState(false);
 
   function deleteNote() {
     setDeleteIt(false);
-    fetch(process.env.REACT_APP_BASE_URL + "/companyNote", {
+    fetch(process.env.REACT_APP_BASE_URL + "/company/note", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: data._id }),
@@ -24,6 +25,8 @@ const CompanyNoteCard = ({ data, remove }) => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) remove();
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

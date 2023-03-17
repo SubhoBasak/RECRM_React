@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Col,
   Row,
@@ -14,6 +15,9 @@ import {
 import { VIEWSTATE } from "../../utils/constants";
 
 const LeadModal = ({ show, hide, requirement }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [formData, setFormData] = React.useState({
     title: "",
     medium: "",
@@ -47,9 +51,9 @@ const LeadModal = ({ show, hide, requirement }) => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) {
-          hide();
-        }
+        if (res.status === 200) hide();
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => setViewState(VIEWSTATE.none));
     setViewState(VIEWSTATE.loading);

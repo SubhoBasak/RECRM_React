@@ -10,9 +10,9 @@ import { TbArrowBack } from "react-icons/tb";
 import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
-import NoteCard from "../../components/NoteCard";
-import NoRecords from "../../components/NoRecords";
 import Loading from "../../components/Loading";
+import NoRecords from "../../components/NoRecords";
+import CompanyNoteCard from "../../components/CompanyNoteCard";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 
 const RepresentativeDetails = () => {
@@ -53,10 +53,10 @@ const RepresentativeDetails = () => {
             Tagged Notes
           </h1>
           {notes.map((data, i) => (
-            <NoteCard
+            <CompanyNoteCard
               key={i}
               data={data}
-              url="/companyNote"
+              url="/company/note"
               remove={() =>
                 setNotes(notes.filter((note) => note._id !== data._id))
               }

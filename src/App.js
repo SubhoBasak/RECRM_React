@@ -6,11 +6,14 @@ import Sidebar from "./components/Sidebar";
 
 // pages
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
 import Lead from "./pages/Lead";
+import Users from "./pages/Users";
 import Property from "./pages/Property";
 import Properties from "./pages/Properties";
 import AllContacts from "./pages/AllContacts";
 import Requirement from "./pages/Requirement";
+import UserDetails from "./pages/UserDetails";
 import AgentDetails from "./pages/AgentDetails";
 import ClientDetails from "./pages/ClientDetails";
 import CompanyDetails from "./pages/CompanyDetails";
@@ -37,6 +40,7 @@ const App = () => {
               path="/"
               element={<Home theme={theme} setTheme={setTheme} />}
             />
+            <Route path="/auth/:next?" element={<Auth />} />
             <Route path="/all_contacts" element={<AllContacts />} />
             <Route path="/agent_details/:id?" element={<AgentDetails />} />
             <Route path="/client_details/:id?" element={<ClientDetails />} />
@@ -53,6 +57,8 @@ const App = () => {
               path="/representative/:id?"
               element={<RepresentativeDetails />}
             />
+            <Route path="/users" element={<Users />} />
+            <Route path="/user_details/:id?" element={<UserDetails />} />
           </Routes>
         </div>
       </div>

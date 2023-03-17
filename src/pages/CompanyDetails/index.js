@@ -10,6 +10,10 @@ import {
   FormSelect,
 } from "react-bootstrap";
 
+// utils
+import { sourceCodedText } from "../../utils/codedText";
+import { VIEWSTATE } from "../../utils/constants";
+
 // icons
 import { FiUserCheck } from "react-icons/fi";
 import { TbArrowBack } from "react-icons/tb";
@@ -28,9 +32,7 @@ import RepresentativeCard from "../../components/RepresentativeCard";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 import RepresentativeModal from "../../components/RepresentativeModal";
 import RequirementsCompanyModal from "../../components/RequirementsCompanyModal";
-
-// utils
-import { sourceCodedText } from "../../utils/codedText";
+import InternalServerErrorModal from "../../components/InternalServerErrorModal";
 
 const CompanyDetails = () => {
   const navigate = useNavigate();
@@ -54,25 +56,21 @@ const CompanyDetails = () => {
     about: state?.about || "",
   });
   const [timestamps, setTimestamps] = React.useState({
-    createdAt: "",
-    updatedAt: "",
+    createdAt: state?.createdAt || "",
+    updatedAt: state?.updatedAt || "",
   });
   const [validated, setValidated] = React.useState(false);
-  const [connLost, setConnLost] = React.useState(false);
   const [reprModal, setReprModal] = React.useState(false);
   const [editRepr, setEditRepr] = React.useState({});
   const [view, setView] = React.useState(id ? true : false);
   const [notes, setNotes] = React.useState([]);
   const [reprs, setReprs] = React.useState([]);
   const [rqmns, setRqmns] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [clearIt, setClearIt] = React.useState(false);
-  const [cancelIt, setCancelIt] = React.useState(false);
-  const [deleteIt, setDeleteIt] = React.useState(false);
   const [deleteSelected, setDeleteSelected] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNote, setAddNote] = React.useState(false);
   const [rqmnModal, setRqmnModal] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -123,14 +121,14 @@ const CompanyDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        }
+        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
-      .catch(() => setConnLost(true));
+      .catch(() => setViewState(VIEWSTATE.connLost));
   }
 
   function showData() {
     if (!id) return;
-    else if (loading) return <Loading />;
+    else if (viewState === VIEWSTATE.loading) return <Loading />;
 
     return (
       <>
@@ -250,7 +248,7 @@ const CompanyDetails = () => {
           })
       )
         .then((res) => {
-          setLoading(false);
+          setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res
               .json()
@@ -273,18 +271,19 @@ const CompanyDetails = () => {
                     about: data.details.about || "",
                   });
                   setTimestamps({
-                    createdAt: data.details.createdAt,
-                    updatedAt: data.details.updatedAt,
+                    createdAt: data.details.createdAt || "",
+                    updatedAt: data.details.updatedAt || "",
                   });
                 }
-                setNotes(data.notes);
-                setReprs(data.reprs);
-                setRqmns(data.rqmns);
+                setNotes(data.notes || []);
+                setReprs(data.reprs || []);
+                setRqmns(data.rqmns || []);
               })
               .catch();
+          else if (res.status === 500) setViewState(VIEWSTATE.serverError);
         })
-        .catch(() => setLoading(false));
-      setLoading(true);
+        .catch(() => setViewState(VIEWSTATE.none));
+      setViewState(VIEWSTATE.loading);
     }
 
     id && getDetails();
@@ -298,14 +297,16 @@ const CompanyDetails = () => {
           <Button
             variant="outline-primary"
             className="d-flex my-auto me-3"
-            onClick={() => setClearIt(true)}
+            onClick={() => setViewState(VIEWSTATE.clear)}
           >
             <AiOutlineClear />
           </Button>
         )}
         <Button
           className="my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => (id ? navigate("/all_contacts") : setCancelIt(true))}
+          onClick={() =>
+            id ? navigate("/all_contacts") : setViewState(VIEWSTATE.cancel)
+          }
         >
           <TbArrowBack className="me-2" />
           {id ? "Return" : "Cancel"}
@@ -339,7 +340,13 @@ const CompanyDetails = () => {
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
               {reprs.length}
             </h1>
-            <p className="text-secondary">Represen tatives</p>
+            <p className="text-secondary">Representatives</p>
+          </div>
+          <div className="p-3 px-4 d-flex border-end flex-column align-items-center">
+            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+              {rqmns.length}
+            </h1>
+            <p className="text-secondary">Requirements</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
@@ -726,7 +733,7 @@ const CompanyDetails = () => {
                   className="btn-sm shadow mx-auto"
                 >
                   <FiUserCheck className="me-2" />
-                  Add Now
+                  {id ? "Update" : "Add Now"}
                 </Button>
               </div>
             </Form>
@@ -766,7 +773,7 @@ const CompanyDetails = () => {
             <Button
               variant="primary"
               className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setDeleteIt(true)}
+              onClick={() => setViewState(VIEWSTATE.delete)}
             >
               Delete
             </Button>
@@ -774,14 +781,14 @@ const CompanyDetails = () => {
         </Col>
       </Row>
       <ConfirmModal
-        show={clearIt}
-        hide={() => setClearIt(false)}
+        show={viewState === VIEWSTATE.clear}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Do you really want to clear all the fields?"
         yes={() => clearFormData()}
       />
       <ConfirmModal
-        show={cancelIt}
-        hide={() => setCancelIt(false)}
+        show={viewState === VIEWSTATE.cancel}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Cancelling it may result data loss. Do you really want to proceed?"
         yes={() => {
           clearFormData();
@@ -804,15 +811,18 @@ const CompanyDetails = () => {
         data={editRepr}
         company={id}
       />
-      <ConnectionLostModal show={connLost} hide={() => setConnLost(false)} />
+      <ConnectionLostModal
+        show={viewState === VIEWSTATE.connLost}
+        hide={() => setViewState(VIEWSTATE.none)}
+      />
       <DeleteModal
-        show={deleteIt}
-        hide={() => setDeleteIt(false)}
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
         url="/company"
         body={{ id }}
         msg="Do you really want to delete this company?"
         remove={() => {
-          setDeleteIt(false);
+          setViewState(VIEWSTATE.none);
           navigate("/all_contacts");
         }}
       />
@@ -830,6 +840,10 @@ const CompanyDetails = () => {
         setRqmns={setRqmns}
         reprs={reprs}
         company={id}
+      />
+      <InternalServerErrorModal
+        show={viewState === VIEWSTATE.serverError}
+        hide={() => setViewState(VIEWSTATE.none)}
       />
     </>
   );

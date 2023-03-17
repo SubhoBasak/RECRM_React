@@ -44,6 +44,7 @@ const Requirement = () => {
     otherDetails: state?.otherDetails || "",
   });
   const [client, setClient] = React.useState({
+    id: state?.client._id || "",
     name: state?.client.name || "",
     email: state?.client.email || "",
     phone: state?.client.phone || "",
@@ -142,10 +143,11 @@ const Requirement = () => {
                   otherDetails: data.details.otherDetails || "",
                 });
                 setClient({
-                  name: data.details.client.name || "",
+                  id: data.details.client._id,
+                  name: data.details.client.name,
                   email: data.details.client.email || "",
                   phone: data.details.client.phone || "",
-                  address1: data.details.client.address1 || "",
+                  address1: data.details.client.address1,
                   address2: data.details.client.address2 || "",
                   city: data.details.client.city || "",
                   state: data.details.client.state || "",
@@ -236,12 +238,6 @@ const Requirement = () => {
                   <p>{formData.area}</p>
                 </Col>
               )}
-              {formData.occupation && (
-                <Col lg="6">
-                  <label className="text-secondary">Occupation</label>
-                  <p>{formData.occupation}</p>
-                </Col>
-              )}
               <h5
                 className="mb-3 mt-3 text-primary"
                 style={{ fontFamily: "pacifico" }}
@@ -271,48 +267,6 @@ const Requirement = () => {
                 <Col lg="6">
                   <label className="text-secondary">Zip code</label>
                   <p>{formData.zip}</p>
-                </Col>
-              )}
-              {formData.landmark && (
-                <Col lg="6">
-                  <label className="text-secondary">Landmark</label>
-                  <p>{formData.landmark}</p>
-                </Col>
-              )}
-              {formData.agent && (
-                <Col lg="6">
-                  <label className="text-secondary">Agent</label>
-                  <p>{formData.agent}</p>
-                </Col>
-              )}
-              {timestamps.createdAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Created at</label>
-                  <p>
-                    {new Date(timestamps.createdAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
-              {timestamps.updatedAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Last modified</label>
-                  <p>
-                    {new Date(timestamps.updatedAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
                 </Col>
               )}
             </Row>
@@ -384,21 +338,6 @@ const Requirement = () => {
                         <option value="2">Commercial</option>
                         <option value="3">Other</option>
                       </FormSelect>
-                    </FloatingLabel>
-                  </Form.Group>
-                </Col>
-                <Col lg="6">
-                  <Form.Group className="mb-3">
-                    <FloatingLabel label="Date of Birth">
-                      <Form.Control
-                        type="date"
-                        className="d-flex"
-                        value={formData.dob}
-                        onChange={setField("dob")}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Invalid date of birth!
-                      </Form.Control.Feedback>
                     </FloatingLabel>
                   </Form.Group>
                 </Col>
@@ -575,6 +514,15 @@ const Requirement = () => {
                 <p>{client.landmark}</p>
               </Col>
             )}
+            <div className="d-flex justify-content-end">
+              <Button
+                variant="outline-primary"
+                className="btn-sm"
+                onClick={() => navigate("/client_details/" + client.id)}
+              >
+                View Details
+              </Button>
+            </div>
           </Row>
           {showData()}
         </Col>
