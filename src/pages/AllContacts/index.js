@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
   Col,
@@ -25,6 +25,9 @@ import Loading from "../../components/Loading";
 import ConfirmModal from "../../components/ConfirmModal";
 
 const AllContacts = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [contacts, setContacts] = React.useState([]);
   const [clientCount, setClientCount] = React.useState(0);
   const [companyCount, setCompanyCount] = React.useState(0);
@@ -64,7 +67,8 @@ const AllContacts = () => {
             })
           );
           setSelected([]);
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => setConnLost(true));
   }
@@ -91,9 +95,10 @@ const AllContacts = () => {
         data.landmark?.toLowerCase().includes(tmp)
       )
         return <ContactCard key={i} {...{ data, selected, setSelected }} />;
+      return null;
     });
 
-    if (list.every((i) => i === null || i === undefined)) return <NotFound />;
+    if (list.every((i) => i === null)) return <NotFound />;
     return (
       <>
         <Row
@@ -169,6 +174,8 @@ const AllContacts = () => {
                 );
               })
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
         .catch(() => {
           setConnLost(true);
@@ -177,7 +184,7 @@ const AllContacts = () => {
     }
 
     getAllContacts();
-  }, []);
+  }, [pathname, navigate]);
 
   return (
     <>

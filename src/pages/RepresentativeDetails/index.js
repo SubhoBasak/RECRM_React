@@ -4,6 +4,9 @@ import { Col, Form, Row, Button } from "react-bootstrap";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import "./style.css";
 
+// utils
+import { VIEWSTATE } from "../../utils/constants";
+
 // icons
 import { FiUserCheck } from "react-icons/fi";
 import { TbArrowBack } from "react-icons/tb";
@@ -12,12 +15,15 @@ import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 // components
 import Loading from "../../components/Loading";
 import NoRecords from "../../components/NoRecords";
+import DeleteModal from "../../components/DeleteModal";
+import ConnectionLost from "../../components/ConnectionLost";
 import CompanyNoteCard from "../../components/CompanyNoteCard";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
+import InternalServerError from "../../components/InternalServerError";
 
 const RepresentativeDetails = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -26,44 +32,46 @@ const RepresentativeDetails = () => {
     phone: state?.phone || "",
     designation: state?.designation || "",
   });
+  const [companyDetails, setCompanyDetails] = React.useState({
+    name: state?.company.name || "",
+    phone: state?.company?.phone || "",
+    email: state?.company?.email || "",
+    address1: state?.company?.address1 || "",
+  });
   const [view, setView] = React.useState(id ? true : false);
   const [validated, setValidated] = React.useState(false);
-  const [connLost, setConnLost] = React.useState(false);
   const [notes, setNotes] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
 
   function showNotes() {
-    if (loading) return <Loading />;
-    else if (notes.length === 0)
-      return (
-        <>
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Tagged Notes
-          </h1>
+    if (viewState === VIEWSTATE.loading) return <Loading />;
+    else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
+    else if (viewState === VIEWSTATE.serverError)
+      return <InternalServerError />;
+
+    return (
+      <>
+        <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+          Tagged Notes
+        </h1>
+        {notes.length === 0 ? (
           <NoRecords />
-        </>
-      );
-    else
-      return (
-        <>
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Tagged Notes
-          </h1>
-          {notes.map((data, i) => (
+        ) : (
+          notes.map((data, i) => (
             <CompanyNoteCard
               key={i}
               data={data}
-              url="/company/note"
               remove={() =>
                 setNotes(notes.filter((note) => note._id !== data._id))
               }
             />
-          ))}
-        </>
-      );
+          ))
+        )}
+      </>
+    );
   }
 
   function updateRepr(e) {
@@ -83,16 +91,13 @@ const RepresentativeDetails = () => {
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => {
-        setConnLost(false);
-        setLoading(false);
+        setViewState(VIEWSTATE.none);
         if (res.status === 200) {
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
-      .catch(() => {
-        setLoading(false);
-        setConnLost(true);
-      });
-    setLoading(true);
+      .catch(() => setViewState(VIEWSTATE.connLost));
+    setViewState(VIEWSTATE.loading);
   }
 
   React.useEffect(() => {
@@ -103,8 +108,7 @@ const RepresentativeDetails = () => {
           new URLSearchParams({ id, details: state?.name ? false : true })
       )
         .then((res) => {
-          setLoading(false);
-          setConnLost(false);
+          setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res
               .json()
@@ -116,19 +120,24 @@ const RepresentativeDetails = () => {
                     phone: data.details.phone || "",
                     designation: data.details.designation || "",
                   });
+                  setCompanyDetails({
+                    name: state?.company.name || "",
+                    phone: state?.company?.phone || "",
+                    email: state?.company?.email || "",
+                    address1: state?.company?.address1 || "",
+                  });
                 }
               })
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
-        .catch(() => {
-          setLoading(false);
-          setConnLost(true);
-        });
-      setLoading(true);
+        .catch(() => setViewState(VIEWSTATE.connLost));
+      setViewState(VIEWSTATE.loading);
     }
 
     getDetails();
-  }, [id, state]);
+  }, [id, pathname, state, navigate]);
 
   return (
     <>
@@ -166,17 +175,11 @@ const RepresentativeDetails = () => {
           sm="12"
           className="d-flex justify-content-center align-items-center"
         >
-          <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
+          <div className="p-2 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              100
+              {notes.length}
             </h1>
-            <p className="text-secondary">Notes</p>
-          </div>
-          <div className="p-3 px-4 d-flex flex-column align-items-center">
-            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              75
-            </h1>
-            <p className="text-secondary">Remarks</p>
+            <p className="text-secondary">Tagged Notes</p>
           </div>
         </Col>
       </Row>
@@ -317,13 +320,7 @@ const RepresentativeDetails = () => {
               className="my-3"
             />
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              Add Client
-            </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              View Clients
-            </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              Add Note
+              View Company
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               Delete
@@ -331,7 +328,16 @@ const RepresentativeDetails = () => {
           </div>
         </Col>
       </Row>
-      <ConnectionLostModal show={connLost} />
+      <DeleteModal
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
+        msg="Do you really want to delete this representative?"
+        remove={() => navigate("/company_details/")}
+      />
+      <ConnectionLostModal
+        show={viewState === VIEWSTATE.connLost}
+        hide={() => setViewState(VIEWSTATE.none)}
+      />
     </>
   );
 };

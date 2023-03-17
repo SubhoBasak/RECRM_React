@@ -24,8 +24,7 @@ const ClientsModal = ({ show, hide, clients }) => {
             <NoRecords />
           ) : (
             <>
-              <Row>
-                <Col lg="1" />
+              <Row className="text-black-50 fw-bold">
                 <Col lg="3">Name</Col>
                 <Col lg="2">Phone</Col>
                 <Col lg="2">Email</Col>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Alert,
   Dropdown,
@@ -30,6 +31,9 @@ const RequirementsCompanyModal = ({
   setRqmns,
   company,
 }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [validated, setValidated] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNew, setAddNew] = React.useState(false);
@@ -83,6 +87,8 @@ const RequirementsCompanyModal = ({
               otherDetails: "",
             });
           });
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }
@@ -96,7 +102,7 @@ const RequirementsCompanyModal = ({
       ),
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === 200)
           setRqmns(
             rqmns.filter((rqmn) => {
               for (let sel in selected)
@@ -104,7 +110,8 @@ const RequirementsCompanyModal = ({
               return true;
             })
           );
-        }
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }

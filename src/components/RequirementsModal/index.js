@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Button,
   Col,
@@ -19,6 +20,9 @@ import ConfirmModal from "../ConfirmModal";
 import RequirementCard from "../RequirementCard";
 
 const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [validated, setValidated] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNew, setAddNew] = React.useState(false);
@@ -71,6 +75,8 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
               otherDetails: "",
             });
           });
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }
@@ -84,7 +90,7 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
       ),
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === 200)
           setRqmns(
             rqmns.filter((rqmn) => {
               for (let sel in selected)
@@ -92,7 +98,8 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
               return true;
             })
           );
-        }
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }

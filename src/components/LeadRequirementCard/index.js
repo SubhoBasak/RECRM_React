@@ -56,7 +56,7 @@ const LeadRequirementCard = ({ data }) => {
             variant="secondary"
             style={{ maxWidth: "fit-content", fontSize: 12 }}
           >
-            -
+            Not mentioned
           </Alert>
         );
     }

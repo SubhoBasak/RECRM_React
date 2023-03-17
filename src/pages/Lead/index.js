@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   Row,
@@ -9,30 +9,54 @@ import {
   ListGroup,
 } from "react-bootstrap";
 
+// utils
+import { VIEWSTATE } from "../../utils/constants";
+
 // icons
 import { ImSearch } from "react-icons/im";
 import { GoSettings } from "react-icons/go";
 import { MdClose, MdAutoGraph } from "react-icons/md";
 
 // components
-import LeadRequirementCard from "../../components/LeadRequirementCard";
-import ConnectionLost from "../../components/ConnectionLost";
-import NoRecords from "../../components/NoRecords";
 import Loading from "../../components/Loading";
+import NotFound from "../../components/NotFound";
+import NoRecords from "../../components/NoRecords";
+import ConnectionLost from "../../components/ConnectionLost";
+import LeadRequirementCard from "../../components/LeadRequirementCard";
+import InternalServerError from "../../components/InternalServerError";
 
 const Lead = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [leads, setLeads] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
-  const [connLost, setConnLost] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [search, setSearch] = React.useState("");
 
   function showData() {
-    if (loading) return <Loading />;
-    else if (connLost) return <ConnectionLost />;
+    if (viewState === VIEWSTATE.loading) return <Loading />;
+    else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
+    else if (viewState === VIEWSTATE.serverError)
+      return <InternalServerError />;
     else if (leads.length === 0) return <NoRecords />;
 
+    let tmp = search.toLowerCase();
+    let list = leads
+      .sort((a, b) => new Date(a.updatedAt) < new Date(b.updatedAt))
+      .map((data, i) => {
+        if (
+          tmp === "" ||
+          data.title?.toLowerCase().includes(tmp) ||
+          data.budget?.toString().includes(tmp) ||
+          data.area?.toString().includes(tmp) ||
+          data.client?.name.includes(tmp) ||
+          data.company?.name.includes(tmp)
+        )
+          return <LeadRequirementCard key={i} data={data} />;
+        return null;
+      });
+
+    if (list.every((i) => i === null)) return <NotFound />;
     return (
       <>
         <Row
@@ -63,11 +87,7 @@ const Lead = () => {
           className="rounded-4 mt-1"
           style={{ margin: "20px", width: "calc(100% - 40px)" }}
         >
-          {leads
-            .sort((a, b) => new Date(a.updatedAt) < new Date(b.updatedAt))
-            .map((l, i) => (
-              <LeadRequirementCard key={i} data={l} />
-            ))}
+          {list}
         </ListGroup>
       </>
     );
@@ -77,7 +97,7 @@ const Lead = () => {
     async function getData() {
       fetch(process.env.REACT_APP_BASE_URL + "/rqmn")
         .then((res) => {
-          setLoading(false);
+          setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res
               .json()
@@ -85,16 +105,15 @@ const Lead = () => {
                 setLeads(data.client.concat(data.company));
               })
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
-        .catch(() => {
-          setLoading(false);
-          setConnLost(true);
-        });
-      setLoading(true);
+        .catch(() => setViewState(VIEWSTATE.connLost));
+      setViewState(VIEWSTATE.loading);
     }
 
     getData();
-  }, []);
+  }, [pathname, navigate]);
 
   return (
     <>

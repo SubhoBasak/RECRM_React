@@ -1,7 +1,11 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, FloatingLabel, Form, Modal, Spinner } from "react-bootstrap";
 
 const RepresentativeModal = ({ company, add, hide, show }) => {
+  const navigate = useNavigate();
+  const {pathname} = useLocation();
+
   const [formData, setFormData] = React.useState({
     name: "",
     phone: "",
@@ -37,7 +41,8 @@ const RepresentativeModal = ({ company, add, hide, show }) => {
           res.json().then((res) => add({ ...tmpData, _id: res.id }));
           setFormData({ name: "", phone: "", email: "", designation: "" });
           hide();
-        }
+        } else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);

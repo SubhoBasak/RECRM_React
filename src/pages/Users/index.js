@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
   Col,
@@ -13,9 +13,11 @@ import {
 import { VIEWSTATE } from "../../utils/constants";
 
 // icons
-import { GoSettings } from "react-icons/go";
 import { ImSearch } from "react-icons/im";
-import { MdClose } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
+import { GoSettings } from "react-icons/go";
+import { IoMdCheckmark } from "react-icons/io";
+import { MdClose, MdDeleteSweep } from "react-icons/md";
 
 // components
 import Loading from "../../components/Loading";
@@ -27,6 +29,7 @@ import InternalServerError from "../../components/InternalServerError";
 
 const Users = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [search, setSearch] = React.useState("");
@@ -40,9 +43,8 @@ const Users = () => {
       return <InternalServerError />;
     else if (users.length === 0) return <NoRecords />;
 
+    let tmp = search.toLowerCase();
     let list = users.map((data, i) => {
-      let tmp = search.toLowerCase();
-
       if (tmp === "" || data.email?.toLowerCase().includes(tmp))
         return (
           <UserCard
@@ -89,6 +91,45 @@ const Users = () => {
     );
   }
 
+  function optionButtonHandler(method) {
+    fetch(process.env.REACT_APP_BASE_URL + "/user/opt", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selected),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          if (method === "POST")
+            setUsers(
+              users.map((u) => {
+                for (let i = 0; i < selected.length; i++)
+                  if (u._id === selected[i]) u.active = true;
+                return u;
+              })
+            );
+          else if (method === "PUT")
+            setUsers(
+              users.map((u) => {
+                for (let i = 0; i < selected.length; i++)
+                  if (u._id === selected[i]) u.active = false;
+                return u;
+              })
+            );
+          else
+            setUsers(
+              users.filter((u) => {
+                for (let i = 0; i < selected.length; i++)
+                  if (u._id === selected[i]) return false;
+                return true;
+              })
+            );
+          setSelected([]);
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+      })
+      .catch();
+  }
+
   React.useState(() => {
     async function getData() {
       fetch(process.env.REACT_APP_BASE_URL + "/user")
@@ -99,6 +140,8 @@ const Users = () => {
               .json()
               .then((data) => setUsers(data))
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
           else if (res.status === 500) setViewState(VIEWSTATE.serverError);
         })
         .catch(() => setViewState(VIEWSTATE.connLost));
@@ -185,6 +228,44 @@ const Users = () => {
           </div>
         </Col>
       </Row>
+      {selected.length > 0 && (
+        <div className="w-100 px-3 d-flex align-items-center justify-content-between">
+          <p className="m-2 fs-6 fw-bold">{selected.length} selected</p>
+          <div className="d-flex">
+            <Button
+              variant="outline-primary"
+              className="btn-sm my-auto"
+              onClick={() => setSelected([])}
+            >
+              Unselect all
+            </Button>
+            <Button
+              variant="outline-primary"
+              className="ms-2 my-auto btn-sm d-flex align-items-center"
+              onClick={() => optionButtonHandler("POST")}
+            >
+              <IoMdCheckmark className="me-2" />
+              Active
+            </Button>
+            <Button
+              variant="outline-primary"
+              className="ms-2 my-auto btn-sm d-flex align-items-center"
+              onClick={() => optionButtonHandler("PUT")}
+            >
+              <IoClose className="me-2" />
+              Deactive
+            </Button>
+            <Button
+              variant="primary"
+              className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+              onClick={() => optionButtonHandler("DELETE")}
+            >
+              <MdDeleteSweep className="me-2" />
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
       {showData()}
     </>
   );

@@ -103,27 +103,23 @@ const ContactCard = ({ data, selected, setSelected }) => {
               {data.role}
             </Alert>
           </Col>
-          <Col
-            lg="2"
-            className="text-grey fw-light text-turncate"
-            onClick={showDetails}
-          >
+          <Col lg="2" className="text-grey fw-light" onClick={showDetails}>
             {data.address1}
           </Col>
           <Col lg="2">
             <a
               {...(data.email ? { href: `mailto:${data.email}` } : {})}
-              className="fw-light text-break"
+              className={"fw-light" + (data.email ? "" : " text-black-50")}
             >
-              {data.email || "Email not present"}
+              {data.email || "Not present"}
             </a>
           </Col>
           <Col lg="2">
             <a
               {...(data.phone ? { href: `tel:${data.phone}` } : {})}
-              className="fw-light text-turncate"
+              className={"fw-light" + (data.phone ? "" : " text-black-50")}
             >
-              {data.phone || "Number not present"}
+              {data.phone || "Not present"}
             </a>
           </Col>
           <Col lg="1">

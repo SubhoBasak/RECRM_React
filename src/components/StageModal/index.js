@@ -1,8 +1,14 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
+
+// icons
 import { MdClose } from "react-icons/md";
 
 const StageModal = ({ show, hide, stages, setStages }) => {
+  const navigate = useNavigate();
+  const {pathname} = useLocation();
+
   const [stageName, setStageName] = React.useState("");
   const [tmpStages, setTmpStages] = React.useState(stages);
   const [loading, setLoading] = React.useState(false);
@@ -16,6 +22,8 @@ const StageModal = ({ show, hide, stages, setStages }) => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) setStages(tmpStages);
+        else if (res.status === 401)
+          navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => setLoading(false));
   }

@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Button,
+  ButtonGroup,
   FloatingLabel,
   Form,
   Row,
@@ -29,14 +30,15 @@ import { TbArrowBack } from "react-icons/tb";
 // components
 import PermissionToggle from "../../components/PermissionToggle";
 
-const UserModal = ({ data }) => {
+const UserModal = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams();
 
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [validated, setValidated] = React.useState(false);
-  const [email, setEmail] = React.useState(data?.email || "");
+  const [email, setEmail] = React.useState(state?.email || "");
+  const [active, setActive] = React.useState(state?.active || false);
   const [agentPermission, setAgentPermission] = React.useState(
     state?.agentPermission || 0
   );
@@ -73,6 +75,7 @@ const UserModal = ({ data }) => {
 
     let tmpData = {
       email,
+      active,
       agent_permission: agentPermission,
       client_permission: clientPermission,
       company_permission: companyPermission,
@@ -102,26 +105,31 @@ const UserModal = ({ data }) => {
   }
 
   React.useEffect(() => {
-    fetch(
-      process.env.REACT_APP_BASE_URL + "/user?" + new URLSearchParams({ id })
-    ).then((res) => {
-      if (res.status === 200)
-        res
-          .json()
-          .then((data) => {
-            setEmail(data.email);
-            setAgentPermission(data.agent_permission || 0);
-            setClientPermission(data.client_permission || 0);
-            setCompanyPermission(data.company_permission || 0);
-            setRequirementPermission(data.requirement_permission || 0);
-            setCallPermission(data.call_permission || 0);
-            setPropertyPermission(data.property_permission || 0);
-            setUserPermission(data.user_permission || 0);
-            setOtherPermission(data.other_permission || 0);
-          })
-          .catch();
-      else if (res.status === 500) setViewState(VIEWSTATE.serverError);
-    });
+    async function getData() {
+      fetch(
+        process.env.REACT_APP_BASE_URL + "/user?" + new URLSearchParams({ id })
+      ).then((res) => {
+        if (res.status === 200)
+          res
+            .json()
+            .then((data) => {
+              setEmail(data.email || "");
+              setActive(data.active || false);
+              setAgentPermission(data.agent_permission || 0);
+              setClientPermission(data.client_permission || 0);
+              setCompanyPermission(data.company_permission || 0);
+              setRequirementPermission(data.requirement_permission || 0);
+              setCallPermission(data.call_permission || 0);
+              setPropertyPermission(data.property_permission || 0);
+              setUserPermission(data.user_permission || 0);
+              setOtherPermission(data.other_permission || 0);
+            })
+            .catch();
+        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+      });
+    }
+
+    getData();
   }, [id]);
 
   return (
@@ -180,21 +188,43 @@ const UserModal = ({ data }) => {
             validated={validated}
             noValidate
           >
-            <Form.Group>
-              <FloatingLabel label="Email">
-                <Form.Control
-                  type="email"
-                  value={email}
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoFocus
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please enter a valid email!
-                </Form.Control.Feedback>
-              </FloatingLabel>
-            </Form.Group>
+            <Row>
+              <Col lg="10">
+                <Form.Group>
+                  <FloatingLabel label="Email">
+                    <Form.Control
+                      type="email"
+                      value={email}
+                      placeholder="Email"
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoFocus
+                      required
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a valid email!
+                    </Form.Control.Feedback>
+                  </FloatingLabel>
+                </Form.Group>
+              </Col>
+              <Col lg="2" className="d-flex justify-content-end">
+                <ButtonGroup className="my-auto">
+                  <Button
+                    className="btn-sm"
+                    variant={active ? "primary" : "outline-primary"}
+                    onClick={() => setActive(true)}
+                  >
+                    Active
+                  </Button>
+                  <Button
+                    className="btn-sm"
+                    variant={active ? "outline-primary" : "primary"}
+                    onClick={() => setActive(false)}
+                  >
+                    Deactive
+                  </Button>
+                </ButtonGroup>
+              </Col>
+            </Row>
             <p className="text-primary mt-3 mb-0">Permissions</p>
             <Row>
               <Col lg="6" sm="12" className="d-flex">
@@ -547,6 +577,26 @@ const UserModal = ({ data }) => {
               </div>
             </Row>
           </Form>
+        </Col>
+        <Col lg="3" className="order-1 order-lg-2">
+          <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
+            <img
+              src={require("../../assets/svgs/person.svg").default}
+              width="180"
+              height="180"
+              alt="person"
+              className="my-3"
+            />
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Login history
+            </Button>
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Deactivate
+            </Button>
+            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+              Delete
+            </Button>
+          </div>
         </Col>
       </Row>
     </>

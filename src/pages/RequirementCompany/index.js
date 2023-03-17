@@ -21,6 +21,7 @@ import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 // components
 import Loading from "../../components/Loading";
 import NoRecords from "../../components/NoRecords";
+import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import ConnectionLost from "../../components/ConnectionLost";
 import LeadCompanyCard from "../../components/LeadCompanyCard";
@@ -28,7 +29,7 @@ import LeadCompanyModal from "../../components/LeadCompanyModal";
 
 const RequirementCompany = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -94,7 +95,8 @@ const RequirementCompany = () => {
             createdAt: timestamps.createdAt,
             updatedAt: new Date(),
           });
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }
@@ -156,6 +158,8 @@ const RequirementCompany = () => {
               setHistory(data.details.history || []);
               setLeads(data.leads);
             });
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
         .catch(() => setViewState(VIEWSTATE.connLost));
 
@@ -500,46 +504,13 @@ const RequirementCompany = () => {
               Address info
             </h5>
             <hr />
-            <Col lg="6">
-              <label className="text-secondary">Address 1</label>
-              <p>{company.address1 || "-"}</p>
-            </Col>
-            {company.address2 && (
-              <Col lg="6">
-                <label className="text-secondary">Address 2</label>
-                <p>{company.address2}</p>
-              </Col>
-            )}
-            {company.city && (
-              <Col lg="6">
-                <label className="text-secondary">City</label>
-                <p>{company.city}</p>
-              </Col>
-            )}
-            {company.state && (
-              <Col lg="6">
-                <label className="text-secondary">State</label>
-                <p>{company.state}</p>
-              </Col>
-            )}
-            {company.country && (
-              <Col lg="6">
-                <label className="text-secondary">Country</label>
-                <p>{company.country}</p>
-              </Col>
-            )}
-            {company.zip && (
-              <Col lg="6">
-                <label className="text-secondary">Zip code</label>
-                <p>{company.zip}</p>
-              </Col>
-            )}
-            {company.landmark && (
-              <Col lg="6">
-                <label className="text-secondary">Landmark</label>
-                <p>{company.landmark}</p>
-              </Col>
-            )}
+            <ViewField label="Address 1" value={company.address1} />
+            <ViewField label="Address 2" value={company.address2} />
+            <ViewField label="City" value={company.city} />
+            <ViewField label="State" value={company.state} />
+            <ViewField label="Country" value={company.country} />
+            <ViewField label="Zip" value={company.zip} />
+            <ViewField label="Landmark" value={company.landmark} />
           </Row>
           {showData()}
         </Col>

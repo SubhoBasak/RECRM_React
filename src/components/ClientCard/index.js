@@ -6,17 +6,35 @@ const ClientCard = ({ data }) => {
   const navigate = useNavigate();
 
   return (
-    <ListGroupItem>
+    <ListGroupItem className="py-2">
       <Row>
-        <Col lg="3">{data.name}</Col>
-        <Col lg="2">
+        <Col lg="3" className="d-flex align-items-center text-primary">
+          {data.name}
+        </Col>
+        <Col
+          lg="2"
+          className={
+            "d-flex align-items-center fw-light" + data.email
+              ? ""
+              : "text-black-50"
+          }
+          style={{ fontSize: 12 }}
+        >
           {data.email ? (
             <a href={"mailto:" + data.email}>{data.email}</a>
           ) : (
             "Not mentioned"
           )}
         </Col>
-        <Col lg="2">
+        <Col
+          lg="2"
+          className={
+            "d-flex align-items-center fw-light" + data.email
+              ? ""
+              : "text-black-50"
+          }
+          style={{ fontSize: 12 }}
+        >
           {data.phone ? (
             <a href={"tel:" + data.phone}>{data.phone}</a>
           ) : (
@@ -32,7 +50,7 @@ const ClientCard = ({ data }) => {
               navigate("/client_details/" + data._id, { state: data })
             }
           >
-            View Details
+            Details
           </Button>
         </Col>
       </Row>

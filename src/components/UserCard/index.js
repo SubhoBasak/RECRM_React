@@ -11,6 +11,7 @@ import {
 
 // utils
 import { VIEWSTATE } from "../../utils/constants";
+import { dateDecorator } from "../../utils/decorate";
 
 // components
 import DeleteModal from "../DeleteModal";
@@ -38,12 +39,24 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
               onChange={selectIt}
             />
           </Col>
-          <Col lg="4" className="text-primary d-flex align-items-center">
+          <Col
+            lg="4"
+            className="text-primary d-flex align-items-center"
+            onClick={() =>
+              navigate("/user_details/" + data._id, { state: data })
+            }
+          >
             {data.email}
           </Col>
-          <Col lg="2" className="d-flex">
+          <Col
+            lg="2"
+            className="d-flex"
+            onClick={() =>
+              navigate("/user_details/" + data._id, { state: data })
+            }
+          >
             <Alert
-              variant={data.active ? "success" : "warning"}
+              variant={data.active ? "primary" : "warning"}
               className="p-0 px-2 my-auto"
               style={{ fontSize: 12, width: "fit-content" }}
             >
@@ -52,14 +65,17 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
           </Col>
           <Col
             lg="3"
-            className="text-secondary fw-light d-flex align-items-center"
+            className={
+              "fw-light d-flex align-items-center " +
+              (data.last_login ? "text-secondary" : "text-black-50")
+            }
+            style={{ fontSize: 12 }}
+            onClick={() =>
+              navigate("/user_details/" + data._id, { state: data })
+            }
           >
             {data.last_login
-              ? new Date(data.last_login).toLocaleDateString("default", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })
+              ? dateDecorator(data.last_login)
               : "Not logged in yet"}
           </Col>
           <Col lg="2" className="d-flex align-items-center">

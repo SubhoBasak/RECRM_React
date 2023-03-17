@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, FormControl, Row, Col, InputGroup } from "react-bootstrap";
 
 // icons
@@ -18,6 +18,9 @@ import NoRecords from "../../components/NoRecords";
 import FolderModal from "../../components/FolderModal";
 
 const Properties = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const [properties, setProperties] = React.useState([]);
   const [folders, setFolders] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
@@ -25,8 +28,6 @@ const Properties = () => {
   const [gotBug, setGotBug] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addFolder, setAddFolder] = React.useState(false);
-
-  const navigate = useNavigate();
 
   function delProperties() {
     let folders = [];
@@ -47,7 +48,8 @@ const Properties = () => {
       .then((res) => {
         setLoading(false);
         if (res.status === 200) {
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);
@@ -55,36 +57,6 @@ const Properties = () => {
       });
 
     setLoading(true);
-  }
-
-  async function getProperties() {
-    fetch(process.env.REACT_APP_BASE_URL + "/folder")
-      .then((res) => {
-        setConnLost(false);
-        setLoading(false);
-        if (res.status === 200)
-          res
-            .json()
-            .then((data) => {
-              setFolders(
-                data[0].map((fld) => {
-                  fld.type = "fld";
-                  return fld;
-                })
-              );
-              setProperties(
-                data[1].map((prpt) => {
-                  prpt.type = "prpt";
-                  return prpt;
-                })
-              );
-            })
-            .catch(() => setGotBug(true));
-      })
-      .catch(() => {
-        setConnLost(true);
-        setLoading(false);
-      });
   }
 
   function showData() {
@@ -107,8 +79,40 @@ const Properties = () => {
   }
 
   React.useEffect(() => {
+    async function getProperties() {
+      fetch(process.env.REACT_APP_BASE_URL + "/folder")
+        .then((res) => {
+          setConnLost(false);
+          setLoading(false);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => {
+                setFolders(
+                  data[0].map((fld) => {
+                    fld.type = "fld";
+                    return fld;
+                  })
+                );
+                setProperties(
+                  data[1].map((prpt) => {
+                    prpt.type = "prpt";
+                    return prpt;
+                  })
+                );
+              })
+              .catch(() => setGotBug(true));
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
+        })
+        .catch(() => {
+          setConnLost(true);
+          setLoading(false);
+        });
+    }
+
     getProperties();
-  }, []);
+  }, [pathname, navigate]);
 
   return (
     <>

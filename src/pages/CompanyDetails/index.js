@@ -13,6 +13,7 @@ import {
 // utils
 import { sourceCodedText } from "../../utils/codedText";
 import { VIEWSTATE } from "../../utils/constants";
+import { dateDecorator } from "../../utils/decorate";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
@@ -24,6 +25,7 @@ import { BsToggleOff, BsToggleOn } from "react-icons/bs";
 // components
 import Loading from "../../components/Loading";
 import NoRecords from "../../components/NoRecords";
+import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import CompanyNoteCard from "../../components/CompanyNoteCard";
@@ -36,7 +38,7 @@ import InternalServerErrorModal from "../../components/InternalServerErrorModal"
 
 const CompanyDetails = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -121,7 +123,9 @@ const CompanyDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
   }
@@ -232,7 +236,8 @@ const CompanyDetails = () => {
               })
             );
           setSelected([]);
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }
@@ -384,10 +389,7 @@ const CompanyDetails = () => {
               >
                 Company info
               </h5>
-              <Col lg="6">
-                <label className="text-secondary">Name</label>
-                <p>{formData.name || "-"}</p>
-              </Col>
+              <ViewField label="Name" value={formData.name} />
               {formData.email && (
                 <Col lg="6">
                   <label className="text-secondary">Email</label>
@@ -400,12 +402,7 @@ const CompanyDetails = () => {
                   <p>{formData.phone}</p>
                 </Col>
               )}
-              {formData.industry && (
-                <Col lg="6">
-                  <label className="text-secondary">Industry</label>
-                  <p>{formData.industry}</p>
-                </Col>
-              )}
+              <ViewField label="Industry" value={formData.industry} />
               <h5
                 className="mb-3 mt-3 text-primary"
                 style={{ fontFamily: "pacifico" }}
@@ -413,46 +410,13 @@ const CompanyDetails = () => {
                 Address info
               </h5>
               <hr />
-              <Col lg="6">
-                <label className="text-secondary">Address 1</label>
-                <p>{formData.address1 || "-"}</p>
-              </Col>
-              {formData.address2 && (
-                <Col lg="6">
-                  <label className="text-secondary">Address 2</label>
-                  <p>{formData.address2}</p>
-                </Col>
-              )}
-              {formData.city && (
-                <Col lg="6">
-                  <label className="text-secondary">City</label>
-                  <p>{formData.city}</p>
-                </Col>
-              )}
-              {formData.state && (
-                <Col lg="6">
-                  <label className="text-secondary">State</label>
-                  <p>{formData.state}</p>
-                </Col>
-              )}
-              {formData.country && (
-                <Col lg="6">
-                  <label className="text-secondary">Country</label>
-                  <p>{formData.country}</p>
-                </Col>
-              )}
-              {formData.zip && (
-                <Col lg="6">
-                  <label className="text-secondary">Zip code</label>
-                  <p>{formData.zip}</p>
-                </Col>
-              )}
-              {formData.landmark && (
-                <Col lg="6">
-                  <label className="text-secondary">Landmark</label>
-                  <p>{formData.landmark}</p>
-                </Col>
-              )}
+              <ViewField label="Address 1" value={formData.address1} />
+              <ViewField label="Address 2" value={formData.address2} />
+              <ViewField label="City" value={formData.city} />
+              <ViewField label="State" value={formData.state} />
+              <ViewField label="Country" value={formData.country} />
+              <ViewField label="Zip" value={formData.zip} />
+              <ViewField label="Landmark" value={formData.landmark} />
               {(formData.source || timestamps.createdAt) && (
                 <>
                   <h5
@@ -464,12 +428,10 @@ const CompanyDetails = () => {
                   <hr />
                 </>
               )}
-              {formData.source && (
-                <Col lg="6">
-                  <label className="text-secondary">Source</label>
-                  <p>{sourceCodedText(formData.source)}</p>
-                </Col>
-              )}
+              <ViewField
+                label="Source"
+                value={formData.source ? sourceCodedText(formData.source) : ""}
+              />
               {formData.agent && (
                 <Col lg="6">
                   <label className="text-secondary">Agent</label>
@@ -482,36 +444,14 @@ const CompanyDetails = () => {
                   <p>{formData.about}</p>
                 </Col>
               )}
-              {timestamps.createdAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Created at</label>
-                  <p>
-                    {new Date(timestamps.createdAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
-              {timestamps.updatedAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Last modified</label>
-                  <p>
-                    {new Date(timestamps.updatedAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
+              <ViewField
+                label="Created at"
+                value={dateDecorator(timestamps.createdAt)}
+              />
+              <ViewField
+                label="Last modified"
+                value={dateDecorator(timestamps.updatedAt)}
+              />
             </Row>
           ) : (
             <Form

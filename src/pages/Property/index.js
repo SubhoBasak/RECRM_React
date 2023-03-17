@@ -10,6 +10,10 @@ import {
   Spinner,
 } from "react-bootstrap";
 
+// utils
+import { categoryCodedText } from "../../utils/codedText";
+import { dateDecorator } from "../../utils/decorate";
+
 // icons
 import { IoIosSave } from "react-icons/io";
 import { AiOutlineClear } from "react-icons/ai";
@@ -19,10 +23,11 @@ import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 // components
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
+import ViewField from "../../components/ViewField";
 
 const Property = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [image, setImage] = React.useState("");
@@ -41,8 +46,8 @@ const Property = () => {
     landmark: state?.landmark || "",
   });
   const [timestamps, setTimestamps] = React.useState({
-    createdAt: "",
-    modifiedAt: "",
+    createdAt: state?.createdAt || "",
+    updatedAt: state?.updatedAt || "",
   });
   const [validated, setValidated] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -95,7 +100,8 @@ const Property = () => {
           setValidated(false);
           setView(true);
           setTimestamps({ createdAt: new Date() });
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch(() => {
         setLoading(false);
@@ -133,17 +139,19 @@ const Property = () => {
                   });
                   setTimestamps({
                     createdAt: data.details.createdAt || "",
-                    modifiedAt: data.details.modifiedAt || "",
+                    updatedAt: data.details.updatedAt || "",
                   });
                 }
               })
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
         .catch(() => setLoading(false));
     }
 
     id && getDetails();
-  }, [id, state]);
+  }, [id, state, pathname, navigate]);
 
   return (
     <>
@@ -220,34 +228,13 @@ const Property = () => {
           </div>
           {view ? (
             <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <Col lg="6">
-                <label className="text-secondary">Title</label>
-                <p>{formData.title || "-"}</p>
-              </Col>
-              {formData.category && (
-                <Col lg="6">
-                  <label className="text-secondary">Category</label>
-                  <p>{formData.category}</p>
-                </Col>
-              )}
-              {formData.price && (
-                <Col lg="6">
-                  <label className="text-secondary">Price</label>
-                  <p>{formData.price}</p>
-                </Col>
-              )}
-              {formData.area && (
-                <Col lg="6">
-                  <label className="text-secondary">Area</label>
-                  <p>{formData.area}</p>
-                </Col>
-              )}
-              {formData.dob && (
-                <Col lg="6">
-                  <label className="text-secondary">Date of birth</label>
-                  <p>{formData.dob}</p>
-                </Col>
-              )}
+              <ViewField label="Title" value={formData.title} />
+              <ViewField
+                label="Category"
+                value={categoryCodedText(formData.category)}
+              />
+              <ViewField label="Price" value={formData.price + "/-"} />
+              <ViewField label="Area (sqft)" value={formData.area} />
               <h5
                 className="mb-3 mt-3 text-primary"
                 style={{ fontFamily: "pacifico" }}
@@ -255,67 +242,32 @@ const Property = () => {
                 Address info
               </h5>
               <hr />
-              <Col lg="6">
-                <label className="text-secondary">Address 1</label>
-                <p>{formData.address1 || "-"}</p>
-              </Col>
-              {formData.address2 && (
-                <Col lg="6">
-                  <label className="text-secondary">Address 2</label>
-                  <p>{formData.address2}</p>
-                </Col>
-              )}
-              {formData.city && (
-                <Col lg="6">
-                  <label className="text-secondary">City</label>
-                  <p>{formData.city}</p>
-                </Col>
-              )}
-              {formData.state && (
-                <Col lg="6">
-                  <label className="text-secondary">State</label>
-                  <p>{formData.state}</p>
-                </Col>
-              )}
-              {formData.country && (
-                <Col lg="6">
-                  <label className="text-secondary">Country</label>
-                  <p>{formData.country}</p>
-                </Col>
-              )}
-              {formData.zip && (
-                <Col lg="6">
-                  <label className="text-secondary">Zip code</label>
-                  <p>{formData.zip}</p>
-                </Col>
-              )}
-              {formData.landmark && (
-                <Col lg="6">
-                  <label className="text-secondary">Landmark</label>
-                  <p>{formData.landmark}</p>
-                </Col>
-              )}
+              <ViewField label="Address 1" value={formData.address1} />
+              <ViewField label="Address 2" value={formData.address2} />
+              <ViewField label="City" value={formData.city} />
+              <ViewField label="State" value={formData.state} />
+              <ViewField label="Country" value={formData.country} />
+              <ViewField label="Zip" value={formData.zip} />
+              <ViewField label="Landmark" value={formData.landmark} />
               {timestamps.createdAt && (
                 <>
                   <h5
                     className="mb-3 mt-3 text-primary"
                     style={{ fontFamily: "pacifico" }}
                   >
-                    Address info
+                    Other info
                   </h5>
                   <hr />
-                  <Col lg="6">
-                    <label className="text-secondary">Created at</label>
-                    <p>{timestamps.createdAt}</p>
-                  </Col>
+                  <ViewField
+                    label="Created at"
+                    value={dateDecorator(timestamps.createdAt)}
+                  />
                 </>
               )}
-              {timestamps.modifiedAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Last modified</label>
-                  <p>{timestamps.modifiedAt}</p>
-                </Col>
-              )}
+              <ViewField
+                label="Last modified"
+                value={dateDecorator(timestamps.updatedAt)}
+              />
             </Row>
           ) : (
             <Form

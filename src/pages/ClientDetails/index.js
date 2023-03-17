@@ -12,6 +12,7 @@ import {
 // utils
 import { genderCodedText, sourceCodedText } from "../../utils/codedText";
 import { VIEWSTATE } from "../../utils/constants";
+import { dateDecorator } from "../../utils/decorate";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
@@ -24,6 +25,7 @@ import Loading from "../../components/Loading";
 import NoteCard from "../../components/NoteCard";
 import NoteModal from "../../components/NoteModal";
 import NoRecords from "../../components/NoRecords";
+import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import RequirementsModal from "../../components/RequirementsModal";
@@ -32,7 +34,7 @@ import InternalServerErrorModal from "../../components/InternalServerErrorModal"
 
 const ContactDetails = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -119,7 +121,9 @@ const ContactDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
   }
@@ -200,6 +204,8 @@ const ContactDetails = () => {
               setRqmns(data.rqmns || []);
               setAgents(data.agents || []);
             });
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
         })
         .catch(() => {
           setViewState(VIEWSTATE.none);
@@ -207,8 +213,8 @@ const ContactDetails = () => {
       setViewState(VIEWSTATE.loading);
     }
 
-    id && getDetails();
-  }, [id, state]);
+    getDetails();
+  }, []);
 
   return (
     <>
@@ -301,10 +307,7 @@ const ContactDetails = () => {
               >
                 Personal info
               </h5>
-              <Col lg="6">
-                <label className="text-secondary">Name</label>
-                <p>{formData.name || "-"}</p>
-              </Col>
+              <ViewField label="Name" value={formData.name} />
               {formData.email && (
                 <Col lg="6">
                   <label className="text-secondary">Email</label>
@@ -317,30 +320,15 @@ const ContactDetails = () => {
                   <p>{formData.phone}</p>
                 </Col>
               )}
-              {formData.gender && (
-                <Col lg="6">
-                  <label className="text-secondary">Gender</label>
-                  <p>{genderCodedText(formData.gender)}</p>
-                </Col>
-              )}
-              {formData.dob && (
-                <Col lg="6">
-                  <label className="text-secondary">Date of birth</label>
-                  <p>
-                    {new Date(formData.dob).toLocaleDateString("default", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </Col>
-              )}
-              {formData.occupation && (
-                <Col lg="6">
-                  <label className="text-secondary">Occupation</label>
-                  <p>{formData.occupation}</p>
-                </Col>
-              )}
+              <ViewField
+                label="Gender"
+                value={formData.gender ? genderCodedText(formData.gender) : ""}
+              />
+              <ViewField
+                label="Date of birth"
+                value={dateDecorator(formData.dob)}
+              />
+              <ViewField label="Occupation" value={formData.occupation} />
               <h5
                 className="mb-3 mt-3 text-primary"
                 style={{ fontFamily: "pacifico" }}
@@ -348,46 +336,13 @@ const ContactDetails = () => {
                 Address info
               </h5>
               <hr />
-              <Col lg="6">
-                <label className="text-secondary">Address 1</label>
-                <p>{formData.address1 || "-"}</p>
-              </Col>
-              {formData.address2 && (
-                <Col lg="6">
-                  <label className="text-secondary">Address 2</label>
-                  <p>{formData.address2}</p>
-                </Col>
-              )}
-              {formData.city && (
-                <Col lg="6">
-                  <label className="text-secondary">City</label>
-                  <p>{formData.city}</p>
-                </Col>
-              )}
-              {formData.state && (
-                <Col lg="6">
-                  <label className="text-secondary">State</label>
-                  <p>{formData.state}</p>
-                </Col>
-              )}
-              {formData.country && (
-                <Col lg="6">
-                  <label className="text-secondary">Country</label>
-                  <p>{formData.country}</p>
-                </Col>
-              )}
-              {formData.zip && (
-                <Col lg="6">
-                  <label className="text-secondary">Zip code</label>
-                  <p>{formData.zip}</p>
-                </Col>
-              )}
-              {formData.landmark && (
-                <Col lg="6">
-                  <label className="text-secondary">Landmark</label>
-                  <p>{formData.landmark}</p>
-                </Col>
-              )}
+              <ViewField label="Address 1" value={formData.address1} />
+              <ViewField label="Address 2" value={formData.address2} />
+              <ViewField label="City" value={formData.city} />
+              <ViewField label="State" value={formData.state} />
+              <ViewField label="Country" value={formData.country} />
+              <ViewField label="Zip" value={formData.zip} />
+              <ViewField label="Landmark" value={formData.landmark} />
               {(formData.source || timestamps.createdAt) && (
                 <>
                   <h5
@@ -399,12 +354,10 @@ const ContactDetails = () => {
                   <hr />
                 </>
               )}
-              {formData.source && (
-                <Col lg="6">
-                  <label className="text-secondary">Source</label>
-                  <p>{sourceCodedText(formData.source)}</p>
-                </Col>
-              )}
+              <ViewField
+                label="Source"
+                value={formData.source ? sourceCodedText(formData.source) : ""}
+              />
               {formData.agent && (
                 <Col lg="6" className="d-flex flex-column">
                   <label className="text-secondary">Agent</label>
@@ -413,36 +366,14 @@ const ContactDetails = () => {
                   </Link>
                 </Col>
               )}
-              {timestamps.createdAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Created at</label>
-                  <p>
-                    {new Date(timestamps.createdAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
-              {timestamps.modifiedAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Last modified</label>
-                  <p>
-                    {new Date(timestamps.modifiedAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
+              <ViewField
+                label="Created at"
+                value={dateDecorator(timestamps.createdAt)}
+              />
+              <ViewField
+                label="Last modified"
+                value={dateDecorator(timestamps.updatedAt)}
+              />
             </Row>
           ) : (
             <Form

@@ -14,6 +14,7 @@ import {
 // utils
 import { VIEWSTATE } from "../../utils/constants";
 import { genderCodedText } from "../../utils/codedText";
+import { dateDecorator } from "../../utils/decorate";
 
 // icons
 import { TbArrowBack } from "react-icons/tb";
@@ -26,10 +27,11 @@ import DeleteModal from "../../components/DeleteModal";
 import ConnectionLost from "../../components/ConnectionLost";
 import LeadCard from "../../components/LeadCard";
 import LeadModal from "../../components/LeadModal";
+import ViewField from "../../components/ViewField";
 
 const Requirement = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -96,7 +98,8 @@ const Requirement = () => {
             createdAt: timestamps.createdAt,
             updatedAt: new Date(),
           });
-        }
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
       })
       .catch();
   }
@@ -238,37 +241,24 @@ const Requirement = () => {
                   <p>{formData.area}</p>
                 </Col>
               )}
-              <h5
-                className="mb-3 mt-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Location info
-              </h5>
-              <hr />
-              {formData.city && (
-                <Col lg="6">
-                  <label className="text-secondary">City</label>
-                  <p>{formData.city}</p>
-                </Col>
+              {(formData.city ||
+                formData.state ||
+                formData.country ||
+                formData.zip) && (
+                <>
+                  <h5
+                    className="mb-3 mt-3 text-primary"
+                    style={{ fontFamily: "pacifico" }}
+                  >
+                    Location info
+                  </h5>
+                  <hr />
+                </>
               )}
-              {formData.state && (
-                <Col lg="6">
-                  <label className="text-secondary">State</label>
-                  <p>{formData.state}</p>
-                </Col>
-              )}
-              {formData.country && (
-                <Col lg="6">
-                  <label className="text-secondary">Country</label>
-                  <p>{formData.country}</p>
-                </Col>
-              )}
-              {formData.zip && (
-                <Col lg="6">
-                  <label className="text-secondary">Zip code</label>
-                  <p>{formData.zip}</p>
-                </Col>
-              )}
+              <ViewField label="City" value={formData.city} />
+              <ViewField label="State" value={formData.state} />
+              <ViewField label="Country" value={formData.country} />
+              <ViewField label="Zip code" value={formData.zip} />
             </Row>
           ) : (
             <Form
@@ -420,6 +410,9 @@ const Requirement = () => {
               </div>
             </Form>
           )}
+          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
+            Client details
+          </h1>
           <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
             <h5
               className="mb-3 text-primary"
@@ -427,10 +420,7 @@ const Requirement = () => {
             >
               Personal info
             </h5>
-            <Col lg="6">
-              <label className="text-secondary">Name</label>
-              <p>{client.name || "-"}</p>
-            </Col>
+            <ViewField label="Name" value={formData.name} />
             {client.email && (
               <Col lg="6">
                 <label className="text-secondary">Email</label>
@@ -443,24 +433,14 @@ const Requirement = () => {
                 <p>{client.phone}</p>
               </Col>
             )}
-            {client.gender && (
-              <Col lg="6">
-                <label className="text-secondary">Gender</label>
-                <p>{genderCodedText(client.gender)}</p>
-              </Col>
-            )}
-            {client.dob && (
-              <Col lg="6">
-                <label className="text-secondary">Date of birth</label>
-                <p>
-                  {new Date(client.dob).toLocaleDateString("default", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
-              </Col>
-            )}
+            <ViewField
+              label="Gender"
+              value={formData.gender ? genderCodedText(formData.gender) : ""}
+            />
+            <ViewField
+              label="Date of birth"
+              value={dateDecorator(formData.dob)}
+            />
             {client.occupation && (
               <Col lg="6">
                 <label className="text-secondary">Occupation</label>
@@ -474,46 +454,13 @@ const Requirement = () => {
               Address info
             </h5>
             <hr />
-            <Col lg="6">
-              <label className="text-secondary">Address 1</label>
-              <p>{client.address1 || "-"}</p>
-            </Col>
-            {client.address2 && (
-              <Col lg="6">
-                <label className="text-secondary">Address 2</label>
-                <p>{client.address2}</p>
-              </Col>
-            )}
-            {client.city && (
-              <Col lg="6">
-                <label className="text-secondary">City</label>
-                <p>{client.city}</p>
-              </Col>
-            )}
-            {client.state && (
-              <Col lg="6">
-                <label className="text-secondary">State</label>
-                <p>{client.state}</p>
-              </Col>
-            )}
-            {client.country && (
-              <Col lg="6">
-                <label className="text-secondary">Country</label>
-                <p>{client.country}</p>
-              </Col>
-            )}
-            {client.zip && (
-              <Col lg="6">
-                <label className="text-secondary">Zip code</label>
-                <p>{client.zip}</p>
-              </Col>
-            )}
-            {client.landmark && (
-              <Col lg="6">
-                <label className="text-secondary">Landmark</label>
-                <p>{client.landmark}</p>
-              </Col>
-            )}
+            <ViewField label="Address 1" value={client.address1} />
+            <ViewField label="Address 2" value={client.address2} />
+            <ViewField label="City" value={client.city} />
+            <ViewField label="State" value={client.state} />
+            <ViewField label="Country" value={client.country} />
+            <ViewField label="Zip" value={client.zip} />
+            <ViewField label="Landmark" value={client.landmark} />
             <div className="d-flex justify-content-end">
               <Button
                 variant="outline-primary"

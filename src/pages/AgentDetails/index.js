@@ -6,6 +6,7 @@ import FloatingLabel from "react-bootstrap/FloatingLabel";
 // utils
 import { VIEWSTATE } from "../../utils/constants";
 import { genderCodedText } from "../../utils/codedText";
+import { dateDecorator } from "../../utils/decorate";
 
 // icons
 import { FiUserCheck } from "react-icons/fi";
@@ -18,6 +19,7 @@ import Loading from "../../components/Loading";
 import NoteCard from "../../components/NoteCard";
 import NoteModal from "../../components/NoteModal";
 import NoRecords from "../../components/NoRecords";
+import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import ClientsModal from "../../components/ClientsModal";
@@ -26,7 +28,7 @@ import InternalServerErrorModal from "../../components/InternalServerErrorModal"
 
 const AgentDetails = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [formData, setFormData] = React.useState({
@@ -123,7 +125,9 @@ const AgentDetails = () => {
               ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
               : { createdAt: new Date() }
           );
-        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
   }
@@ -199,6 +203,8 @@ const AgentDetails = () => {
                 setClients(data.clients || []);
               })
               .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
           else if (res.status === 500) setViewState(VIEWSTATE.serverError);
         })
         .catch(() => {
@@ -208,7 +214,7 @@ const AgentDetails = () => {
     }
 
     id && getDetails();
-  }, [id, state]);
+  }, [id, state, pathname, navigate]);
 
   return (
     <>
@@ -315,18 +321,16 @@ const AgentDetails = () => {
                       <a href={"tel:" + formData.phone}>{formData.phone}</a>
                     </Col>
                   )}
-                  {formData.gender && (
-                    <Col lg="6">
-                      <label className="text-secondary">Gender</label>
-                      <p>{genderCodedText(formData.gender)}</p>
-                    </Col>
-                  )}
-                  {formData.dob && (
-                    <Col lg="6">
-                      <label className="text-secondary">Date of birth</label>
-                      <p>{formData.dob}</p>
-                    </Col>
-                  )}
+                  <ViewField
+                    label="Gender"
+                    value={
+                      formData.gender ? genderCodedText(formData.gender) : ""
+                    }
+                  />
+                  <ViewField
+                    label="Date of birth"
+                    value={dateDecorator(formData.dob)}
+                  />
                   <h5
                     className="mb-3 mt-3 text-primary"
                     style={{ fontFamily: "pacifico" }}
@@ -334,94 +338,38 @@ const AgentDetails = () => {
                     Address info
                   </h5>
                   <hr />
-                  <Col lg="6">
-                    <label className="text-secondary">Address 1</label>
-                    <p>{formData.address1 || "-"}</p>
-                  </Col>
-                  {formData.address2 && (
-                    <Col lg="6">
-                      <label className="text-secondary">Address 2</label>
-                      <p>{formData.address2}</p>
-                    </Col>
+                  <ViewField label="Address 1" value={formData.address1} />
+                  <ViewField label="Address 2" value={formData.address2} />
+                  <ViewField label="City" value={formData.city} />
+                  <ViewField label="State" value={formData.state} />
+                  <ViewField label="Country" value={formData.country} />
+                  <ViewField label="Zip" value={formData.zip} />
+                  <ViewField label="Landmark" value={formData.landmark} />
+                  {(formData.deals || timestamps.createdAt) && (
+                    <>
+                      <h5
+                        className="mb-3 mt-3 text-primary"
+                        style={{ fontFamily: "pacifico" }}
+                      >
+                        Others info
+                      </h5>
+                      <hr />
+                      {formData.deals && (
+                        <Col lg="12">
+                          <label className="text-secondary">Deals in</label>
+                          <p>{formData.deals}</p>
+                        </Col>
+                      )}
+                      <ViewField
+                        label="Created at"
+                        value={dateDecorator(timestamps.createdAt)}
+                      />
+                      <ViewField
+                        label="Last modified"
+                        value={dateDecorator(timestamps.updatedAt)}
+                      />
+                    </>
                   )}
-                  {formData.city && (
-                    <Col lg="6">
-                      <label className="text-secondary">City</label>
-                      <p>{formData.city}</p>
-                    </Col>
-                  )}
-                  {formData.state && (
-                    <Col lg="6">
-                      <label className="text-secondary">State</label>
-                      <p>{formData.state}</p>
-                    </Col>
-                  )}
-                  {formData.country && (
-                    <Col lg="6">
-                      <label className="text-secondary">Country</label>
-                      <p>{formData.country}</p>
-                    </Col>
-                  )}
-                  {formData.zip && (
-                    <Col lg="6">
-                      <label className="text-secondary">Zip code</label>
-                      <p>{formData.zip}</p>
-                    </Col>
-                  )}
-                  {formData.landmark && (
-                    <Col lg="6">
-                      <label className="text-secondary">Landmark</label>
-                      <p>{formData.landmark}</p>
-                    </Col>
-                  )}
-                  {formData.deals ||
-                    (timestamps.createdAt && (
-                      <>
-                        <h5
-                          className="mb-3 mt-3 text-primary"
-                          style={{ fontFamily: "pacifico" }}
-                        >
-                          Others info
-                        </h5>
-                        <hr />
-                        {formData.deals && (
-                          <Col lg="12">
-                            <label className="text-secondary">Deals in</label>
-                            <p>{formData.deals}</p>
-                          </Col>
-                        )}
-                        {timestamps.createdAt && (
-                          <Col lg="6">
-                            <label className="text-secondary">Created at</label>
-                            <p>
-                              {new Date(
-                                timestamps.createdAt
-                              ).toLocaleDateString("default", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </Col>
-                        )}
-                        {timestamps.updatedAt && (
-                          <Col lg="6">
-                            <label className="text-secondary">
-                              Last modified
-                            </label>
-                            <p>
-                              {new Date(
-                                timestamps.updatedAt
-                              ).toLocaleDateString("default", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </Col>
-                        )}
-                      </>
-                    ))}
                 </Row>
               ) : (
                 <Form
