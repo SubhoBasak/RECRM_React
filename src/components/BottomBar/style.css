@@ -1,0 +1,12 @@
+.bottom-bar a{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    margin: 4px;
+    border-radius: 4px;
+    color: #f44 !important;
+}
+.bottom-bar .active{
+    background: #ffdfdf;
+}

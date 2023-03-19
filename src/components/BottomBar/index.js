@@ -8,28 +8,13 @@ import { RiBuilding2Fill } from "react-icons/ri";
 import { FaUserFriends, FaUsers } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 
-const Sidebar = () => {
+const BottomBar = () => {
   const { pathname } = useLocation();
 
   return (
-    <div className="sidebar bg-white">
-      <img
-        className="my-3 mx-auto rounded-3"
-        src={require("../../assets/svgs/logo.svg").default}
-        height="24"
-        alt="logo"
-      />
-      <img
-        className="mt-5 mb-3 mx-auto rounded-circle"
-        src="https://picsum.photos/512"
-        alt="Contacts"
-        width="128"
-        height="128"
-      />
-      <h1 className="fs-5 mb-5 mx-auto text-center">Subho</h1>
+    <div className="bottom-bar bottom-0 position-fixed w-100 d-flex d-md-none align-items-center justify-content-around bg-white shadow">
       <Link to="/" className={pathname === "/" ? "active" : ""}>
         <MdSpaceDashboard />
-        Dashboard
       </Link>
       <Link
         to="/all_contacts"
@@ -43,7 +28,6 @@ const Sidebar = () => {
         }
       >
         <FaUserFriends />
-        Contacts
       </Link>
       <Link
         to="/properties"
@@ -54,7 +38,6 @@ const Sidebar = () => {
         }
       >
         <RiBuilding2Fill />
-        Properties
       </Link>
       <Link
         to="/leads"
@@ -67,7 +50,6 @@ const Sidebar = () => {
         }
       >
         <BsFileEarmarkBarGraphFill />
-        LEAD
       </Link>
       <Link
         to="/users"
@@ -78,10 +60,9 @@ const Sidebar = () => {
         }
       >
         <FaUsers />
-        Users
       </Link>
     </div>
   );
 };
 
-export default Sidebar;
+export default BottomBar;

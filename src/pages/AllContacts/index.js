@@ -12,8 +12,8 @@ import {
 
 // icons
 import { ImSearch } from "react-icons/im";
-import { IoPersonAddSharp } from "react-icons/io5";
 import { GoSettings } from "react-icons/go";
+import { IoPersonAddSharp } from "react-icons/io5";
 import { MdDeleteSweep, MdClose } from "react-icons/md";
 
 // components
@@ -108,23 +108,23 @@ const AllContacts = () => {
             width: "calc(100% - 40px)",
           }}
         >
-          <Col lg="1" />
-          <Col lg="3" className="fw-bold">
+          <Col lg="1" className="d-none d-lg-block" />
+          <Col lg="3" className="d-none d-lg-block fw-bold">
             Name
           </Col>
-          <Col lg="1" className="fw-bold">
+          <Col lg="1" className="d-none d-lg-block fw-bold">
             Role
           </Col>
-          <Col lg="2" className="fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Address
           </Col>
-          <Col lg="2" className="fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Email
           </Col>
-          <Col lg="2" className="fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Phone
           </Col>
-          <Col lg="1" />
+          <Col lg="1" className="d-none d-lg-block" />
         </Row>
         <ListGroup
           variant="flush"
@@ -188,56 +188,62 @@ const AllContacts = () => {
 
   return (
     <>
-      <nav>
-        <InputGroup className="w-25 me-auto my-auto rounded-0 border-bottom">
-          <InputGroup.Text className="bg-transparent border-0">
-            <ImSearch />
-          </InputGroup.Text>
-          <FormControl
-            placeholder="Search contacts..."
-            type="text"
-            maxLength="100"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-light shadow-none border-0"
-          />
-          {search !== "" && (
-            <InputGroup.Text
-              className="bg-transparent border-0"
-              onClick={() => setSearch("")}
-            >
-              <MdClose />
-            </InputGroup.Text>
-          )}
-        </InputGroup>
-        <Button variant="outline-primary" className="d-flex my-auto">
-          <GoSettings />
-        </Button>
-        <Dropdown>
-          <Dropdown.Toggle
-            variant="primary"
-            className="btn-sm ms-3 shadow"
-            id="dropdown-basic"
+      <nav className="row w-100 m-0 py-0">
+        <Col lg="6" xs="12" className="d-flex mt-3 m-md-0">
+          <InputGroup
+            className="w-25 me-auto my-auto rounded-0 border-bottom"
+            style={{ minWidth: 300 }}
           >
-            <IoPersonAddSharp className="me-2" />
-            New Contact
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
-            <Link className="dropdown-item" to="/client_details">
-              Client
-            </Link>
-            <Link className="dropdown-item" to="/company_details">
-              Company
-            </Link>
-            <Dropdown.Divider />
-            <Link className="dropdown-item" to="/agent_details">
-              Agent
-            </Link>
-          </Dropdown.Menu>
-        </Dropdown>
+            <InputGroup.Text className="bg-transparent border-0">
+              <ImSearch />
+            </InputGroup.Text>
+            <FormControl
+              placeholder="Search contacts..."
+              type="text"
+              maxLength="100"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-light shadow-none border-0"
+            />
+            {search !== "" && (
+              <InputGroup.Text
+                className="bg-transparent border-0"
+                onClick={() => setSearch("")}
+              >
+                <MdClose />
+              </InputGroup.Text>
+            )}
+          </InputGroup>
+        </Col>
+        <Col lg="6" sm="12" className="d-flex justify-content-end mt-3 m-md-0">
+          <Button variant="outline-primary" className="d-flex my-auto">
+            <GoSettings />
+          </Button>
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="primary"
+              className="btn-sm ms-3 shadow"
+              id="dropdown-basic"
+            >
+              <IoPersonAddSharp className="me-2" />
+              New Contact
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Link className="dropdown-item" to="/client_details">
+                Client
+              </Link>
+              <Link className="dropdown-item" to="/company_details">
+                Company
+              </Link>
+              <Dropdown.Divider />
+              <Link className="dropdown-item" to="/agent_details">
+                Agent
+              </Link>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Col>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}
@@ -257,7 +263,7 @@ const AllContacts = () => {
           lg="6"
           md="6"
           sm="12"
-          className="d-flex justify-content-center align-items-center"
+          className="d-flex flex-wrap justify-content-center align-items-center"
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>

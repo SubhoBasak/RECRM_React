@@ -21,6 +21,7 @@ import { MdClose, MdAutoGraph } from "react-icons/md";
 import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import NoRecords from "../../components/NoRecords";
+import StageModal from "../../components/StageModal";
 import ConnectionLost from "../../components/ConnectionLost";
 import LeadRequirementCard from "../../components/LeadRequirementCard";
 import InternalServerError from "../../components/InternalServerError";
@@ -32,6 +33,8 @@ const Lead = () => {
   const [leads, setLeads] = React.useState([]);
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [search, setSearch] = React.useState("");
+  const [stages, setStages] = React.useState([]);
+  const [stageModal, setStageModal] = React.useState(false);
 
   function showData() {
     if (viewState === VIEWSTATE.loading) return <Loading />;
@@ -103,6 +106,7 @@ const Lead = () => {
               .json()
               .then((data) => {
                 setLeads(data.client.concat(data.company));
+                setStages(data.stages);
               })
               .catch();
           else if (res.status === 401)
@@ -145,7 +149,7 @@ const Lead = () => {
         <Button
           variant="primary"
           className="ms-3 shadow btn-sm d-flex align-items-center"
-          onClick={() => navigate("/lead")}
+          onClick={() => setStageModal(true)}
         >
           <MdAutoGraph className="me-2" />
           Stages
@@ -200,6 +204,12 @@ const Lead = () => {
         </Col>
       </Row>
       {showData()}
+      <StageModal
+        show={stageModal}
+        hide={() => setStageModal(false)}
+        stages={stages}
+        setStages={setStages}
+      />
     </>
   );
 };

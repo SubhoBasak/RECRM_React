@@ -66,17 +66,17 @@ const Users = () => {
             width: "calc(100% - 40px)",
           }}
         >
-          <Col lg="1" />
-          <Col lg="4" className="fw-bold">
+          <Col lg="1" className="d-none d-lg-block" />
+          <Col lg="4" className="d-none d-lg-block fw-bold">
             Email
           </Col>
-          <Col lg="2" className="fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Status
           </Col>
-          <Col lg="3" className="fw-bold">
+          <Col lg="3" className="d-none d-lg-block fw-bold">
             Last login
           </Col>
-          <Col lg="2" className="fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Actions
           </Col>
         </Row>
@@ -95,7 +95,7 @@ const Users = () => {
     fetch(process.env.REACT_APP_BASE_URL + "/user/opt", {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(selected),
+      body: JSON.stringify({ users: selected }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -153,38 +153,45 @@ const Users = () => {
 
   return (
     <>
-      <nav>
-        <InputGroup className="w-25 me-auto my-auto rounded-0 border-bottom">
-          <InputGroup.Text className="bg-transparent border-0">
-            <ImSearch />
-          </InputGroup.Text>
-          <FormControl
-            placeholder="Search users..."
-            type="text"
-            maxLength="100"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-light shadow-none border-0"
-          />
-          {search !== "" && (
-            <InputGroup.Text
-              className="bg-transparent border-0"
-              onClick={() => setSearch("")}
-            >
-              <MdClose />
+      <nav className="row w-100 m-0 py-0">
+        <Col lg="6" xs="12" className="d-flex mt-3 m-md-0">
+          <InputGroup
+            className="w-25 me-auto my-auto rounded-0 border-bottom"
+            style={{ minWidth: 300 }}
+          >
+            <InputGroup.Text className="bg-transparent border-0">
+              <ImSearch />
             </InputGroup.Text>
-          )}
-        </InputGroup>
-        <Button variant="outline-primary" className="d-flex my-auto">
-          <GoSettings />
-        </Button>
-        <Button
-          variant="primary"
-          className="ms-3 btn-sm shadow"
-          onClick={() => navigate("/user_details")}
-        >
-          Add User
-        </Button>
+            <FormControl
+              placeholder="Search users..."
+              type="text"
+              maxLength="100"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-light shadow-none border-0"
+            />
+            {search !== "" && (
+              <InputGroup.Text
+                className="bg-transparent border-0"
+                onClick={() => setSearch("")}
+              >
+                <MdClose />
+              </InputGroup.Text>
+            )}
+          </InputGroup>
+        </Col>
+        <Col lg="6" sm="12" className="d-flex justify-content-end mt-3 m-md-0">
+          <Button variant="outline-primary" className="d-flex my-auto">
+            <GoSettings />
+          </Button>
+          <Button
+            variant="primary"
+            className="ms-3 btn-sm shadow"
+            onClick={() => navigate("/user_details")}
+          >
+            Add User
+          </Button>
+        </Col>
       </nav>
       <Row className="w-100">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
@@ -208,7 +215,7 @@ const Users = () => {
           sm="12"
           className="d-flex justify-content-center align-items-center"
         >
-          <div className="p-2 px-4 d-flex border-end flex-column align-items-center">
+          <div className="p-2 px-4 d-flex flex-wrap border-end flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
               {users.length}
             </h1>

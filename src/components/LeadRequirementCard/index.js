@@ -120,11 +120,11 @@ const LeadRequirementCard = ({ data }) => {
             trigger="click"
             placement="right"
             overlay={
-              <Popover id="popover-basic">
-                <Popover.Header as="h3" className="fw-light">
-                  Quick view
+              <Popover id="popover-basic" style={{ minWidth: 240 }}>
+                <Popover.Header as="h3" className="fw-light text-black-50">
+                  Quick view - {data.client ? "Client" : "Company"}
                 </Popover.Header>
-                <Popover.Body className="p-2 d-flex flex-column">
+                <Popover.Body className="p-3 d-flex flex-column">
                   {data.client ? (
                     <>
                       <p className="mb-1 fs-5">{data.client.name}</p>
@@ -179,12 +179,12 @@ const LeadRequirementCard = ({ data }) => {
             <Button variant="outline-primary" className="p-0 border-0">
               {data.client ? (
                 <>
-                  <RiBuilding2Line className="me-2" />
+                  <FiUser className="me-2" />
                   {data.client.name}
                 </>
               ) : (
                 <>
-                  <FiUser className="me-2" />
+                  <RiBuilding2Line className="me-2" />
                   {data.company.name}
                 </>
               )}

@@ -6,6 +6,7 @@ export const VIEWSTATE = {
   delete: 4,
   connLost: 5,
   serverError: 6,
+  showDetails: 7,
 };
 
 // permissions

@@ -14,6 +14,7 @@ import Properties from "./pages/Properties";
 import AllContacts from "./pages/AllContacts";
 import Requirement from "./pages/Requirement";
 import UserDetails from "./pages/UserDetails";
+import BottomBar from "./components/BottomBar";
 import AgentDetails from "./pages/AgentDetails";
 import ClientDetails from "./pages/ClientDetails";
 import CompanyDetails from "./pages/CompanyDetails";
@@ -28,7 +29,7 @@ const App = () => {
       <div className={"d-flex" + (theme ? " dark" : "")}>
         <Sidebar />
         <div
-          className="bg-light flex-grow-1"
+          className="bg-light flex-grow-1 mb-5 mb-md-0"
           style={{
             minHeight: "100vh",
             maxHeight: "100vh",
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="/user_details/:id?" element={<UserDetails />} />
           </Routes>
         </div>
+        <BottomBar />
       </div>
     </HashRouter>
   );

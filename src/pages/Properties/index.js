@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, FormControl, Row, Col, InputGroup } from "react-bootstrap";
+import "./style.css";
 
 // icons
 import { ImSearch } from "react-icons/im";
@@ -67,7 +68,7 @@ const Properties = () => {
       return <NoRecords />;
     else
       return (
-        <div className="d-flex flex-wrap w-100 p-3">
+        <div className="properties-canvas d-flex flex-wrap w-100 p-3">
           {folders.map((data, i) => (
             <FolderCard key={i} {...{ data, selected, setSelected }} />
           ))}

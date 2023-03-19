@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -15,7 +16,6 @@ import "./style.css";
 // icons
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdViewHeadline } from "react-icons/md";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const ContactCard = ({ data, selected, setSelected }) => {
   const navigate = useNavigate();
@@ -77,9 +77,9 @@ const ContactCard = ({ data, selected, setSelected }) => {
 
   return (
     <>
-      <ListGroupItem className="person-card bg-white py-3" draggable>
-        <Row>
-          <Col lg="1">
+      <ListGroupItem className="person-card py-3" draggable>
+        <Row className="w-100 m-0 p-0">
+          <Col xs="1">
             <FormCheck
               checked={
                 selected.findIndex(
@@ -90,10 +90,10 @@ const ContactCard = ({ data, selected, setSelected }) => {
               onChange={selectContact}
             />
           </Col>
-          <Col lg="3" className="fs-6 text-turncate" onClick={showDetails}>
+          <Col lg="3" md="8" xs="11" className="fs-6" onClick={showDetails}>
             {data.name}
           </Col>
-          <Col lg="1">
+          <Col xl="1" lg="2" md="3" xs="4">
             <Alert
               variant={roleClass()}
               className="p-0 px-2 m-0"
@@ -103,10 +103,17 @@ const ContactCard = ({ data, selected, setSelected }) => {
               {data.role}
             </Alert>
           </Col>
-          <Col lg="2" className="text-grey fw-light" onClick={showDetails}>
+          <Col
+            lg="2"
+            md="12"
+            sm="8"
+            xs="12"
+            className="text-grey fw-light"
+            onClick={showDetails}
+          >
             {data.address1}
           </Col>
-          <Col lg="2">
+          <Col lg="2" xs="12">
             <a
               {...(data.email ? { href: `mailto:${data.email}` } : {})}
               className={"fw-light" + (data.email ? "" : " text-black-50")}
@@ -114,7 +121,7 @@ const ContactCard = ({ data, selected, setSelected }) => {
               {data.email || "Not present"}
             </a>
           </Col>
-          <Col lg="2">
+          <Col lg="2" xs="12">
             <a
               {...(data.phone ? { href: `tel:${data.phone}` } : {})}
               className={"fw-light" + (data.phone ? "" : " text-black-50")}

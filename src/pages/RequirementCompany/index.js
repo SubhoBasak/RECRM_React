@@ -26,6 +26,7 @@ import DeleteModal from "../../components/DeleteModal";
 import ConnectionLost from "../../components/ConnectionLost";
 import LeadCompanyCard from "../../components/LeadCompanyCard";
 import LeadCompanyModal from "../../components/LeadCompanyModal";
+import InternalServerError from "../../components/InternalServerError";
 
 const RequirementCompany = () => {
   const navigate = useNavigate();
@@ -104,13 +105,22 @@ const RequirementCompany = () => {
   function showData() {
     if (viewState === VIEWSTATE.loading) return <Loading />;
     else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
+    else if (viewState === VIEWSTATE.serverError)
+      return <InternalServerError />;
     else if (leads.length === 0) return <NoRecords />;
     else
       return (
         <>
-          <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Contact history
+          <h1 className="ms-2 mb-4 mt-5" style={{ fontFamily: "pacifico" }}>
+            Call history
           </h1>
+          <Row className="w-100 m-0 p-0 text-black-50 fw-bold">
+            <Col lg="4">Title</Col>
+            <Col lg="2">Medium</Col>
+            <Col lg="2">Due date</Col>
+            <Col lg="2">Attempt date</Col>
+            <Col lg="2" />
+          </Row>
           <ListGroup variant="flush" className="rounded-4 m-1 w-100 mb-5">
             {leads.map((data, i) => (
               <LeadCompanyCard data={data} key={i} />

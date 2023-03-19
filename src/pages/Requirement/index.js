@@ -13,7 +13,7 @@ import {
 
 // utils
 import { VIEWSTATE } from "../../utils/constants";
-import { genderCodedText } from "../../utils/codedText";
+import { categoryCodedText, genderCodedText } from "../../utils/codedText";
 import { dateDecorator } from "../../utils/decorate";
 
 // icons
@@ -22,12 +22,13 @@ import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
 import Loading from "../../components/Loading";
-import NoRecords from "../../components/NoRecords";
-import DeleteModal from "../../components/DeleteModal";
-import ConnectionLost from "../../components/ConnectionLost";
 import LeadCard from "../../components/LeadCard";
 import LeadModal from "../../components/LeadModal";
+import NoRecords from "../../components/NoRecords";
 import ViewField from "../../components/ViewField";
+import DeleteModal from "../../components/DeleteModal";
+import ConnectionLost from "../../components/ConnectionLost";
+import InternalServerError from "../../components/InternalServerError";
 
 const Requirement = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const Requirement = () => {
     city: state?.city || "",
     state: state?.state || "",
     stage: state?.stage || "",
+    finally: state?.finally || "",
     category: state?.category || "",
     locationDetails: state?.locationDetails || "",
     otherDetails: state?.otherDetails || "",
@@ -66,6 +68,8 @@ const Requirement = () => {
   const [validated, setValidated] = React.useState(false);
   const [stages, setStages] = React.useState([]);
   const [history, setHistory] = React.useState([]);
+  const [allProperties, setAllProperties] = React.useState([]);
+  const [assignProperties, setAssignProperties] = React.useState([]);
   const [leads, setLeads] = React.useState([]);
   const [view, setView] = React.useState(true);
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
@@ -107,12 +111,14 @@ const Requirement = () => {
   function showData() {
     if (viewState === VIEWSTATE.loading) return <Loading />;
     else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
+    else if (viewState === VIEWSTATE.serverError)
+      return <InternalServerError />;
     else if (leads.length === 0) return <NoRecords />;
     else
       return (
         <>
           <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
-            Contact history
+            Call history
           </h1>
           <ListGroup variant="flush" className="rounded-4 m-1 w-100 mb-5">
             {leads.map((data, i) => (
@@ -121,6 +127,13 @@ const Requirement = () => {
           </ListGroup>
         </>
       );
+  }
+
+  function getStage() {
+    if (formData.finally === 1) return "Canceled";
+    else if (formData.finally === 2) return "Completed";
+    else if (formData.stage) return formData.stage.name;
+    else return "Initiated";
   }
 
   React.useState(() => {
@@ -161,6 +174,8 @@ const Requirement = () => {
                 setStages(data.stages || []);
                 setHistory(data.details.history || []);
                 setLeads(data.leads || []);
+                setAllProperties(data.all_properties || []);
+                setAssignProperties(data.assign_properties || []);
               })
               .catch();
         })
@@ -225,22 +240,14 @@ const Requirement = () => {
           </div>
           {view ? (
             <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <Col lg="6">
-                <label className="text-secondary">Title</label>
-                <p>{formData.title || "-"}</p>
-              </Col>
-              {formData.budget && (
-                <Col lg="6">
-                  <label className="text-secondary">Budget</label>
-                  <p>{formData.budget}</p>
-                </Col>
-              )}
-              {formData.area && (
-                <Col lg="6">
-                  <label className="text-secondary">Area</label>
-                  <p>{formData.area}</p>
-                </Col>
-              )}
+              <ViewField label="Title" value={formData.title} />
+              <ViewField label="Budget" value={formData.budget} />
+              <ViewField label="Area" value={formData.area} />
+              <ViewField
+                label="Category"
+                value={categoryCodedText(formData.category)}
+              />
+              <ViewField label="Stage" value={getStage()} />
               {(formData.city ||
                 formData.state ||
                 formData.country ||
@@ -327,6 +334,21 @@ const Requirement = () => {
                         <option value="1">Residential</option>
                         <option value="2">Commercial</option>
                         <option value="3">Other</option>
+                      </FormSelect>
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Stage">
+                      <FormSelect
+                        value={formData.category}
+                        onChange={setField("category")}
+                      >
+                        <option value="">Select stage</option>
+                        {stages.map((stage, i) => (
+                          <option key={i}>{stage}</option>
+                        ))}
                       </FormSelect>
                     </FloatingLabel>
                   </Form.Group>

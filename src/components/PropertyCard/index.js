@@ -26,7 +26,7 @@ const PropertyCard = ({ data, selected, setSelected }) => {
 
   return (
     <>
-      <Card className="mt-4 ms-4 border-0" style={{ width: "260px" }} draggable>
+      <Card className="m-2 border-0" style={{ width: "260px" }} draggable>
         <FormCheck
           checked={
             selected.findIndex(

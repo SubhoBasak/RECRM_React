@@ -123,6 +123,7 @@ const CompanyNoteModal = ({ company, hide, show, add, reprs }) => {
                         {repr.name}
                       </Dropdown.Item>
                     );
+                  return <></>;
                 })
               )}
             </Dropdown.Menu>

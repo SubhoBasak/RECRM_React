@@ -234,6 +234,7 @@ const RequirementsCompanyModal = ({
                         {repr.name}
                       </Dropdown.Item>
                     );
+                  return <></>;
                 })
               )}
             </Dropdown.Menu>

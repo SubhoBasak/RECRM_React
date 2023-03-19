@@ -8,6 +8,8 @@
     left: 0;
     bottom: 0;
     position: sticky;
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar a{
@@ -32,4 +34,10 @@
     width: 18px;
     height: 18px;
     margin-right: 14px;
+}
+
+@media screen and (max-width: 600px) {
+    .sidebar{
+        display: none !important;
+    }
 }

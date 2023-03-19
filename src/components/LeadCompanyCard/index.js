@@ -1,9 +1,18 @@
 import React from "react";
-import { ListGroupItem, Row, Col, ButtonGroup, Button } from "react-bootstrap";
+import {
+  ListGroupItem,
+  Row,
+  Col,
+  ButtonGroup,
+  Button,
+  Alert,
+  Modal
+} from "react-bootstrap";
 
 // utils
 import { VIEWSTATE } from "../../utils/constants";
 import { mediumCodedText } from "../../utils/codedText";
+import { dateDecorator } from "../../utils/decorate";
 
 // icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
@@ -18,22 +27,45 @@ const LeadCompanyCard = ({ data }) => {
     <>
       <ListGroupItem className="py-3">
         <Row>
-          <Col lg="4">{data.title}</Col>
-          <Col lg="2">{mediumCodedText(data.medium)}</Col>
-          <Col lg="2">
-            {new Date(data.due_date).toLocaleDateString("default", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+          <Col
+            lg="4"
+            className="d-flex align-items-center"
+            onClick={() => setViewState(VIEWSTATE.showDetails)}
+          >
+            {data.title}
           </Col>
-          <Col lg="2">
+          <Col
+            lg="2"
+            className="d-flex"
+            onClick={() => setViewState(VIEWSTATE.showDetails)}
+          >
+            <Alert
+              variant="warning"
+              className="px-2 py-0 my-auto"
+              style={{ fontSize: 12, width: "fit-content" }}
+            >
+              {mediumCodedText(data.medium)}
+            </Alert>
+          </Col>
+          <Col
+            lg="2"
+            className="d-flex align-items-center fw-light text-primary"
+            onClick={() => setViewState(VIEWSTATE.showDetails)}
+            style={{ fontSize: 12 }}
+          >
+            {dateDecorator(data.due_date)}
+          </Col>
+          <Col
+            lg="2"
+            className={
+              "d-flex align-items-center fw-light" +
+              (data.attempt_date ? " text-secondary" : " text-black-50")
+            }
+            onClick={() => setViewState(VIEWSTATE.showDetails)}
+            style={{ fontSize: 12 }}
+          >
             {data.attempt_date
-              ? new Date(data.attempt_date).toLocaleDateString("default", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })
+              ? dateDecorator(data.attempt_date)
               : "Not mentioned"}
           </Col>
           <Col lg="2" className="d-flex justify-content-end">
@@ -54,6 +86,52 @@ const LeadCompanyCard = ({ data }) => {
           </Col>
         </Row>
       </ListGroupItem>
+      <Modal
+        centered
+        show={viewState === VIEWSTATE.showDetails}
+        onHide={() => setViewState(VIEWSTATE.none)}
+      >
+        <Modal.Header closeButton className="py-2">
+          <Modal.Title className="text-black-50 fs-5">Call details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex justify-content-between">
+            <p className="fs-4 text-primary fw-bold">{data.title}</p>
+            <Alert variant="warning" className="py-0 my-auto">
+              {mediumCodedText(data.medium)}
+            </Alert>
+          </div>
+          <div className="d-flex justify-content-between">
+            <div className="w-50 me-1 p-0">
+              <Alert className="py-1 mb-0" style={{ fontSize: 12 }}>
+                <strong>Due date : </strong>
+                {dateDecorator(data.due_date)}
+              </Alert>
+              <p></p>
+            </div>
+            <div className="w-50 ms-1 p-0">
+              <Alert
+                variant="success"
+                className="py-1 mb-0"
+                style={{ fontSize: 12 }}
+              >
+                <strong>Attempt date : </strong>
+                {data.attempt_date
+                  ? dateDecorator(data.attempt_date)
+                  : "Not mentioned"}
+              </Alert>
+            </div>
+          </div>
+          {data.comment && (
+            <>
+              <span className="text-secondary">Comment</span>
+              <p className="bg-light p-2 rounded-3 mb-0 text-black-50">
+                {data.comment}
+              </p>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
       <DeleteModal
         show={viewState === VIEWSTATE.delete}
         hide={() => setViewState(VIEWSTATE.none)}
