@@ -19,17 +19,24 @@ const ClientsModal = ({ show, hide, clients }) => {
           <Modal.Title>Clients</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {console.log(clients)}
           {clients.length === 0 ? (
             <NoRecords />
           ) : (
             <>
               <Row className="text-black-50 fw-bold">
-                <Col lg="3">Name</Col>
-                <Col lg="2">Phone</Col>
-                <Col lg="2">Email</Col>
-                <Col lg="3">Address</Col>
-                <Col lg="1" />
+                <Col lg="3" className="d-none d-lg-block">
+                  Name
+                </Col>
+                <Col lg="2" className="d-none d-lg-block">
+                  Phone
+                </Col>
+                <Col lg="2" className="d-none d-lg-block">
+                  Email
+                </Col>
+                <Col lg="3" className="d-none d-lg-block">
+                  Address
+                </Col>
+                <Col lg="1" className="d-none d-lg-block" />
               </Row>
               {clients.map((client, i) => (
                 <ClientCard key={i} data={client} />

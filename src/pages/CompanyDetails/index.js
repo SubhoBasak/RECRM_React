@@ -155,8 +155,8 @@ const CompanyDetails = () => {
                 className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
                 onClick={() => setDeleteSelected(true)}
               >
-                <MdDeleteSweep className="me-2" />
-                Delete Contacts
+                <MdDeleteSweep className="me-2 d-none d-md-block" />
+                Delete
               </Button>
             </div>
           </div>
@@ -167,10 +167,12 @@ const CompanyDetails = () => {
           <>
             <Row className="text-black-50">
               <Col lg="1" />
-              <Col className="fw-bold mb-1 mt-3">Name</Col>
-              <Col className="fw-bold mb-1 mt-3">Designation</Col>
-              <Col className="fw-bold mb-1 mt-3">Email</Col>
-              <Col className="fw-bold mb-1 mt-3">Phone</Col>
+              <Col className="fw-bold mb-1 mt-3 d-none d-lg-block">Name</Col>
+              <Col className="fw-bold mb-1 mt-3 d-none d-lg-block">
+                Designation
+              </Col>
+              <Col className="fw-bold mb-1 mt-3 d-none d-lg-block">Email</Col>
+              <Col className="fw-bold mb-1 mt-3 d-none d-lg-block">Phone</Col>
               <Col lg="1" />
             </Row>
             <ListGroup variant="flush" className="rounded-4 mt-1">
@@ -317,7 +319,7 @@ const CompanyDetails = () => {
           {id ? "Return" : "Cancel"}
         </Button>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}
@@ -339,7 +341,7 @@ const CompanyDetails = () => {
           lg="6"
           md="6"
           sm="12"
-          className="d-flex justify-content-center align-items-center"
+          className="d-flex flex-wrap justify-content-center align-items-center"
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>

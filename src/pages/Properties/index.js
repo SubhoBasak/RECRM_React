@@ -7,7 +7,7 @@ import "./style.css";
 import { ImSearch } from "react-icons/im";
 import { MdDeleteSweep } from "react-icons/md";
 import { GoSettings } from "react-icons/go";
-import { BsHouseFill, BsEraserFill, BsFolderFill } from "react-icons/bs";
+import { BsHouseFill, BsFolderFill } from "react-icons/bs";
 
 // components
 import Bug from "../../components/Bug";
@@ -117,38 +117,45 @@ const Properties = () => {
 
   return (
     <>
-      <nav>
-        <InputGroup className="w-25 me-auto my-auto rounded-0 border-bottom">
-          <InputGroup.Text className="bg-transparent border-0">
-            <ImSearch />
-          </InputGroup.Text>
-          <FormControl
-            placeholder="Search properties..."
-            type="text"
-            maxLength="100"
-            className="bg-light shadow-none border-0"
-          />
-        </InputGroup>
-        <Button variant="outline-primary" className="d-flex my-auto">
-          <GoSettings />
-        </Button>
-        <Button
-          variant="outline-primary"
-          className="ms-3 my-auto d-flex align-items-center btn-sm"
-          onClick={() => setAddFolder(true)}
-        >
-          <BsFolderFill className="me-1" />
-          New Folder
-        </Button>
-        <Button
-          className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => navigate("/property")}
-        >
-          <BsHouseFill className="me-1" />
-          New Property
-        </Button>
+      <nav className="row w-100 m-0 py-0">
+        <Col lg="6" xs="12" className="d-flex mt-3 m-md-0">
+          <InputGroup
+            className="w-25 me-auto my-auto rounded-0 border-bottom"
+            style={{ minWidth: 300 }}
+          >
+            <InputGroup.Text className="bg-transparent border-0">
+              <ImSearch />
+            </InputGroup.Text>
+            <FormControl
+              placeholder="Search properties..."
+              type="text"
+              maxLength="100"
+              className="bg-light shadow-none border-0"
+            />
+          </InputGroup>
+        </Col>
+        <Col lg="6" sm="12" className="d-flex justify-content-end mt-3 m-md-0">
+          <Button variant="outline-primary" className="d-flex my-auto">
+            <GoSettings />
+          </Button>
+          <Button
+            variant="outline-primary"
+            className="ms-3 my-auto d-flex align-items-center btn-sm"
+            onClick={() => setAddFolder(true)}
+          >
+            <BsFolderFill className="me-1 d-none d-md-block" />
+            New Folder
+          </Button>
+          <Button
+            className="ms-3 my-auto d-flex align-items-center btn-sm shadow"
+            onClick={() => navigate("/property")}
+          >
+            <BsHouseFill className="me-1 d-none d-md-block" />
+            New Property
+          </Button>
+        </Col>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/properties.svg").default}
@@ -195,7 +202,6 @@ const Properties = () => {
               className="btn-sm my-auto d-flex align-items-center"
               onClick={() => setSelected([])}
             >
-              <BsEraserFill className="me-2" />
               Unselect all
             </Button>
             <Button
@@ -203,7 +209,7 @@ const Properties = () => {
               className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
               onClick={delProperties}
             >
-              <MdDeleteSweep className="me-2" />
+              <MdDeleteSweep className="me-2 d-none d-md-block" />
               Delete Properties
             </Button>
           </div>

@@ -237,7 +237,7 @@ const AgentDetails = () => {
           {id ? "Return" : "Cancel"}
         </Button>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}

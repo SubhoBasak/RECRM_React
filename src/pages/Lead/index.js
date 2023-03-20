@@ -66,22 +66,22 @@ const Lead = () => {
           className="w-100 m-0 p-0 fw-bold text-black-50 mt-3"
           style={{ margin: "20px", width: "calc(100% - 40px)" }}
         >
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Client / Company
           </Col>
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Title
           </Col>
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Stage
           </Col>
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Category
           </Col>
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Budget
           </Col>
-          <Col lg="2" className="ps-4">
+          <Col lg="2" className="ps-4 d-none d-lg-block">
             Area (sqft)
           </Col>
         </Row>
@@ -121,41 +121,48 @@ const Lead = () => {
 
   return (
     <>
-      <nav>
-        <InputGroup className="w-25 me-auto my-auto rounded-0 border-bottom">
-          <InputGroup.Text className="bg-transparent border-0">
-            <ImSearch />
-          </InputGroup.Text>
-          <FormControl
-            placeholder="Search workspaces..."
-            type="text"
-            maxLength="100"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-light shadow-none border-0"
-          />
-          {search !== "" && (
-            <InputGroup.Text
-              className="bg-transparent border-0"
-              onClick={() => setSearch("")}
-            >
-              <MdClose />
+      <nav className="row w-100 m-0 py-0">
+        <Col lg="6" xs="12" className="d-flex mt-3 m-md-0">
+          <InputGroup
+            className="w-25 me-auto my-auto rounded-0 border-bottom"
+            style={{ minWidth: 300 }}
+          >
+            <InputGroup.Text className="bg-transparent border-0">
+              <ImSearch />
             </InputGroup.Text>
-          )}
-        </InputGroup>
-        <Button variant="outline-primary" className="d-flex my-auto">
-          <GoSettings />
-        </Button>
-        <Button
-          variant="primary"
-          className="ms-3 shadow btn-sm d-flex align-items-center"
-          onClick={() => setStageModal(true)}
-        >
-          <MdAutoGraph className="me-2" />
-          Stages
-        </Button>
+            <FormControl
+              placeholder="Search leads..."
+              type="text"
+              maxLength="100"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-light shadow-none border-0"
+            />
+            {search !== "" && (
+              <InputGroup.Text
+                className="bg-transparent border-0"
+                onClick={() => setSearch("")}
+              >
+                <MdClose />
+              </InputGroup.Text>
+            )}
+          </InputGroup>
+        </Col>
+        <Col lg="6" sm="12" className="d-flex justify-content-end mt-3 m-md-0">
+          <Button variant="outline-primary" className="d-flex my-auto">
+            <GoSettings />
+          </Button>
+          <Button
+            variant="primary"
+            className="ms-3 shadow btn-sm d-flex align-items-center"
+            onClick={() => setStageModal(true)}
+          >
+            <MdAutoGraph className="me-2" />
+            Stages
+          </Button>
+        </Col>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/lead.svg").default}
@@ -175,7 +182,7 @@ const Lead = () => {
           lg="6"
           md="6"
           sm="12"
-          className="d-flex justify-content-center align-items-center"
+          className="d-flex flex-wrap justify-content-center align-items-center"
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>

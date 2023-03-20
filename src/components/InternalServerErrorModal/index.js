@@ -4,11 +4,11 @@ import { Modal } from "react-bootstrap";
 // components
 import InternalServerError from "../InternalServerError";
 
-const InternalServerErrorModal = (props) => {
+const InternalServerErrorModal = ({ show, hide }) => {
   return (
-    <Modal show={props.show} onHide={props.hide} centered>
+    <Modal show={show} onHide={hide} centered>
       <Modal.Body className="d-flex flex-column justify-content-center align-items-center">
-        <InternalServerError cancel={props.hide} />
+        <InternalServerError cancel={hide} />
       </Modal.Body>
     </Modal>
   );

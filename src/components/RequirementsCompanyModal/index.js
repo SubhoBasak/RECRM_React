@@ -14,14 +14,20 @@ import {
 } from "react-bootstrap";
 import NoRecords from "../NoRecords";
 
+// utils
+import { VIEWSTATE } from "../../utils/constants";
+
 // icons
 import { MdDeleteSweep } from "react-icons/md";
 import { FiUserPlus } from "react-icons/fi";
 import { IoCloseSharp } from "react-icons/io5";
 
 // components
+import DeleteModal from "../DeleteModal";
 import ConfirmModal from "../ConfirmModal";
 import RequirementCard from "../RequirementCard";
+import ConnectionLostModal from "../ConnectionLostModal";
+import InternalServerErrorModal from "../InternalServerErrorModal";
 
 const RequirementsCompanyModal = ({
   show,
@@ -37,7 +43,7 @@ const RequirementsCompanyModal = ({
   const [validated, setValidated] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNew, setAddNew] = React.useState(false);
-  const [deleteIt, setDeleteIt] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [tagged, setTagged] = React.useState([]);
   const [formData, setFormData] = React.useState({
     title: "",
@@ -72,6 +78,7 @@ const RequirementsCompanyModal = ({
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
+        setViewState(VIEWSTATE.none);
         if (res.status === 200)
           res.json().then((data) => {
             delete tmpData.company;
@@ -89,31 +96,10 @@ const RequirementsCompanyModal = ({
           });
         else if (res.status === 401)
           navigate("/auth", { state: { next: pathname } });
+        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
-      .catch();
-  }
-
-  function delRqmns() {
-    fetch(process.env.REACT_APP_BASE_URL + "/rqmnCompany", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        selected.length === 1 ? { id: selected[0] } : { ids: selected }
-      ),
-    })
-      .then((res) => {
-        if (res.status === 200)
-          setRqmns(
-            rqmns.filter((rqmn) => {
-              for (let sel in selected)
-                if (rqmn._id === selected[sel]) return false;
-              return true;
-            })
-          );
-        else if (res.status === 401)
-          navigate("/auth", { state: { next: pathname } });
-      })
-      .catch();
+      .catch(() => setViewState(VIEWSTATE.connLost));
+    setViewState(VIEWSTATE.loading);
   }
 
   function showData() {
@@ -135,20 +121,28 @@ const RequirementsCompanyModal = ({
               <Button
                 variant="primary"
                 className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
-                onClick={() => setDeleteIt(true)}
+                onClick={() => setViewState(VIEWSTATE.delete)}
               >
-                <MdDeleteSweep className="me-2" />
-                Delete Contacts
+                <MdDeleteSweep className="me-2 d-none d-md-block" />
+                Delete
               </Button>
             </div>
           </div>
         )}
         <Row className="w-100 fw-bold text-black-50 mt-3">
           <Col lg="1" />
-          <Col lg="4">Title</Col>
-          <Col lg="2">Category</Col>
-          <Col lg="2">Budget</Col>
-          <Col lg="2">Area (sqft)</Col>
+          <Col lg="4" className="d-none d-lg-block">
+            Title
+          </Col>
+          <Col lg="2" className="d-none d-lg-block">
+            Category
+          </Col>
+          <Col lg="2" className="d-none d-lg-block">
+            Budget
+          </Col>
+          <Col lg="2" className="d-none d-lg-block">
+            Area (sqft)
+          </Col>
           <Col lg="1" />
         </Row>
         <ListGroup variant="flush">
@@ -418,11 +412,30 @@ const RequirementsCompanyModal = ({
         </Modal.Header>
         <Modal.Body>{addNew ? showForm() : showData()}</Modal.Body>
       </Modal>
-      <ConfirmModal
-        show={deleteIt}
-        hide={() => setDeleteIt(false)}
+      <DeleteModal
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Do you really want to delete these contacts?"
-        yes={delRqmns}
+        url="/rqmnCompany"
+        body={selected.length === 1 ? { id: selected[0] } : { ids: selected }}
+        remove={() => {
+          setRqmns(
+            rqmns.filter((rqmn) => {
+              for (let sel in selected)
+                if (rqmn._id === selected[sel]) return false;
+              return true;
+            })
+          );
+          setViewState(VIEWSTATE.none);
+        }}
+      />
+      <ConnectionLostModal
+        show={viewState === VIEWSTATE.connLost}
+        hide={() => setViewState(VIEWSTATE.none)}
+      />
+      <InternalServerErrorModal
+        show={viewState === VIEWSTATE.serverError}
+        hide={() => setViewState(VIEWSTATE.none)}
       />
     </>
   );

@@ -14,6 +14,7 @@ import { VIEWSTATE } from "../../utils/constants";
 
 // components
 import ConnectionLostModal from "../../components/ConnectionLostModal";
+import InternalServerErrorModal from "../../components/InternalServerErrorModal";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const Auth = () => {
             navigate(state?.next || "/");
           } else {
           }
-        }
+        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
 
@@ -173,6 +174,10 @@ const Auth = () => {
       </Modal>
       <ConnectionLostModal
         show={viewState === VIEWSTATE.connLost}
+        hide={() => setViewState(VIEWSTATE.none)}
+      />
+      <InternalServerErrorModal
+        show={viewState === VIEWSTATE.serverError}
         hide={() => setViewState(VIEWSTATE.none)}
       />
     </>

@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -8,21 +8,23 @@ import {
   FormCheck,
   ListGroupItem,
   Row,
-  Modal,
-  Spinner,
 } from "react-bootstrap";
 import "./style.css";
+
+// utils
+import { VIEWSTATE } from "../../utils/constants";
 
 // icons
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdViewHeadline } from "react-icons/md";
 
+// components
+import DeleteModal from "../DeleteModal";
+
 const ContactCard = ({ data, selected, setSelected }) => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
 
-  const [deleteModal, setDeleteModal] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   function roleClass() {
     switch (data.role) {
@@ -36,10 +38,12 @@ const ContactCard = ({ data, selected, setSelected }) => {
   }
 
   function showDetails() {
-    let loc = "/client_details";
-    if (data.role === "company") loc = "/company_details";
-    else if (data.role === "agent") loc = "/agent_details";
-    loc += "/" + data._id;
+    let loc = "/client_details/";
+    if (data.role === "company") loc = "/company_details/";
+    else if (data.role === "agent") loc = "/agent_details/";
+
+    loc += data._id;
+
     navigate(loc, { state: data });
   }
 
@@ -55,24 +59,6 @@ const ContactCard = ({ data, selected, setSelected }) => {
         )
       );
     else setSelected([...selected, { id: data._id, role: data.role }]);
-  }
-
-  function delContact() {
-    fetch(process.env.REACT_APP_BASE_URL + "/" + data.role, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: data._id }),
-    })
-      .then((res) => {
-        setLoading(false);
-        if (res.status === 200) setDeleteModal(false);
-        else if (res.status === 401)
-          navigate("/auth", { state: { next: pathname } });
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-    setLoading(true);
   }
 
   return (
@@ -139,7 +125,7 @@ const ContactCard = ({ data, selected, setSelected }) => {
                 <MdViewHeadline />
               </Button>
               <Button
-                onClick={() => setDeleteModal(true)}
+                onClick={() => setViewState(VIEWSTATE.delete)}
                 variant="outline-secondary"
                 className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
               >
@@ -149,54 +135,13 @@ const ContactCard = ({ data, selected, setSelected }) => {
           </Col>
         </Row>
       </ListGroupItem>
-      <Modal
-        backdrop="static"
-        show={deleteModal}
-        onHide={() => setDeleteModal(false)}
-        className="modal-sm"
-        centered
-      >
-        <Modal.Header>
-          <Modal.Title style={{ fontFamily: "pacifico" }}>Warning!</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="d-flex py-0 flex-column align-items-center">
-          <img
-            src={require("../../assets/svgs/warn.svg").default}
-            width={128}
-            height={128}
-            alt="warn"
-          />
-          <p className="w-75 text-center">
-            Do you really want to delete the contact?
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="outline-primary"
-            className="btn-sm me-1"
-            onClick={() => setDeleteModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            className="btn-sm shadow"
-            onClick={delContact}
-          >
-            {loading && (
-              <Spinner
-                as="span"
-                animation="grow"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-                className="me-2"
-              />
-            )}
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <DeleteModal
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
+        url={"/" + data.role}
+        body={{ id: data._id }}
+        msg="Do you really want to delete the contact?"
+      />
     </>
   );
 };

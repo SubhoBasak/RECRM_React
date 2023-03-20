@@ -23,8 +23,8 @@ const Sidebar = () => {
         className="mt-5 mb-3 mx-auto rounded-circle"
         src="https://picsum.photos/512"
         alt="Contacts"
-        width="128"
-        height="128"
+        width="144"
+        height="144"
       />
       <h1 className="fs-5 mb-5 mx-auto text-center">Subho</h1>
       <Link to="/" className={pathname === "/" ? "active" : ""}>

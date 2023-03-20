@@ -4,11 +4,11 @@ import { Modal } from "react-bootstrap";
 // components
 import ConnectionLost from "../ConnectionLost";
 
-const ConnectionLostModal = (props) => {
+const ConnectionLostModal = ({ show, hide }) => {
   return (
-    <Modal show={props.show} onHide={props.hide} centered>
+    <Modal show={show} onHide={hide} centered>
       <Modal.Body className="d-flex flex-column justify-content-center align-items-center">
-        <ConnectionLost cancel={props.hide} />
+        <ConnectionLost cancel={hide} />
       </Modal.Body>
     </Modal>
   );
