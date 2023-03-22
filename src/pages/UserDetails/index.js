@@ -31,11 +31,12 @@ import PermissionToggle from "../../components/PermissionToggle";
 
 const UserModal = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state, pathname } = useLocation();
   const { id } = useParams();
 
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [validated, setValidated] = React.useState(false);
+  const [name, setName] = React.useState(state?.name || "");
   const [email, setEmail] = React.useState(state?.email || "");
   const [active, setActive] = React.useState(state?.active || false);
   const [agentPermission, setAgentPermission] = React.useState(
@@ -73,8 +74,8 @@ const UserModal = () => {
     setValidated(false);
 
     let tmpData = {
+      name,
       email,
-      active,
       agent_permission: agentPermission,
       client_permission: clientPermission,
       company_permission: companyPermission,
@@ -96,8 +97,10 @@ const UserModal = () => {
         setViewState(VIEWSTATE.none);
         if (res.status === 200) {
           if (id) {
-          } else res.json().then().catch();
-        } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+          } else navigate("/users");
+        } else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+        else setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
     setViewState(VIEWSTATE.loading);
@@ -134,7 +137,7 @@ const UserModal = () => {
   return (
     <>
       <nav>
-        <p className="text-primary me-auto">Add new user</p>
+        <p className="text-primary me-auto">Manage user</p>
         <Button
           className="my-auto d-flex align-items-center btn-sm shadow"
           onClick={() =>
@@ -187,7 +190,22 @@ const UserModal = () => {
             validated={validated}
             noValidate
           >
-            <Form.Group>
+            <Form.Group className="mb-3">
+              <FloatingLabel label="Name">
+                <Form.Control
+                  type="text"
+                  maxLength="100"
+                  value={name}
+                  placeholder="Name"
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
+              </FloatingLabel>
+            </Form.Group>
+            <Form.Group className="mb-3">
               <FloatingLabel label="Email">
                 <Form.Control
                   type="email"
@@ -567,7 +585,7 @@ const UserModal = () => {
               Login history
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-              Deactivate
+              {active ? "Deactive" : "Active"}
             </Button>
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               Delete

@@ -39,9 +39,10 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
               onChange={selectIt}
             />
           </Col>
+          <Col xs="11" lg="3">{data.name}</Col>
           <Col
-            lg="4"
-            xs="11"
+            lg="3"
+            xs="12"
             className="text-primary d-flex align-items-center mb-2 mb-md-0"
             onClick={() =>
               navigate("/user_details/" + data._id, { state: data })
@@ -67,7 +68,7 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
           </Col>
           <Col
             xs="6"
-            lg="3"
+            lg="2"
             className={
               "fw-light d-flex align-items-center mb-2 mb-md-0" +
               (data.last_login ? "text-secondary" : "text-black-50")
@@ -83,7 +84,7 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
           </Col>
           <Col
             xs="12"
-            lg="2"
+            lg="1"
             className="d-flex justify-content-end align-items-center"
           >
             <Button

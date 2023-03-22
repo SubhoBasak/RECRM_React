@@ -158,7 +158,6 @@ const RequirementCompany = () => {
           setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res.json().then((data) => {
-              console.log(data)
               if (data.details) {
                 setFormData({
                   title: data.details.title || "",

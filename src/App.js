@@ -17,6 +17,7 @@ import UserDetails from "./pages/UserDetails";
 import BottomBar from "./components/BottomBar";
 import AgentDetails from "./pages/AgentDetails";
 import ClientDetails from "./pages/ClientDetails";
+import FolderDetails from "./pages/FolderDetails";
 import CompanyDetails from "./pages/CompanyDetails";
 import RequirementCompany from "./pages/RequirementCompany";
 import RepresentativeDetails from "./pages/RepresentativeDetails";
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="/agent_details/:id?" element={<AgentDetails />} />
             <Route path="/client_details/:id?" element={<ClientDetails />} />
             <Route path="/company_details/:id?" element={<CompanyDetails />} />
+            <Route path="/folder_details/:id" element={<FolderDetails />} />
             <Route path="/leads" element={<Lead />} />
             <Route path="/properties/:folder?" element={<Properties />} />
             <Route path="/property/:id?" element={<Property />} />

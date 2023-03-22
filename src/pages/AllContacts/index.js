@@ -77,13 +77,13 @@ const AllContacts = () => {
 
     let list = contacts.map((data, i) => {
       let tmp = search.toLowerCase();
-
+      
       if (
         tmp === "" ||
         data.name.toLowerCase().includes(tmp) ||
-        data.address1.toLowerCase().includes(tmp) ||
         data.email?.toLowerCase().includes(tmp) ||
         data.phone?.toLowerCase().includes(tmp) ||
+        data.address1.toLowerCase().includes(tmp) ||
         data.address2?.toLowerCase().includes(tmp) ||
         data.city?.toLowerCase().includes(tmp) ||
         data.state?.toLowerCase().includes(tmp) ||

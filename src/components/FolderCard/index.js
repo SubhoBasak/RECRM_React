@@ -1,7 +1,10 @@
 import React from "react";
-import { Card, FormCheck, Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Card, FormCheck, Modal, Button } from "react-bootstrap";
 
 const FolderCard = ({ data, selected, setSelected }) => {
+  const navigate = useNavigate();
+
   const [showPreview, setShowPreview] = React.useState(false);
 
   function selectFolder() {
@@ -46,7 +49,7 @@ const FolderCard = ({ data, selected, setSelected }) => {
           onClick={() => setShowPreview(true)}
         />
         <Card.Body className="d-flex flex-column justify-content-between">
-          <Card.Title className="text-center">{data.name}</Card.Title>
+          <Card.Title className="text-center">{data.title}</Card.Title>
           <div className="d-flex justify-content-between">
             <div
               className="my-2 py-2 d-flex flex-column justify-content-center align-items-center border-end"
@@ -81,6 +84,15 @@ const FolderCard = ({ data, selected, setSelected }) => {
               {data.info}
             </p>
           )}
+          <Button
+            variant="primary"
+            className="w-100 mt-3 btn-sm"
+            onClick={() =>
+              navigate("/folder_details/" + data._id, { state: data })
+            }
+          >
+            View Details
+          </Button>
         </Card.Body>
       </Card>
       <Modal show={showPreview} onHide={() => setShowPreview(false)} centered>

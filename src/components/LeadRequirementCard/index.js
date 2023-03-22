@@ -153,7 +153,6 @@ const LeadRequirementCard = ({ data }) => {
                       </>
                     ) : (
                       <>
-                        {console.log(data)}
                         <p className="mb-1 fs-5">{data.company.name}</p>
                         {data.company.phone && (
                           <a href={"tel:" + data.company.phone}>

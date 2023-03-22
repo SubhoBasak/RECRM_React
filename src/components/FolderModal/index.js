@@ -9,12 +9,12 @@ import { VIEWSTATE } from "../../utils/constants";
 import ConnectionLostModal from "../ConnectionLostModal";
 import InternalServerErrorModal from "../InternalServerErrorModal";
 
-const FolderModal = ({ hide, show }) => {
+const FolderModal = ({ hide, show, add }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const [formData, setFormData] = React.useState({
-    name: "",
+    title: "",
     info: "",
   });
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
@@ -25,7 +25,7 @@ const FolderModal = ({ hide, show }) => {
 
   function clearFormData() {
     setFormData({
-      name: "",
+      title: "",
       info: "",
     });
   }
@@ -48,13 +48,19 @@ const FolderModal = ({ hide, show }) => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) {
-          setValidated(false);
-          clearFormData();
-          hide();
-        } else if (res.status === 401)
+        if (res.status === 200)
+          res
+            .json()
+            .then((data) => {
+              add({ _id: data.id, ...formData });
+              setValidated(false);
+              clearFormData();
+              hide();
+            })
+            .catch();
+        else if (res.status === 401)
           navigate("/auth", { state: { next: pathname } });
-        else if (res.status === 500) setViewState(VIEWSTATE.serverError);
+        else setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
     setViewState(VIEWSTATE.loading);
@@ -89,9 +95,9 @@ const FolderModal = ({ hide, show }) => {
                 <Form.Control
                   type="text"
                   maxLength={100}
-                  value={formData.name}
+                  value={formData.title}
                   placeholder="Folder name"
-                  onChange={setField("name")}
+                  onChange={setField("title")}
                   autoFocus
                   required
                 />

@@ -48,7 +48,9 @@ const Sidebar = () => {
       <Link
         to="/properties"
         className={
-          pathname === "/properties" || pathname.startsWith("/property")
+          pathname === "/properties" ||
+          pathname.startsWith("/property") ||
+          pathname.startsWith("/folder_details")
             ? "active"
             : ""
         }

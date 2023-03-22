@@ -67,16 +67,19 @@ const Users = () => {
           }}
         >
           <Col lg="1" className="d-none d-lg-block" />
-          <Col lg="4" className="d-none d-lg-block fw-bold">
+          <Col lg="3" className="d-none d-lg-block fw-bold">
+            Name
+          </Col>
+          <Col lg="3" className="d-none d-lg-block fw-bold">
             Email
           </Col>
           <Col lg="2" className="d-none d-lg-block fw-bold">
             Status
           </Col>
-          <Col lg="3" className="d-none d-lg-block fw-bold">
+          <Col lg="2" className="d-none d-lg-block fw-bold">
             Last login
           </Col>
-          <Col lg="2" className="d-none d-lg-block fw-bold">
+          <Col lg="1" className="d-none d-lg-block fw-bold">
             Actions
           </Col>
         </Row>

@@ -12,19 +12,20 @@ import {
 } from "react-bootstrap";
 
 // utils
-import { categoryCodedText } from "../../utils/codedText";
+import { VIEWSTATE } from "../../utils/constants";
 import { dateDecorator } from "../../utils/decorate";
+import { categoryCodedText } from "../../utils/codedText";
 
 // icons
 import { IoIosSave } from "react-icons/io";
-import { AiOutlineClear } from "react-icons/ai";
 import { TbArrowBack } from "react-icons/tb";
+import { AiOutlineClear } from "react-icons/ai";
 import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
+import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import ConfirmModal from "../../components/ConfirmModal";
-import ViewField from "../../components/ViewField";
 
 const Property = () => {
   const navigate = useNavigate();
@@ -51,11 +52,8 @@ const Property = () => {
     updatedAt: state?.updatedAt || "",
   });
   const [validated, setValidated] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [view, setView] = React.useState(id ? true : false);
-  const [clearIt, setClearIt] = React.useState(false);
-  const [cancelIt, setCancelIt] = React.useState(false);
-  const [deleteIt, setDeleteIt] = React.useState(false);
 
   const setField = (field) => (e) =>
     setFormData({ ...formData, [field]: e.target.value });
@@ -88,6 +86,7 @@ const Property = () => {
     setValidated(false);
 
     let tmpData = id ? { id } : {};
+    state?.folder && (tmpData.folder = state.folder);
     for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/property", {
@@ -96,18 +95,14 @@ const Property = () => {
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
-        setLoading(false);
-        if (res.status === 200) {
-          setValidated(false);
-          setView(true);
-          setTimestamps({ createdAt: new Date() });
-        } else if (res.status === 401)
+        setViewState(VIEWSTATE.none);
+        if (res.status === 200) navigate("/properties");
+        else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
+        else setViewState(VIEWSTATE.serverError);
       })
-      .catch(() => {
-        setLoading(false);
-      });
-    setLoading(true);
+      .catch(() => setViewState(VIEWSTATE.connLost));
+    setViewState(VIEWSTATE.loading);
   }
 
   React.useEffect(() => {
@@ -115,40 +110,40 @@ const Property = () => {
       fetch(
         process.env.REACT_APP_BASE_URL +
           "/property?" +
-          new URLSearchParams({ id, details: state?.name ? false : true })
+          new URLSearchParams({ id })
       )
         .then((res) => {
-          setLoading(false);
+          setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res
               .json()
               .then((data) => {
-                if (data.details) {
-                  setFormData({
-                    title: data.details.title || "",
-                    details: data.details.details || "",
-                    category: data.details.category || "",
-                    price: data.details.price || "",
-                    area: data.details.area || "",
-                    address1: data.details.address1 || "",
-                    address2: data.details.address2 || "",
-                    city: data.details.city || "",
-                    state: data.details.state || "",
-                    country: data.details.country || "",
-                    zip: data.details.zip || "",
-                    landmark: data.details.landmark || "",
-                  });
-                  setTimestamps({
-                    createdAt: data.details.createdAt || "",
-                    updatedAt: data.details.updatedAt || "",
-                  });
-                }
+                setFormData({
+                  title: data.title || "",
+                  details: data.details || "",
+                  category: data.category || "",
+                  price: data.price || "",
+                  area: data.area || "",
+                  address1: data.address1 || "",
+                  address2: data.address2 || "",
+                  city: data.city || "",
+                  state: data.state || "",
+                  country: data.country || "",
+                  zip: data.zip || "",
+                  landmark: data.landmark || "",
+                });
+
+                setTimestamps({
+                  createdAt: data.createdAt || "",
+                  updatedAt: data.updatedAt || "",
+                });
               })
               .catch();
           else if (res.status === 401)
             return navigate("/auth", { state: { next: pathname } });
+          else setViewState(VIEWSTATE.serverError);
         })
-        .catch(() => setLoading(false));
+        .catch(() => setViewState(VIEWSTATE.connLost));
     }
 
     id && getDetails();
@@ -162,14 +157,16 @@ const Property = () => {
           <Button
             variant="outline-primary"
             className="d-flex my-auto me-3"
-            onClick={() => setClearIt(true)}
+            onClick={() => setViewState(VIEWSTATE.clear)}
           >
             <AiOutlineClear />
           </Button>
         )}
         <Button
           className="my-auto d-flex align-items-center btn-sm shadow"
-          onClick={() => (id ? navigate("/properties") : setCancelIt(true))}
+          onClick={() =>
+            id ? navigate("/properties") : setViewState(VIEWSTATE.cancel)
+          }
         >
           <TbArrowBack className="me-2" />
           {id ? "Return" : "Cancel"}
@@ -235,7 +232,10 @@ const Property = () => {
                   label="Category"
                   value={categoryCodedText(formData.category)}
                 />
-                <ViewField label="Price" value={formData.price + "/-"} />
+                <ViewField
+                  label="Price"
+                  value={formData.price ? formData.price + "/-" : ""}
+                />
                 <ViewField label="Area (sqft)" value={formData.area} />
                 <h5
                   className="mb-3 mt-3 text-primary"
@@ -480,7 +480,7 @@ const Property = () => {
                   variant="primary"
                   className="mx-auto btn-sm"
                 >
-                  {loading ? (
+                  {viewState === VIEWSTATE.loading ? (
                     <Spinner
                       as="span"
                       animation="grow"
@@ -507,25 +507,29 @@ const Property = () => {
               alt="person"
               className="my-3"
             />
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setDeleteIt(true)}
-            >
-              Delete
-            </Button>
+            {id ? (
+              <Button
+                variant="primary"
+                className="btn-sm mt-3 w-75 shadow"
+                onClick={() => setViewState(VIEWSTATE.delete)}
+              >
+                Delete
+              </Button>
+            ) : (
+              <p className="fs-4 text-primary mt-4">Add New Property</p>
+            )}
           </div>
         </Col>
       </Row>
       <ConfirmModal
-        show={clearIt}
-        hide={() => setClearIt(false)}
+        show={viewState === VIEWSTATE.clear}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Do you really want to clear all the fields?"
         yes={() => clearFormData()}
       />
       <ConfirmModal
-        show={cancelIt}
-        hide={() => setCancelIt(false)}
+        show={viewState === VIEWSTATE.cancel}
+        hide={() => setViewState(VIEWSTATE.none)}
         msg="Cancelling it may result data loss. Do you really want to proceed?"
         yes={() => {
           clearFormData();
@@ -533,13 +537,13 @@ const Property = () => {
         }}
       />
       <DeleteModal
-        show={deleteIt}
-        hide={() => setDeleteIt(false)}
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
         url="/property"
         body={{ id }}
         msg="Do you really want to delete the property?"
         remove={() => {
-          setDeleteIt(false);
+          setViewState(VIEWSTATE.none);
           navigate("/properties");
         }}
       />
