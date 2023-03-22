@@ -115,89 +115,108 @@ const LeadRequirementCard = ({ data }) => {
   return (
     <ListGroupItem className="py-3">
       <Row>
-        <Col className="d-flex align-items-center" lg={2}>
-          <OverlayTrigger
-            trigger="click"
-            placement="right"
-            overlay={
-              <Popover id="popover-basic" style={{ minWidth: 240 }}>
-                <Popover.Header as="h3" className="fw-light text-black-50">
-                  Quick view - {data.client ? "Client" : "Company"}
-                </Popover.Header>
-                <Popover.Body className="p-3 d-flex flex-column">
-                  {data.client ? (
-                    <>
-                      <p className="mb-1 fs-5">{data.client.name}</p>
-                      {data.client.phone && (
-                        <a href={"tel:" + data.client.phone}>
-                          {data.client.phone}
-                        </a>
-                      )}
-                      {data.client.email && (
-                        <a href={"mailto:" + data.client.email}>
-                          {data.client.email}
-                        </a>
-                      )}
-                      <p className="mb-1 text-black-50">
-                        {data.client.address1}
-                      </p>
-                      <Link
-                        to={"/client_details/" + data.client._id}
-                        className="mt-3 mx-auto btn btn-primary btn-sm shadow"
-                      >
-                        View details
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <p className="mb-1 fs-5">{data.company.name}</p>
-                      {data.company.phone && (
-                        <a href={"tel:" + data.company.phone}>
-                          {data.company.phone}
-                        </a>
-                      )}
-                      {data.company.email && (
-                        <a href={"mailto:" + data.company.email}>
-                          {data.company.email}
-                        </a>
-                      )}
-                      <p className="mb-1 text-black-50">
-                        {data.company.address1}
-                      </p>
-                      <Link
-                        to={"/company_details/" + data.company._id}
-                        className="mt-3 mx-auto btn btn-primary btn-sm shadow"
-                      >
-                        View details
-                      </Link>
-                    </>
-                  )}
-                </Popover.Body>
-              </Popover>
-            }
-          >
-            <Button variant="outline-primary" className="p-0 border-0">
-              {data.client ? (
-                <>
-                  <FiUser className="me-2" />
-                  {data.client.name}
-                </>
-              ) : (
-                <>
-                  <RiBuilding2Line className="me-2" />
-                  {data.company.name}
-                </>
-              )}
-            </Button>
-          </OverlayTrigger>
+        <Col className="d-flex align-items-center mb-2 mb-md-0" lg={2}>
+          {!data.client && !data.company ? (
+            <p className="text-primary text-truncate my-0">Contact deleted!</p>
+          ) : (
+            <OverlayTrigger
+              trigger="click"
+              placement="right"
+              overlay={
+                <Popover id="popover-basic" style={{ minWidth: 240 }}>
+                  <Popover.Header as="h3" className="fw-light text-black-50">
+                    Quick view - {data.client ? "Client" : "Company"}
+                  </Popover.Header>
+                  <Popover.Body className="p-3 d-flex flex-column">
+                    {data.client ? (
+                      <>
+                        <p className="mb-1 fs-5">{data.client.name}</p>
+                        {data.client.phone && (
+                          <a href={"tel:" + data.client.phone}>
+                            {data.client.phone}
+                          </a>
+                        )}
+                        {data.client.email && (
+                          <a href={"mailto:" + data.client.email}>
+                            {data.client.email}
+                          </a>
+                        )}
+                        <p className="mb-1 text-black-50">
+                          {data.client.address1}
+                        </p>
+                        <Link
+                          to={"/client_details/" + data.client._id}
+                          className="mt-3 mx-auto btn btn-primary btn-sm shadow"
+                        >
+                          View details
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        {console.log(data)}
+                        <p className="mb-1 fs-5">{data.company.name}</p>
+                        {data.company.phone && (
+                          <a href={"tel:" + data.company.phone}>
+                            {data.company.phone}
+                          </a>
+                        )}
+                        {data.company.email && (
+                          <a href={"mailto:" + data.company.email}>
+                            {data.company.email}
+                          </a>
+                        )}
+                        <p className="mb-1 text-black-50">
+                          {data.company.address1}
+                        </p>
+                        <Link
+                          to={"/company_details/" + data.company._id}
+                          className="mt-3 mx-auto btn btn-primary btn-sm shadow"
+                        >
+                          View details
+                        </Link>
+                      </>
+                    )}
+                  </Popover.Body>
+                </Popover>
+              }
+            >
+              <Button variant="outline-primary" className="p-0 border-0">
+                {data.client ? (
+                  <>
+                    <FiUser className="me-2" />
+                    {data.client.name}
+                  </>
+                ) : (
+                  <>
+                    <RiBuilding2Line className="me-2" />
+                    {data.company.name}
+                  </>
+                )}
+              </Button>
+            </OverlayTrigger>
+          )}
         </Col>
-        <Col className="d-flex align-items-center" lg={2} onClick={showDetails}>
+        <Col
+          className="d-flex align-items-center mb-2 mb-md-0"
+          lg={2}
+          onClick={showDetails}
+        >
           {data.title}
         </Col>
-        <Col className="d-flex align-items-center" lg={2} onClick={showDetails}>
+        <Col
+          className="d-flex align-items-center mb-2 mb-md-0"
+          xs={6}
+          lg={2}
+          onClick={showDetails}
+        >
           {getStage()}
         </Col>
-        <Col className="d-flex align-items-center" lg={2} onClick={showDetails}>
+        <Col
+          className="d-flex align-items-center mb-2 mb-md-0"
+          xs={6}
+          lg={2}
+          onClick={showDetails}
+        >
           {getCategory()}
         </Col>
         <Col
@@ -206,6 +225,7 @@ const LeadRequirementCard = ({ data }) => {
             (data.budget ? " text-primary" : " text-black-50")
           }
           style={{ fontSize: data.budget ? 18 : 12 }}
+          xs={6}
           lg={2}
           onClick={showDetails}
         >
@@ -217,6 +237,7 @@ const LeadRequirementCard = ({ data }) => {
             (data.area ? " text-secondary" : " text-black-50")
           }
           style={{ fontSize: data.area ? 18 : 12 }}
+          xs={6}
           lg={2}
           onClick={showDetails}
         >

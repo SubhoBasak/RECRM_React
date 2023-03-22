@@ -87,7 +87,7 @@ const Lead = () => {
         </Row>
         <ListGroup
           variant="flush"
-          className="rounded-4 mt-1"
+          className="rounded-3 mt-1"
           style={{ margin: "20px", width: "calc(100% - 40px)" }}
         >
           {list}

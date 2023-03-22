@@ -32,7 +32,7 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
     <>
       <ListGroupItem className="py-3">
         <Row>
-          <Col lg="1" className="d-flex">
+          <Col xs="1" className="d-flex mb-2 mb-md-0">
             <FormCheck
               className="my-auto"
               checked={selected.findIndex((user) => user === data._id) > -1}
@@ -41,7 +41,8 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
           </Col>
           <Col
             lg="4"
-            className="text-primary d-flex align-items-center"
+            xs="11"
+            className="text-primary d-flex align-items-center mb-2 mb-md-0"
             onClick={() =>
               navigate("/user_details/" + data._id, { state: data })
             }
@@ -49,8 +50,9 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
             {data.email}
           </Col>
           <Col
+            xs="6"
             lg="2"
-            className="d-flex"
+            className="d-flex mb-2 mb-md-0"
             onClick={() =>
               navigate("/user_details/" + data._id, { state: data })
             }
@@ -64,9 +66,10 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
             </Alert>
           </Col>
           <Col
+            xs="6"
             lg="3"
             className={
-              "fw-light d-flex align-items-center " +
+              "fw-light d-flex align-items-center mb-2 mb-md-0" +
               (data.last_login ? "text-secondary" : "text-black-50")
             }
             style={{ fontSize: 12 }}
@@ -78,7 +81,11 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
               ? dateDecorator(data.last_login)
               : "Not logged in yet"}
           </Col>
-          <Col lg="2" className="d-flex align-items-center">
+          <Col
+            xs="12"
+            lg="2"
+            className="d-flex justify-content-end align-items-center"
+          >
             <Button
               variant="outline-primary"
               className="my-auto btn-sm"

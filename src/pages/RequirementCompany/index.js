@@ -9,6 +9,7 @@ import {
   FormSelect,
   ListGroup,
   Alert,
+  Container,
 } from "react-bootstrap";
 
 // utils
@@ -27,6 +28,7 @@ import ConnectionLost from "../../components/ConnectionLost";
 import LeadCompanyCard from "../../components/LeadCompanyCard";
 import LeadCompanyModal from "../../components/LeadCompanyModal";
 import InternalServerError from "../../components/InternalServerError";
+import Deleted from "../../components/Deleted";
 
 const RequirementCompany = () => {
   const navigate = useNavigate();
@@ -45,16 +47,17 @@ const RequirementCompany = () => {
     otherDetails: state?.otherDetails || "",
   });
   const [company, setCompany] = React.useState({
-    name: state?.company.name || "",
-    email: state?.company.email || "",
-    phone: state?.company.phone || "",
-    address1: state?.company.address1 || "",
-    address2: state?.company.address2 || "",
-    city: state?.company.city || "",
-    state: state?.company.state || "",
-    country: state?.company.country || "",
-    zip: state?.company.zip || "",
-    landmark: state?.company.landmark || "",
+    id: state?.company?._id || "",
+    name: state?.company?.name || "",
+    email: state?.company?.email || "",
+    phone: state?.company?.phone || "",
+    address1: state?.company?.address1 || "",
+    address2: state?.company?.address2 || "",
+    city: state?.company?.city || "",
+    state: state?.company?.state || "",
+    country: state?.company?.country || "",
+    zip: state?.company?.zip || "",
+    landmark: state?.company?.landmark || "",
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: state?.createdAt || "",
@@ -107,23 +110,37 @@ const RequirementCompany = () => {
     else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
     else if (viewState === VIEWSTATE.serverError)
       return <InternalServerError />;
-    else if (leads.length === 0) return <NoRecords />;
+    else if (leads.length === 0)
+      return (
+        <>
+          <h1 className="ms-2 mb-4 mt-5" style={{ fontFamily: "pacifico" }}>
+            Call history
+          </h1>
+          <NoRecords />
+        </>
+      );
     else
       return (
         <>
           <h1 className="ms-2 mb-4 mt-5" style={{ fontFamily: "pacifico" }}>
             Call history
           </h1>
-          <Row className="w-100 m-0 p-0 text-black-50 fw-bold">
+          <Row className="d-none d-lg-flex px-1 text-black-50 fw-bold">
             <Col lg="4">Title</Col>
             <Col lg="2">Medium</Col>
             <Col lg="2">Due date</Col>
             <Col lg="2">Attempt date</Col>
             <Col lg="2" />
           </Row>
-          <ListGroup variant="flush" className="rounded-4 m-1 w-100 mb-5">
+          <ListGroup variant="flush" className="rounded-3 mb-5">
             {leads.map((data, i) => (
-              <LeadCompanyCard data={data} key={i} />
+              <LeadCompanyCard
+                data={data}
+                key={i}
+                remove={() =>
+                  setLeads(leads.filter((lead) => lead._id !== data._id))
+                }
+              />
             ))}
           </ListGroup>
         </>
@@ -135,38 +152,45 @@ const RequirementCompany = () => {
       fetch(
         process.env.REACT_APP_BASE_URL +
           "/rqmnCompany?" +
-          new URLSearchParams({ id })
+          new URLSearchParams({ id, details: state?.title ? false : true })
       )
         .then((res) => {
           setViewState(VIEWSTATE.none);
           if (res.status === 200)
             res.json().then((data) => {
-              setFormData({
-                title: data.details.title || "",
-                budget: data.details.budget || "",
-                area: data.details.area || "",
-                city: data.details.city || "",
-                state: data.details.state || "",
-                stage: data.details.stage || "",
-                category: data.details.category || "",
-                locationDetails: data.details.locationDetails || "",
-                otherDetails: data.details.otherDetails || "",
-              });
-              setCompany({
-                name: data.details.company.name || "",
-                email: data.details.company.email || "",
-                phone: data.details.company.phone || "",
-                address1: data.details.company.address1 || "",
-                address2: data.details.company.address2 || "",
-                city: data.details.company.city || "",
-                state: data.details.company.state || "",
-                country: data.details.company.country || "",
-                zip: data.details.company.zip || "",
-                landmark: data.details.company.landmark || "",
-              });
+              console.log(data)
+              if (data.details) {
+                setFormData({
+                  title: data.details.title || "",
+                  budget: data.details.budget || "",
+                  area: data.details.area || "",
+                  city: data.details.city || "",
+                  state: data.details.state || "",
+                  stage: data.details.stage || "",
+                  category: data.details.category || "",
+                  locationDetails: data.details.locationDetails || "",
+                  otherDetails: data.details.otherDetails || "",
+                });
+
+                setCompany({
+                  id: data.details.company._id || "",
+                  name: data.details.company.name || "",
+                  email: data.details.company.email || "",
+                  phone: data.details.company.phone || "",
+                  address1: data.details.company.address1 || "",
+                  address2: data.details.company.address2 || "",
+                  city: data.details.company.city || "",
+                  state: data.details.company.state || "",
+                  country: data.details.company.country || "",
+                  zip: data.details.company.zip || "",
+                  landmark: data.details.company.landmark || "",
+                });
+
+                setHistory(data.details.history || []);
+              }
+
               setStages(data.stages || []);
-              setHistory(data.details.history || []);
-              setLeads(data.leads);
+              setLeads(data.leads || []);
             });
           else if (res.status === 401)
             return navigate("/auth", { state: { next: pathname } });
@@ -191,25 +215,23 @@ const RequirementCompany = () => {
           Return
         </Button>
       </nav>
-      <Row className="w-100">
-        <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
-          <img
-            src={require("../../assets/svgs/people.svg").default}
-            alt="property"
-            width="128"
-            height="128"
-            className="mx-5"
-          />
-          <div>
-            <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              Requirement Details
-            </h1>
-            <p className="text-secondary fw-light mb-0">
-              View and edit requirement details
-            </p>
-          </div>
-        </Col>
-      </Row>
+      <div className="d-none d-md-flex w-100 m-0 p-0 align-items-center my-5">
+        <img
+          src={require("../../assets/svgs/people.svg").default}
+          alt="property"
+          width="128"
+          height="128"
+          className="mx-5"
+        />
+        <div>
+          <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
+            Requirement Details
+          </h1>
+          <p className="text-secondary fw-light mb-0">
+            View and edit requirement details
+          </p>
+        </div>
+      </div>
       <Row className="w-100 m-0 p-0">
         <Col lg="9" className="order-2 order-lg-1">
           <div className="d-flex align-items-center justify-content-end">
@@ -231,109 +253,111 @@ const RequirementCompany = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <Col lg="6">
-                <label className="text-secondary">Title</label>
-                <p>{formData.title || "-"}</p>
-              </Col>
-              {formData.budget && (
+            <Container>
+              <Row className="p-3 bg-white rounded-3 mb-3">
                 <Col lg="6">
-                  <label className="text-secondary">Budget</label>
-                  <p>{formData.budget}</p>
+                  <label className="text-secondary">Title</label>
+                  <p>{formData.title || "-"}</p>
                 </Col>
-              )}
-              {formData.area && (
-                <Col lg="6">
-                  <label className="text-secondary">Area</label>
-                  <p>{formData.area}</p>
-                </Col>
-              )}
-              {formData.occupation && (
-                <Col lg="6">
-                  <label className="text-secondary">Occupation</label>
-                  <p>{formData.occupation}</p>
-                </Col>
-              )}
-              <h5
-                className="mb-3 mt-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Location info
-              </h5>
-              <hr />
-              {formData.city && (
-                <Col lg="6">
-                  <label className="text-secondary">City</label>
-                  <p>{formData.city}</p>
-                </Col>
-              )}
-              {formData.state && (
-                <Col lg="6">
-                  <label className="text-secondary">State</label>
-                  <p>{formData.state}</p>
-                </Col>
-              )}
-              {formData.country && (
-                <Col lg="6">
-                  <label className="text-secondary">Country</label>
-                  <p>{formData.country}</p>
-                </Col>
-              )}
-              {formData.zip && (
-                <Col lg="6">
-                  <label className="text-secondary">Zip code</label>
-                  <p>{formData.zip}</p>
-                </Col>
-              )}
-              {formData.landmark && (
-                <Col lg="6">
-                  <label className="text-secondary">Landmark</label>
-                  <p>{formData.landmark}</p>
-                </Col>
-              )}
-              {formData.agent && (
-                <Col lg="6">
-                  <label className="text-secondary">Agent</label>
-                  <p>{formData.agent}</p>
-                </Col>
-              )}
-              {timestamps.createdAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Created at</label>
-                  <p>
-                    {new Date(timestamps.createdAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
-              {timestamps.updatedAt && (
-                <Col lg="6">
-                  <label className="text-secondary">Last modified</label>
-                  <p>
-                    {new Date(timestamps.updatedAt).toLocaleDateString(
-                      "default",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
-                  </p>
-                </Col>
-              )}
-            </Row>
+                {formData.budget && (
+                  <Col lg="6">
+                    <label className="text-secondary">Budget</label>
+                    <p>{formData.budget}</p>
+                  </Col>
+                )}
+                {formData.area && (
+                  <Col lg="6">
+                    <label className="text-secondary">Area</label>
+                    <p>{formData.area}</p>
+                  </Col>
+                )}
+                {formData.occupation && (
+                  <Col lg="6">
+                    <label className="text-secondary">Occupation</label>
+                    <p>{formData.occupation}</p>
+                  </Col>
+                )}
+                <h5
+                  className="mb-3 mt-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Location info
+                </h5>
+                <hr />
+                {formData.city && (
+                  <Col lg="6">
+                    <label className="text-secondary">City</label>
+                    <p>{formData.city}</p>
+                  </Col>
+                )}
+                {formData.state && (
+                  <Col lg="6">
+                    <label className="text-secondary">State</label>
+                    <p>{formData.state}</p>
+                  </Col>
+                )}
+                {formData.country && (
+                  <Col lg="6">
+                    <label className="text-secondary">Country</label>
+                    <p>{formData.country}</p>
+                  </Col>
+                )}
+                {formData.zip && (
+                  <Col lg="6">
+                    <label className="text-secondary">Zip code</label>
+                    <p>{formData.zip}</p>
+                  </Col>
+                )}
+                {formData.landmark && (
+                  <Col lg="6">
+                    <label className="text-secondary">Landmark</label>
+                    <p>{formData.landmark}</p>
+                  </Col>
+                )}
+                {formData.agent && (
+                  <Col lg="6">
+                    <label className="text-secondary">Agent</label>
+                    <p>{formData.agent}</p>
+                  </Col>
+                )}
+                {timestamps.createdAt && (
+                  <Col lg="6">
+                    <label className="text-secondary">Created at</label>
+                    <p>
+                      {new Date(timestamps.createdAt).toLocaleDateString(
+                        "default",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
+                    </p>
+                  </Col>
+                )}
+                {timestamps.updatedAt && (
+                  <Col lg="6">
+                    <label className="text-secondary">Last modified</label>
+                    <p>
+                      {new Date(timestamps.updatedAt).toLocaleDateString(
+                        "default",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
+                    </p>
+                  </Col>
+                )}
+              </Row>
+            </Container>
           ) : (
             <Form
               noValidate
               validated={validated}
               onSubmit={formSubmitHandler}
-              className="p-3 bg-white rounded-4 mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <Form.Group className="mb-3">
                 <FloatingLabel label="Title">
@@ -399,18 +423,22 @@ const RequirementCompany = () => {
                     </FloatingLabel>
                   </Form.Group>
                 </Col>
+                <Col lg="6">
+                  <Form.Group className="mb-3">
+                    <FloatingLabel label="Stage">
+                      <FormSelect
+                        value={formData.category}
+                        onChange={setField("category")}
+                      >
+                        <option value="">Select stage</option>
+                        {stages.map((stage, i) => (
+                          <option key={i}>{stage}</option>
+                        ))}
+                      </FormSelect>
+                    </FloatingLabel>
+                  </Form.Group>
+                </Col>
               </Row>
-              <Form.Group className="mb-3">
-                <FloatingLabel label="Occupation">
-                  <Form.Control
-                    type="text"
-                    maxLength="100"
-                    placeholder="Occupation"
-                    value={formData.occupation}
-                    onChange={setField("occupation")}
-                  />
-                </FloatingLabel>
-              </Form.Group>
               <p className="text-secondary mt-5">Address details</p>
               <Row>
                 <Col lg="6">
@@ -478,53 +506,65 @@ const RequirementCompany = () => {
               </div>
             </Form>
           )}
-          <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-            <h5
-              className="mb-3 text-primary"
-              style={{ fontFamily: "pacifico" }}
-            >
-              Company info
-            </h5>
-            <Col lg="6">
-              <label className="text-secondary">Name</label>
-              <p>{company.name || "-"}</p>
-            </Col>
-            {company.email && (
-              <Col lg="6">
-                <label className="text-secondary">Email</label>
-                <p>{company.email}</p>
-              </Col>
-            )}
-            {company.phone && (
-              <Col lg="6">
-                <label className="text-secondary">Phone</label>
-                <p>{company.phone}</p>
-              </Col>
-            )}
-            {company.industry && (
-              <Col lg="6">
-                <label className="text-secondary">Industry</label>
-                <p>{company.industry}</p>
-              </Col>
-            )}
-            <h5
-              className="mb-3 mt-3 text-primary"
-              style={{ fontFamily: "pacifico" }}
-            >
-              Address info
-            </h5>
-            <hr />
-            <ViewField label="Address 1" value={company.address1} />
-            <ViewField label="Address 2" value={company.address2} />
-            <ViewField label="City" value={company.city} />
-            <ViewField label="State" value={company.state} />
-            <ViewField label="Country" value={company.country} />
-            <ViewField label="Zip" value={company.zip} />
-            <ViewField label="Landmark" value={company.landmark} />
-          </Row>
+          <Container>
+            <Row className="p-3 bg-white rounded-3 mb-3">
+              {!company.id ? (
+                <Deleted msg="The company is deleted from the contact list!" />
+              ) : (
+                <>
+                  <h5
+                    className="mb-3 text-primary"
+                    style={{ fontFamily: "pacifico" }}
+                  >
+                    Company info
+                  </h5>
+                  <ViewField label="Name" value={company.name} />
+                  {company.email && (
+                    <Col lg="6">
+                      <label className="text-secondary">Email</label>
+                      <p>{company.email}</p>
+                    </Col>
+                  )}
+                  {company.phone && (
+                    <Col lg="6">
+                      <label className="text-secondary">Phone</label>
+                      <p>{company.phone}</p>
+                    </Col>
+                  )}
+                  <ViewField label="Industry" value={company.industry} />
+                  <h5
+                    className="mb-3 mt-3 text-primary"
+                    style={{ fontFamily: "pacifico" }}
+                  >
+                    Address info
+                  </h5>
+                  <hr />
+                  <ViewField label="Address 1" value={company.address1} />
+                  <ViewField label="Address 2" value={company.address2} />
+                  <ViewField label="City" value={company.city} />
+                  <ViewField label="State" value={company.state} />
+                  <ViewField label="Country" value={company.country} />
+                  <ViewField label="Zip" value={company.zip} />
+                  <ViewField label="Landmark" value={company.landmark} />
+                  <div className="d-flex justify-content-end">
+                    <Button
+                      variant="outline-primary"
+                      className="btn-sm"
+                      onClick={() => navigate("/company_details/" + company.id)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </>
+              )}
+            </Row>
+          </Container>
           {showData()}
         </Col>
-        <Col lg="3" className="order-1 order-lg-2">
+        <Col
+          lg="3"
+          className="order-1 order-lg-2 d-flex flex-column align-items-center"
+        >
           <img
             src={require("../../assets/svgs/person.svg").default}
             width="180"
@@ -557,6 +597,7 @@ const RequirementCompany = () => {
         show={newLeadModal}
         hide={() => setNewLeadModal(false)}
         requirement={id}
+        add={(data) => setLeads([data, ...leads])}
       />
       <DeleteModal
         show={viewState === VIEWSTATE.delete}

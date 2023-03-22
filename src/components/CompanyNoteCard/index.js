@@ -37,7 +37,7 @@ const CompanyNoteCard = ({ data, remove }) => {
 
   return (
     <>
-      <div className="bg-white rounded-4 p-3 mb-3">
+      <div className="bg-white rounded-3 p-3 mb-3">
         <Row>
           <Col lg="11" md="11" sm="11" xs="11" className="d-flex flex-column">
             <p className="text-primary fs-5 fw-light mb-0">Subho Basak</p>

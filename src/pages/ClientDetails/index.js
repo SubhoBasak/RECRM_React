@@ -7,6 +7,7 @@ import {
   Button,
   FormSelect,
   FloatingLabel,
+  Container,
 } from "react-bootstrap";
 
 // utils
@@ -32,7 +33,7 @@ import RequirementsModal from "../../components/RequirementsModal";
 import ConnectionLostModal from "../../components/ConnectionLostModal";
 import InternalServerErrorModal from "../../components/InternalServerErrorModal";
 
-const ContactDetails = () => {
+const ClientDetails = () => {
   const navigate = useNavigate();
   const { state, pathname } = useLocation();
   const { id } = useParams();
@@ -52,16 +53,16 @@ const ContactDetails = () => {
     zip: state?.zip || "",
     landmark: state?.landmark || "",
     source: state?.source || "",
-    agent: state?.agent._id || "",
+    agent: state?.agent?._id || "",
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: state?.createdAt || "",
     modifiedAt: state?.modifiedAt || "",
   });
   const [agentDetails, setAgentDetails] = React.useState({
-    name: state?.agent.name || "",
-    email: state?.agent.email || "",
-    address1: state?.agent.address1 || "",
+    name: state?.agent?.name || "",
+    email: state?.agent?.email || "",
+    address1: state?.agent?.address1 || "",
   });
   const [validated, setValidated] = React.useState(false);
   const [view, setView] = React.useState(id ? true : false);
@@ -114,14 +115,8 @@ const ContactDetails = () => {
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
-        if (res.status === 200) {
-          setView(true);
-          setTimestamps(
-            id
-              ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
-              : { createdAt: new Date() }
-          );
-        } else if (res.status === 401)
+        if (res.status === 200) navigate("/all_contacts");
+        else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
         else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
@@ -213,7 +208,7 @@ const ContactDetails = () => {
       setViewState(VIEWSTATE.loading);
     }
 
-    getDetails();
+    id && getDetails();
   }, []);
 
   return (
@@ -300,87 +295,93 @@ const ContactDetails = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <h5
-                className="mb-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Personal info
-              </h5>
-              <ViewField label="Name" value={formData.name} />
-              {formData.email && (
-                <Col lg="6">
-                  <label className="text-secondary">Email</label>
-                  <p>{formData.email}</p>
-                </Col>
-              )}
-              {formData.phone && (
-                <Col lg="6">
-                  <label className="text-secondary">Phone</label>
-                  <p>{formData.phone}</p>
-                </Col>
-              )}
-              <ViewField
-                label="Gender"
-                value={formData.gender ? genderCodedText(formData.gender) : ""}
-              />
-              <ViewField
-                label="Date of birth"
-                value={dateDecorator(formData.dob)}
-              />
-              <ViewField label="Occupation" value={formData.occupation} />
-              <h5
-                className="mb-3 mt-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Address info
-              </h5>
-              <hr />
-              <ViewField label="Address 1" value={formData.address1} />
-              <ViewField label="Address 2" value={formData.address2} />
-              <ViewField label="City" value={formData.city} />
-              <ViewField label="State" value={formData.state} />
-              <ViewField label="Country" value={formData.country} />
-              <ViewField label="Zip" value={formData.zip} />
-              <ViewField label="Landmark" value={formData.landmark} />
-              {(formData.source || timestamps.createdAt) && (
-                <>
-                  <h5
-                    className="mb-3 mt-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Other info
-                  </h5>
-                  <hr />
-                </>
-              )}
-              <ViewField
-                label="Source"
-                value={formData.source ? sourceCodedText(formData.source) : ""}
-              />
-              {formData.agent && (
-                <Col lg="6" className="d-flex flex-column">
-                  <label className="text-secondary">Agent</label>
-                  <Link to={"/agent_details/" + formData.agent}>
-                    {agentDetails.name}
-                  </Link>
-                </Col>
-              )}
-              <ViewField
-                label="Created at"
-                value={dateDecorator(timestamps.createdAt)}
-              />
-              <ViewField
-                label="Last modified"
-                value={dateDecorator(timestamps.updatedAt)}
-              />
-            </Row>
+            <Container>
+              <Row className="p-3 bg-white rounded-3 mb-3">
+                <h5
+                  className="mb-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Personal info
+                </h5>
+                <ViewField label="Name" value={formData.name} />
+                {formData.email && (
+                  <Col lg="6">
+                    <label className="text-secondary">Email</label>
+                    <p>{formData.email}</p>
+                  </Col>
+                )}
+                {formData.phone && (
+                  <Col lg="6">
+                    <label className="text-secondary">Phone</label>
+                    <p>{formData.phone}</p>
+                  </Col>
+                )}
+                <ViewField
+                  label="Gender"
+                  value={
+                    formData.gender ? genderCodedText(formData.gender) : ""
+                  }
+                />
+                <ViewField
+                  label="Date of birth"
+                  value={dateDecorator(formData.dob)}
+                />
+                <ViewField label="Occupation" value={formData.occupation} />
+                <h5
+                  className="mb-3 mt-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Address info
+                </h5>
+                <hr />
+                <ViewField label="Address 1" value={formData.address1} />
+                <ViewField label="Address 2" value={formData.address2} />
+                <ViewField label="City" value={formData.city} />
+                <ViewField label="State" value={formData.state} />
+                <ViewField label="Country" value={formData.country} />
+                <ViewField label="Zip" value={formData.zip} />
+                <ViewField label="Landmark" value={formData.landmark} />
+                {(formData.source || timestamps.createdAt) && (
+                  <>
+                    <h5
+                      className="mb-3 mt-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Other info
+                    </h5>
+                    <hr />
+                  </>
+                )}
+                <ViewField
+                  label="Source"
+                  value={
+                    formData.source ? sourceCodedText(formData.source) : ""
+                  }
+                />
+                {formData.agent && (
+                  <Col lg="6" className="d-flex flex-column">
+                    <label className="text-secondary">Agent</label>
+                    <Link to={"/agent_details/" + formData.agent}>
+                      {agentDetails.name}
+                    </Link>
+                  </Col>
+                )}
+                <ViewField
+                  label="Created at"
+                  value={dateDecorator(timestamps.createdAt)}
+                />
+                <ViewField
+                  label="Last modified"
+                  value={dateDecorator(timestamps.updatedAt)}
+                />
+              </Row>
+            </Container>
           ) : (
             <Form
               noValidate
               validated={validated}
               onSubmit={formSubmitHandler}
-              className="p-3 bg-white rounded-4 mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <p className="text-secondary">Personal details</p>
               <Form.Group className="mb-3">
@@ -722,4 +723,4 @@ const ContactDetails = () => {
   );
 };
 
-export default ContactDetails;
+export default ClientDetails;

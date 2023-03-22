@@ -11,18 +11,31 @@ import {
 
 // icons
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { MdHistory } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 // components
 import DeleteModal from "../DeleteModal";
 
-const RequirementCard = ({ data, remove, selected, setSelected, url }) => {
+const RequirementCard = ({
+  data,
+  remove,
+  selected,
+  setSelected,
+  url,
+  details,
+}) => {
+  const navigate = useNavigate();
+
   const [deleteIt, setDeleteIt] = React.useState(false);
 
   function selectContact() {
     if (selected.findIndex((rqmn) => rqmn === data._id) > -1)
       setSelected(selected.filter((rqmn) => rqmn !== data._id));
     else setSelected([...selected, data._id]);
+  }
+
+  function showDetails() {
+    navigate(details + data._id);
   }
 
   function getCategory() {
@@ -74,29 +87,41 @@ const RequirementCard = ({ data, remove, selected, setSelected, url }) => {
     <>
       <ListGroupItem className="py-3">
         <Row className="w-100">
-          <Col lg="1">
+          <Col xs={1} className="mb-2 mb-md-0" onClick={showDetails}>
             <FormCheck
               checked={selected.findIndex((rqmn) => rqmn === data._id) > -1}
               onChange={selectContact}
             />
           </Col>
-          <Col lg="4">{data.title}</Col>
-          <Col lg="2" as="a" style={{ textDecoration: "none", fontSize: 12 }}>
+          <Col xs={10} lg={3} className="mb-2 mb-md-0" onClick={showDetails}>
+            {data.title}
+          </Col>
+          <Col
+            xs="12"
+            lg="3"
+            as="a"
+            style={{ textDecoration: "none", fontSize: 12 }}
+            onClick={showDetails}
+          >
             {getCategory()}
           </Col>
           <Col
+            xs="6"
             lg="2"
             as="a"
             className="text-primary"
             style={{ textDecoration: "none", fontSize: 12 }}
+            onClick={showDetails}
           >
             {data.budget ? data.budget + "/-" : "Not mentioned"}
           </Col>
           <Col
+            xs="6"
             lg="2"
             as="a"
             className="text-secondary"
             style={{ textDecoration: "none", fontSize: 12 }}
+            onClick={showDetails}
           >
             {data.area || "Not mentioned"}
           </Col>
@@ -107,12 +132,6 @@ const RequirementCard = ({ data, remove, selected, setSelected, url }) => {
                 className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
               >
                 <AiOutlineEdit />
-              </Button>
-              <Button
-                variant="outline-secondary"
-                className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
-              >
-                <MdHistory />
               </Button>
               <Button
                 variant="outline-secondary"

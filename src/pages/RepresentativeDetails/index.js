@@ -204,7 +204,7 @@ const RepresentativeDetails = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
+            <Row className="w-100 m-1 p-3 bg-white rounded-3 mb-3">
               <Col lg="6">
                 <label className="text-secondary">Name</label>
                 <p>{formData.name || "-"}</p>
@@ -233,7 +233,7 @@ const RepresentativeDetails = () => {
               noValidate
               validated={validated}
               onSubmit={updateRepr}
-              className="p-3 bg-white rounded-4 mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <Form.Group className="mb-3">
                 <FloatingLabel label="Name">

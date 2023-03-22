@@ -10,7 +10,7 @@ const NotFound = () => {
         alt="empty"
       />
       <h3>Not Found!!!</h3>
-      <p className="text-black-50" style={{ maxWidth: 300 }}>
+      <p className="text-center text-black-50" style={{ maxWidth: 300 }}>
         Couldn't found what are you looking for. Please try with some other
         keywords.
       </p>

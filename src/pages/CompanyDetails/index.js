@@ -8,6 +8,7 @@ import {
   ListGroup,
   FloatingLabel,
   FormSelect,
+  Container,
 } from "react-bootstrap";
 
 // utils
@@ -175,7 +176,7 @@ const CompanyDetails = () => {
               <Col className="fw-bold mb-1 mt-3 d-none d-lg-block">Phone</Col>
               <Col lg="1" />
             </Row>
-            <ListGroup variant="flush" className="rounded-4 mt-1">
+            <ListGroup variant="flush" className="rounded-3 mt-1">
               {reprs.map((data, i) => (
                 <RepresentativeCard
                   key={i}
@@ -201,7 +202,7 @@ const CompanyDetails = () => {
         {notes.length === 0 ? (
           <NoRecords />
         ) : (
-          <ListGroup variant="flush" className="rounded-4 mt-1">
+          <ListGroup variant="flush" className="rounded-3 mt-1">
             {notes.map((data, i) => (
               <CompanyNoteCard
                 data={data}
@@ -384,83 +385,87 @@ const CompanyDetails = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <h5
-                className="mb-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Company info
-              </h5>
-              <ViewField label="Name" value={formData.name} />
-              {formData.email && (
-                <Col lg="6">
-                  <label className="text-secondary">Email</label>
-                  <p>{formData.email}</p>
-                </Col>
-              )}
-              {formData.phone && (
-                <Col lg="6">
-                  <label className="text-secondary">Phone</label>
-                  <p>{formData.phone}</p>
-                </Col>
-              )}
-              <ViewField label="Industry" value={formData.industry} />
-              <h5
-                className="mb-3 mt-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Address info
-              </h5>
-              <hr />
-              <ViewField label="Address 1" value={formData.address1} />
-              <ViewField label="Address 2" value={formData.address2} />
-              <ViewField label="City" value={formData.city} />
-              <ViewField label="State" value={formData.state} />
-              <ViewField label="Country" value={formData.country} />
-              <ViewField label="Zip" value={formData.zip} />
-              <ViewField label="Landmark" value={formData.landmark} />
-              {(formData.source || timestamps.createdAt) && (
-                <>
-                  <h5
-                    className="mb-3 mt-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Other info
-                  </h5>
-                  <hr />
-                </>
-              )}
-              <ViewField
-                label="Source"
-                value={formData.source ? sourceCodedText(formData.source) : ""}
-              />
-              {formData.agent && (
-                <Col lg="6">
-                  <label className="text-secondary">Agent</label>
-                  <p>{formData.agent}</p>
-                </Col>
-              )}
-              {formData.about && (
-                <Col lg="12">
-                  <label className="text-secondary">About</label>
-                  <p>{formData.about}</p>
-                </Col>
-              )}
-              <ViewField
-                label="Created at"
-                value={dateDecorator(timestamps.createdAt)}
-              />
-              <ViewField
-                label="Last modified"
-                value={dateDecorator(timestamps.updatedAt)}
-              />
-            </Row>
+            <Container>
+              <Row className="p-3 bg-white rounded-3 mb-3">
+                <h5
+                  className="mb-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Company info
+                </h5>
+                <ViewField label="Name" value={formData.name} />
+                {formData.email && (
+                  <Col lg="6">
+                    <label className="text-secondary">Email</label>
+                    <p>{formData.email}</p>
+                  </Col>
+                )}
+                {formData.phone && (
+                  <Col lg="6">
+                    <label className="text-secondary">Phone</label>
+                    <p>{formData.phone}</p>
+                  </Col>
+                )}
+                <ViewField label="Industry" value={formData.industry} />
+                <h5
+                  className="mb-3 mt-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Address info
+                </h5>
+                <hr />
+                <ViewField label="Address 1" value={formData.address1} />
+                <ViewField label="Address 2" value={formData.address2} />
+                <ViewField label="City" value={formData.city} />
+                <ViewField label="State" value={formData.state} />
+                <ViewField label="Country" value={formData.country} />
+                <ViewField label="Zip" value={formData.zip} />
+                <ViewField label="Landmark" value={formData.landmark} />
+                {(formData.source || timestamps.createdAt) && (
+                  <>
+                    <h5
+                      className="mb-3 mt-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Other info
+                    </h5>
+                    <hr />
+                  </>
+                )}
+                <ViewField
+                  label="Source"
+                  value={
+                    formData.source ? sourceCodedText(formData.source) : ""
+                  }
+                />
+                {formData.agent && (
+                  <Col lg="6">
+                    <label className="text-secondary">Agent</label>
+                    <p>{formData.agent}</p>
+                  </Col>
+                )}
+                {formData.about && (
+                  <Col lg="12">
+                    <label className="text-secondary">About</label>
+                    <p>{formData.about}</p>
+                  </Col>
+                )}
+                <ViewField
+                  label="Created at"
+                  value={dateDecorator(timestamps.createdAt)}
+                />
+                <ViewField
+                  label="Last modified"
+                  value={dateDecorator(timestamps.updatedAt)}
+                />
+              </Row>
+            </Container>
           ) : (
             <Form
               noValidate
               validated={validated}
               onSubmit={formSubmitHandler}
-              className="p-3 bg-white rounded-4 mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <p className="text-secondary">Company details</p>
               <Form.Group className="mb-3">

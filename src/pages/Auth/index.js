@@ -84,7 +84,7 @@ const Auth = () => {
               <span className="text-secondary fw-bold">@ </span>
               <strong className="fw-bold text-black">Login </strong>Now
             </h2>
-            <Alert variant="warning" className="w-75 rounded-4 mb-5">
+            <Alert variant="warning" className="w-75 rounded-3 mb-5">
               Don't need to remember any hanky panky password. Just enter your
               registerd email and verify through the OTP and boom, you are good
               to go!

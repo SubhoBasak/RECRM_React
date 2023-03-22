@@ -13,8 +13,7 @@ import {
 
 // utils
 import { VIEWSTATE } from "../../utils/constants";
-import { categoryCodedText, genderCodedText } from "../../utils/codedText";
-import { dateDecorator } from "../../utils/decorate";
+import { categoryCodedText } from "../../utils/codedText";
 
 // icons
 import { TbArrowBack } from "react-icons/tb";
@@ -48,17 +47,17 @@ const Requirement = () => {
     otherDetails: state?.otherDetails || "",
   });
   const [client, setClient] = React.useState({
-    id: state?.client._id || "",
-    name: state?.client.name || "",
-    email: state?.client.email || "",
-    phone: state?.client.phone || "",
-    address1: state?.client.address1 || "",
-    address2: state?.client.address2 || "",
-    city: state?.client.city || "",
-    state: state?.client.state || "",
-    country: state?.client.country || "",
-    zip: state?.client.zip || "",
-    landmark: state?.client.landmark || "",
+    id: state?.client?._id || "",
+    name: state?.client?.name || "",
+    email: state?.client?.email || "",
+    phone: state?.client?.phone || "",
+    address1: state?.client?.address1 || "",
+    address2: state?.client?.address2 || "",
+    city: state?.client?.city || "",
+    state: state?.client?.state || "",
+    country: state?.client?.country || "",
+    zip: state?.client?.zip || "",
+    landmark: state?.client?.landmark || "",
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: state?.createdAt || "",
@@ -120,7 +119,7 @@ const Requirement = () => {
           <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
             Call history
           </h1>
-          <ListGroup variant="flush" className="rounded-4 m-1 w-100 mb-5">
+          <ListGroup variant="flush" className="rounded-3 m-1 w-100 mb-5">
             {leads.map((data, i) => (
               <LeadCard data={data} key={i} />
             ))}
@@ -199,7 +198,7 @@ const Requirement = () => {
           Return
         </Button>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}
@@ -239,7 +238,7 @@ const Requirement = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
+            <Row className="w-100 m-1 p-3 bg-white rounded-3 mb-3">
               <ViewField label="Title" value={formData.title} />
               <ViewField label="Budget" value={formData.budget} />
               <ViewField label="Area" value={formData.area} />
@@ -272,7 +271,7 @@ const Requirement = () => {
               noValidate
               validated={validated}
               onSubmit={formSubmitHandler}
-              className="p-3 bg-white rounded-4 mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <Form.Group className="mb-3">
                 <FloatingLabel label="Title">
@@ -435,14 +434,14 @@ const Requirement = () => {
           <h1 className="ms-2 mb-3 mt-5" style={{ fontFamily: "pacifico" }}>
             Client details
           </h1>
-          <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
+          <Row className="w-100 m-1 p-3 bg-white rounded-3 mb-3">
             <h5
               className="mb-3 text-primary"
               style={{ fontFamily: "pacifico" }}
             >
               Personal info
             </h5>
-            <ViewField label="Name" value={formData.name} />
+            <ViewField label="Name" value={client.name} />
             {client.email && (
               <Col lg="6">
                 <label className="text-secondary">Email</label>
@@ -453,20 +452,6 @@ const Requirement = () => {
               <Col lg="6">
                 <label className="text-secondary">Phone</label>
                 <p>{client.phone}</p>
-              </Col>
-            )}
-            <ViewField
-              label="Gender"
-              value={formData.gender ? genderCodedText(formData.gender) : ""}
-            />
-            <ViewField
-              label="Date of birth"
-              value={dateDecorator(formData.dob)}
-            />
-            {client.occupation && (
-              <Col lg="6">
-                <label className="text-secondary">Occupation</label>
-                <p>{client.occupation}</p>
               </Col>
             )}
             <h5
@@ -495,7 +480,10 @@ const Requirement = () => {
           </Row>
           {showData()}
         </Col>
-        <Col lg="3" className="order-1 order-lg-2">
+        <Col
+          lg="3"
+          className="d-flex flex-column align-items-center order-1 order-lg-2"
+        >
           <img
             src={require("../../assets/svgs/person.svg").default}
             width="180"

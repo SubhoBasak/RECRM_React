@@ -2,7 +2,6 @@ import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Button,
-  ButtonGroup,
   FloatingLabel,
   Form,
   Row,
@@ -146,7 +145,7 @@ const UserModal = () => {
           {id ? "Return" : "Cancel"}
         </Button>
       </nav>
-      <Row className="w-100">
+      <Row className="w-100 m-0 p-0 d-none d-md-flex">
         <Col lg="6" md="6" sm="12" className="d-flex align-items-center my-5">
           <img
             src={require("../../assets/svgs/people.svg").default}
@@ -188,43 +187,20 @@ const UserModal = () => {
             validated={validated}
             noValidate
           >
-            <Row>
-              <Col lg="10">
-                <Form.Group>
-                  <FloatingLabel label="Email">
-                    <Form.Control
-                      type="email"
-                      value={email}
-                      placeholder="Email"
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoFocus
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please enter a valid email!
-                    </Form.Control.Feedback>
-                  </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col lg="2" className="d-flex justify-content-end">
-                <ButtonGroup className="my-auto">
-                  <Button
-                    className="btn-sm"
-                    variant={active ? "primary" : "outline-primary"}
-                    onClick={() => setActive(true)}
-                  >
-                    Active
-                  </Button>
-                  <Button
-                    className="btn-sm"
-                    variant={active ? "outline-primary" : "primary"}
-                    onClick={() => setActive(false)}
-                  >
-                    Deactive
-                  </Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
+            <Form.Group>
+              <FloatingLabel label="Email">
+                <Form.Control
+                  type="email"
+                  value={email}
+                  placeholder="Email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please enter a valid email!
+                </Form.Control.Feedback>
+              </FloatingLabel>
+            </Form.Group>
             <p className="text-primary mt-3 mb-0">Permissions</p>
             <Row>
               <Col lg="6" sm="12" className="d-flex">
@@ -572,13 +548,13 @@ const UserModal = () => {
                   ) : (
                     <IoIosSave className="me-2" />
                   )}
-                  Add User
+                  {id ? "Update" : "Add User"}
                 </Button>
               </div>
             </Row>
           </Form>
         </Col>
-        <Col lg="3" className="order-1 order-lg-2">
+        <Col lg="3" className={"order-1 order-lg-2" + (id ? "" : " d-none")}>
           <div className="d-flex flex-column align-items-center mb-5 position-sticky top-0 mx-auto">
             <img
               src={require("../../assets/svgs/person.svg").default}

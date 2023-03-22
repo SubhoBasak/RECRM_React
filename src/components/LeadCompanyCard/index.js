@@ -6,7 +6,7 @@ import {
   ButtonGroup,
   Button,
   Alert,
-  Modal
+  Modal,
 } from "react-bootstrap";
 
 // utils
@@ -20,7 +20,7 @@ import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 // components
 import DeleteModal from "../DeleteModal";
 
-const LeadCompanyCard = ({ data }) => {
+const LeadCompanyCard = ({ data, remove }) => {
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   return (
@@ -79,6 +79,7 @@ const LeadCompanyCard = ({ data }) => {
               <Button
                 variant="outline-secondary"
                 className="d-flex p-1 border-0 rounded-0 bg-transparent text-grey"
+                onClick={() => setViewState(VIEWSTATE.delete)}
               >
                 <AiOutlineDelete />
               </Button>
@@ -138,6 +139,10 @@ const LeadCompanyCard = ({ data }) => {
         url="/leadCompany"
         body={{ id: data._id }}
         msg="Do you really want to delete the call?"
+        remove={() => {
+          remove();
+          setViewState(VIEWSTATE.none);
+        }}
       />
     </>
   );

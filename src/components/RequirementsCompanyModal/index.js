@@ -24,7 +24,6 @@ import { IoCloseSharp } from "react-icons/io5";
 
 // components
 import DeleteModal from "../DeleteModal";
-import ConfirmModal from "../ConfirmModal";
 import RequirementCard from "../RequirementCard";
 import ConnectionLostModal from "../ConnectionLostModal";
 import InternalServerErrorModal from "../InternalServerErrorModal";
@@ -131,10 +130,10 @@ const RequirementsCompanyModal = ({
         )}
         <Row className="w-100 fw-bold text-black-50 mt-3">
           <Col lg="1" />
-          <Col lg="4" className="d-none d-lg-block">
+          <Col lg="3" className="d-none d-lg-block">
             Title
           </Col>
-          <Col lg="2" className="d-none d-lg-block">
+          <Col lg="3" className="d-none d-lg-block">
             Category
           </Col>
           <Col lg="2" className="d-none d-lg-block">
@@ -150,6 +149,7 @@ const RequirementsCompanyModal = ({
             <RequirementCard
               key={i}
               url="/rqmnCompany"
+              details="/companyRequirement/"
               data={data}
               selected={selected}
               setSelected={setSelected}

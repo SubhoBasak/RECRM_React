@@ -14,7 +14,7 @@ import {
 // utils
 import { VIEWSTATE } from "../../utils/constants";
 
-const LeadModal = ({ show, hide, requirement }) => {
+const LeadCompanyModal = ({ show, hide, requirement, add }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -51,7 +51,21 @@ const LeadModal = ({ show, hide, requirement }) => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) hide();
+        if (res.status === 200)
+          res
+            .json()
+            .then((json) => {
+              add({ ...formData, _id: json.id });
+              setFormData({
+                title: "",
+                medium: "",
+                due_date: "",
+                attempt_date: "",
+                comment: "",
+              });
+              hide();
+            })
+            .catch();
         else if (res.status === 401)
           navigate("/auth", { state: { next: pathname } });
       })
@@ -196,4 +210,4 @@ const LeadModal = ({ show, hide, requirement }) => {
   );
 };
 
-export default LeadModal;
+export default LeadCompanyModal;

@@ -82,7 +82,7 @@ const Users = () => {
         </Row>
         <ListGroup
           variant="flush"
-          className="rounded-4 mt-1"
+          className="rounded-3 mt-1"
           style={{ margin: "20px", width: "calc(100% - 40px)" }}
         >
           {list}
@@ -237,8 +237,10 @@ const Users = () => {
       </Row>
       {selected.length > 0 && (
         <div className="w-100 px-3 d-flex align-items-center justify-content-between">
-          <p className="m-2 fs-6 fw-bold">{selected.length} selected</p>
-          <div className="d-flex">
+          <p className="m-2 fs-6 fw-bold text-nowrap">
+            {selected.length} selected
+          </p>
+          <div className="d-flex flex-wrap">
             <Button
               variant="outline-primary"
               className="btn-sm my-auto"

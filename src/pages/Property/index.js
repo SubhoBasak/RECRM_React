@@ -8,6 +8,7 @@ import {
   FormSelect,
   FloatingLabel,
   Spinner,
+  Container,
 } from "react-bootstrap";
 
 // utils
@@ -227,54 +228,56 @@ const Property = () => {
             </p>
           </div>
           {view ? (
-            <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-              <ViewField label="Title" value={formData.title} />
-              <ViewField
-                label="Category"
-                value={categoryCodedText(formData.category)}
-              />
-              <ViewField label="Price" value={formData.price + "/-"} />
-              <ViewField label="Area (sqft)" value={formData.area} />
-              <h5
-                className="mb-3 mt-3 text-primary"
-                style={{ fontFamily: "pacifico" }}
-              >
-                Address info
-              </h5>
-              <hr />
-              <ViewField label="Address 1" value={formData.address1} />
-              <ViewField label="Address 2" value={formData.address2} />
-              <ViewField label="City" value={formData.city} />
-              <ViewField label="State" value={formData.state} />
-              <ViewField label="Country" value={formData.country} />
-              <ViewField label="Zip" value={formData.zip} />
-              <ViewField label="Landmark" value={formData.landmark} />
-              {timestamps.createdAt && (
-                <>
-                  <h5
-                    className="mb-3 mt-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Other info
-                  </h5>
-                  <hr />
-                  <ViewField
-                    label="Created at"
-                    value={dateDecorator(timestamps.createdAt)}
-                  />
-                </>
-              )}
-              <ViewField
-                label="Last modified"
-                value={dateDecorator(timestamps.updatedAt)}
-              />
-            </Row>
+            <Container>
+              <Row className="p-3 bg-white rounded-3 mb-3">
+                <ViewField label="Title" value={formData.title} />
+                <ViewField
+                  label="Category"
+                  value={categoryCodedText(formData.category)}
+                />
+                <ViewField label="Price" value={formData.price + "/-"} />
+                <ViewField label="Area (sqft)" value={formData.area} />
+                <h5
+                  className="mb-3 mt-3 text-primary"
+                  style={{ fontFamily: "pacifico" }}
+                >
+                  Address info
+                </h5>
+                <hr />
+                <ViewField label="Address 1" value={formData.address1} />
+                <ViewField label="Address 2" value={formData.address2} />
+                <ViewField label="City" value={formData.city} />
+                <ViewField label="State" value={formData.state} />
+                <ViewField label="Country" value={formData.country} />
+                <ViewField label="Zip" value={formData.zip} />
+                <ViewField label="Landmark" value={formData.landmark} />
+                {timestamps.createdAt && (
+                  <>
+                    <h5
+                      className="mb-3 mt-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Other info
+                    </h5>
+                    <hr />
+                    <ViewField
+                      label="Created at"
+                      value={dateDecorator(timestamps.createdAt)}
+                    />
+                  </>
+                )}
+                <ViewField
+                  label="Last modified"
+                  value={dateDecorator(timestamps.updatedAt)}
+                />
+              </Row>
+            </Container>
           ) : (
             <Form
               noValidate
               validated={validated}
               onSubmit={addProperty}
-              className="p-3 bg-white rounded mb-3"
+              className="p-3 bg-white rounded-3 mb-3"
             >
               <div className="d-flex mb-5">
                 <div className="mx-auto upload-image">

@@ -29,9 +29,6 @@ const AllContacts = () => {
   const { pathname } = useLocation();
 
   const [contacts, setContacts] = React.useState([]);
-  const [clientCount, setClientCount] = React.useState(0);
-  const [companyCount, setCompanyCount] = React.useState(0);
-  const [agentCount, setAgentCount] = React.useState(0);
   const [connLost, setConnLost] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [selected, setSelected] = React.useState([]);
@@ -94,7 +91,20 @@ const AllContacts = () => {
         data.zip?.toLowerCase().includes(tmp) ||
         data.landmark?.toLowerCase().includes(tmp)
       )
-        return <ContactCard key={i} {...{ data, selected, setSelected }} />;
+        return (
+          <ContactCard
+            key={i}
+            {...{ data, selected, setSelected }}
+            remove={() =>
+              setContacts(
+                contacts.filter(
+                  (contact) =>
+                    !(data._id === contact._id && data.role === contact.role)
+                )
+              )
+            }
+          />
+        );
       return null;
     });
 
@@ -128,7 +138,7 @@ const AllContacts = () => {
         </Row>
         <ListGroup
           variant="flush"
-          className="rounded-4 mt-1"
+          className="rounded-3 mt-1"
           style={{ margin: "20px", width: "calc(100% - 40px)" }}
         >
           {list}
@@ -147,10 +157,6 @@ const AllContacts = () => {
             res
               .json()
               .then((data) => {
-                setClientCount(data[0]?.length || 0);
-                setCompanyCount(data[1]?.length || 0);
-                setAgentCount(data[2]?.length || 0);
-
                 data[0] = data[0].map((d) => {
                   d.role = "client";
                   return d;
@@ -267,25 +273,25 @@ const AllContacts = () => {
         >
           <div className="p-2 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {clientCount}
+              {contacts.filter((data) => data.role === "client").length}
             </h1>
             <p className="text-secondary">Clients</p>
           </div>
           <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {companyCount}
+              {contacts.filter((data) => data.role === "company").length}
             </h1>
             <p className="text-secondary">Companies</p>
           </div>
           <div className="p-3 px-4 border-end d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {agentCount}
+              {contacts.filter((data) => data.role === "agent").length}
             </h1>
             <p className="text-secondary">Agents</p>
           </div>
           <div className="p-3 px-4 d-flex flex-column align-items-center">
             <h1 className="fs-1" style={{ fontFamily: "pacifico" }}>
-              {clientCount + companyCount + agentCount}
+              {contacts.length}
             </h1>
             <p className="text-secondary">Total</p>
           </div>

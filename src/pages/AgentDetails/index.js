@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Col, Form, Row, Button, FormSelect } from "react-bootstrap";
+import { Col, Form, Row, Button, FormSelect, Container } from "react-bootstrap";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 
 // utils
@@ -298,85 +298,89 @@ const AgentDetails = () => {
                 </p>
               </div>
               {view ? (
-                <Row className="w-100 m-1 p-3 bg-white rounded-4 mb-3">
-                  <h5
-                    className="mb-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Personal info
-                  </h5>
-                  <Col lg="6">
-                    <label className="text-secondary">Name</label>
-                    <p>{formData.name || "-"}</p>
-                  </Col>
-                  {formData.email && (
-                    <Col lg="6" className="d-flex flex-column">
-                      <label className="text-secondary">Email</label>
-                      <a href={"mailto:" + formData.email}>{formData.email}</a>
+                <Container>
+                  <Row className="p-3 bg-white rounded-3 mb-3">
+                    <h5
+                      className="mb-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Personal info
+                    </h5>
+                    <Col lg="6">
+                      <label className="text-secondary">Name</label>
+                      <p>{formData.name || "-"}</p>
                     </Col>
-                  )}
-                  {formData.phone && (
-                    <Col lg="6" className="d-flex flex-column">
-                      <label className="text-secondary">Phone</label>
-                      <a href={"tel:" + formData.phone}>{formData.phone}</a>
-                    </Col>
-                  )}
-                  <ViewField
-                    label="Gender"
-                    value={
-                      formData.gender ? genderCodedText(formData.gender) : ""
-                    }
-                  />
-                  <ViewField
-                    label="Date of birth"
-                    value={dateDecorator(formData.dob)}
-                  />
-                  <h5
-                    className="mb-3 mt-3 text-primary"
-                    style={{ fontFamily: "pacifico" }}
-                  >
-                    Address info
-                  </h5>
-                  <hr />
-                  <ViewField label="Address 1" value={formData.address1} />
-                  <ViewField label="Address 2" value={formData.address2} />
-                  <ViewField label="City" value={formData.city} />
-                  <ViewField label="State" value={formData.state} />
-                  <ViewField label="Country" value={formData.country} />
-                  <ViewField label="Zip" value={formData.zip} />
-                  <ViewField label="Landmark" value={formData.landmark} />
-                  {(formData.deals || timestamps.createdAt) && (
-                    <>
-                      <h5
-                        className="mb-3 mt-3 text-primary"
-                        style={{ fontFamily: "pacifico" }}
-                      >
-                        Others info
-                      </h5>
-                      <hr />
-                      {formData.deals && (
-                        <Col lg="12">
-                          <label className="text-secondary">Deals in</label>
-                          <p>{formData.deals}</p>
-                        </Col>
-                      )}
-                      <ViewField
-                        label="Created at"
-                        value={dateDecorator(timestamps.createdAt)}
-                      />
-                      <ViewField
-                        label="Last modified"
-                        value={dateDecorator(timestamps.updatedAt)}
-                      />
-                    </>
-                  )}
-                </Row>
+                    {formData.email && (
+                      <Col lg="6" className="d-flex flex-column">
+                        <label className="text-secondary">Email</label>
+                        <a href={"mailto:" + formData.email}>
+                          {formData.email}
+                        </a>
+                      </Col>
+                    )}
+                    {formData.phone && (
+                      <Col lg="6" className="d-flex flex-column">
+                        <label className="text-secondary">Phone</label>
+                        <a href={"tel:" + formData.phone}>{formData.phone}</a>
+                      </Col>
+                    )}
+                    <ViewField
+                      label="Gender"
+                      value={
+                        formData.gender ? genderCodedText(formData.gender) : ""
+                      }
+                    />
+                    <ViewField
+                      label="Date of birth"
+                      value={dateDecorator(formData.dob)}
+                    />
+                    <h5
+                      className="mb-3 mt-3 text-primary"
+                      style={{ fontFamily: "pacifico" }}
+                    >
+                      Address info
+                    </h5>
+                    <hr />
+                    <ViewField label="Address 1" value={formData.address1} />
+                    <ViewField label="Address 2" value={formData.address2} />
+                    <ViewField label="City" value={formData.city} />
+                    <ViewField label="State" value={formData.state} />
+                    <ViewField label="Country" value={formData.country} />
+                    <ViewField label="Zip" value={formData.zip} />
+                    <ViewField label="Landmark" value={formData.landmark} />
+                    {(formData.deals || timestamps.createdAt) && (
+                      <>
+                        <h5
+                          className="mb-3 mt-3 text-primary"
+                          style={{ fontFamily: "pacifico" }}
+                        >
+                          Others info
+                        </h5>
+                        <hr />
+                        {formData.deals && (
+                          <Col lg="12">
+                            <label className="text-secondary">Deals in</label>
+                            <p>{formData.deals}</p>
+                          </Col>
+                        )}
+                        <ViewField
+                          label="Created at"
+                          value={dateDecorator(timestamps.createdAt)}
+                        />
+                        <ViewField
+                          label="Last modified"
+                          value={dateDecorator(timestamps.updatedAt)}
+                        />
+                      </>
+                    )}
+                  </Row>
+                </Container>
               ) : (
                 <Form
                   noValidate
                   validated={validated}
                   onSubmit={formSubmitHandler}
-                  className="p-3 bg-white rounded-4 mb-3"
+                  className="p-3 bg-white rounded-3 mb-3"
                 >
                   <p className="text-secondary">Personal details</p>
                   <Form.Group className="mb-3">

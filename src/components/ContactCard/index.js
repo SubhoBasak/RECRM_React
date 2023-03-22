@@ -21,7 +21,7 @@ import { MdViewHeadline } from "react-icons/md";
 // components
 import DeleteModal from "../DeleteModal";
 
-const ContactCard = ({ data, selected, setSelected }) => {
+const ContactCard = ({ data, selected, setSelected, remove }) => {
   const navigate = useNavigate();
 
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
@@ -76,13 +76,19 @@ const ContactCard = ({ data, selected, setSelected }) => {
               onChange={selectContact}
             />
           </Col>
-          <Col lg="3" md="8" xs="11" className="fs-6" onClick={showDetails}>
+          <Col
+            lg="3"
+            md="8"
+            xs="11"
+            className="fs-6 text-truncate"
+            onClick={showDetails}
+          >
             {data.name}
           </Col>
           <Col xl="1" lg="2" md="3" xs="4">
             <Alert
               variant={roleClass()}
-              className="p-0 px-2 m-0"
+              className="p-0 px-2 m-0 text-truncate"
               onClick={showDetails}
               style={{ maxWidth: "fit-content" }}
             >
@@ -94,26 +100,35 @@ const ContactCard = ({ data, selected, setSelected }) => {
             md="12"
             sm="8"
             xs="12"
-            className="text-grey fw-light"
+            className="text-grey fw-light text-truncate"
             onClick={showDetails}
           >
             {data.address1}
           </Col>
-          <Col lg="2" xs="12">
-            <a
-              {...(data.email ? { href: `mailto:${data.email}` } : {})}
-              className={"fw-light" + (data.email ? "" : " text-black-50")}
-            >
-              {data.email || "Not present"}
-            </a>
+          <Col
+            as="a"
+            lg="2"
+            xs="12"
+            {...(data.email ? { href: `mailto:${data.email}` } : {})}
+            className={
+              "col-2 fw-light text-truncate" +
+              (data.email ? "" : " text-black-50")
+            }
+          >
+            {data.email || "Not present"}
           </Col>
-          <Col lg="2" xs="12">
-            <a
-              {...(data.phone ? { href: `tel:${data.phone}` } : {})}
-              className={"fw-light" + (data.phone ? "" : " text-black-50")}
-            >
-              {data.phone || "Not present"}
-            </a>
+          <Col
+            as="a"
+            lg="2"
+            xs="12"
+            className={
+              "fw-light text-truncate" + (data.phone ? "" : " text-black-50")
+            }
+            {...(data.phone
+              ? { href: `tel:${data.phone}` }
+              : { onClick: showDetails })}
+          >
+            {data.phone || "Not present"}
           </Col>
           <Col lg="1">
             <ButtonGroup className="mb-auto">
@@ -141,6 +156,10 @@ const ContactCard = ({ data, selected, setSelected }) => {
         url={"/" + data.role}
         body={{ id: data._id }}
         msg="Do you really want to delete the contact?"
+        remove={() => {
+          setViewState(VIEWSTATE.none);
+          remove();
+        }}
       />
     </>
   );
