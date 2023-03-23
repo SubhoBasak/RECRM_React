@@ -69,6 +69,7 @@ const CompanyDetails = () => {
   const [notes, setNotes] = React.useState([]);
   const [reprs, setReprs] = React.useState([]);
   const [rqmns, setRqmns] = React.useState([]);
+  const [agents, setAgents] = React.useState([]);
   const [deleteSelected, setDeleteSelected] = React.useState(false);
   const [selected, setSelected] = React.useState([]);
   const [addNote, setAddNote] = React.useState(false);
@@ -286,6 +287,7 @@ const CompanyDetails = () => {
                 setNotes(data.notes || []);
                 setReprs(data.reprs || []);
                 setRqmns(data.rqmns || []);
+                setAgents(data.agents || []);
               })
               .catch();
           else if (res.status === 500) setViewState(VIEWSTATE.serverError);
@@ -638,7 +640,9 @@ const CompanyDetails = () => {
                       >
                         <option value="">Select source</option>
                         <option value="1">Direct</option>
-                        <option value="2">Agent</option>
+                        <option value="2" disabled={agents.length === 0}>
+                          Agent
+                        </option>
                         <option value="3">Website</option>
                         <option value="4">Social Media</option>
                         <option value="5">TV & Newspaper</option>
@@ -647,18 +651,29 @@ const CompanyDetails = () => {
                     </FloatingLabel>
                   </Form.Group>
                 </Col>
-                <Col lg="6">
-                  <Form.Group className="mb-3">
-                    <FloatingLabel label="Agent">
-                      <FormSelect
-                        value={formData.agent}
-                        onChange={setField("agent")}
-                      >
-                        <option value="">Select agent</option>
-                      </FormSelect>
-                    </FloatingLabel>
-                  </Form.Group>
-                </Col>
+                {Number.parseInt(formData.source) === 2 && (
+                  <Col lg="6">
+                    <Form.Group className="mb-3">
+                      <FloatingLabel label="Agent">
+                        <FormSelect
+                          value={formData.agent}
+                          onChange={setField("agent")}
+                        >
+                          <option value="">Select agent</option>
+                          {agents.map((data, i) => (
+                            <option key={i} value={data._id}>
+                              {data.name +
+                                " | " +
+                                data.email +
+                                " | " +
+                                data.address1}
+                            </option>
+                          ))}
+                        </FormSelect>
+                      </FloatingLabel>
+                    </Form.Group>
+                  </Col>
+                )}
               </Row>
               <Form.Group className="mb-3">
                 <FloatingLabel label="About">

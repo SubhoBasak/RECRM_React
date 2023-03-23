@@ -95,10 +95,8 @@ const UserModal = () => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) {
-          if (id) {
-          } else navigate("/users");
-        } else if (res.status === 401)
+        if (res.status === 200) navigate("/users");
+        else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
         else setViewState(VIEWSTATE.serverError);
       })
@@ -131,7 +129,7 @@ const UserModal = () => {
       });
     }
 
-    getData();
+    id && !state && getData();
   }, [id]);
 
   return (

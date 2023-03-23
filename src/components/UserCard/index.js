@@ -39,11 +39,20 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
               onChange={selectIt}
             />
           </Col>
-          <Col xs="11" lg="3">{data.name}</Col>
+          <Col
+            xs="11"
+            lg="3"
+            className="text-truncate mb-2 mb-md-0"
+            onClick={() =>
+              navigate("/user_details/" + data._id, { state: data })
+            }
+          >
+            {data.name}
+          </Col>
           <Col
             lg="3"
             xs="12"
-            className="text-primary d-flex align-items-center mb-2 mb-md-0"
+            className="text-primary text-truncate mb-2 mb-md-0"
             onClick={() =>
               navigate("/user_details/" + data._id, { state: data })
             }
@@ -60,7 +69,7 @@ const UserCard = ({ data, selected, setSelected, remove }) => {
           >
             <Alert
               variant={data.active ? "primary" : "warning"}
-              className="p-0 px-2 my-auto"
+              className="text-truncate p-0 px-2 my-auto"
               style={{ fontSize: 12, width: "fit-content" }}
             >
               {data.active ? "Active" : "Deactive"}

@@ -17,7 +17,6 @@ import { TbArrowBack } from "react-icons/tb";
 import { BsToggleOn, BsToggleOff } from "react-icons/bs";
 
 // components
-import ViewField from "../../components/ViewField";
 import DeleteModal from "../../components/DeleteModal";
 import PropertyCard from "../../components/PropertyCard";
 import Loading from "../../components/Loading";
@@ -179,7 +178,14 @@ const FolderDetails = () => {
               {view ? (
                 <Container>
                   <Row className="p-3 bg-white rounded-3 mb-3">
-                    <ViewField label="Title" value={formData.title} />
+                    <Col lg="12">
+                      <label className="text-secondary">Title</label>
+                      <p>{formData.title}</p>
+                    </Col>
+                    <Col lg="12">
+                      <label className="text-secondary">Info</label>
+                      <p>{formData.info}</p>
+                    </Col>
                   </Row>
                 </Container>
               ) : (
@@ -234,6 +240,26 @@ const FolderDetails = () => {
           <h1 className="ms-2 mb-5 mt-5" style={{ fontFamily: "pacifico" }}>
             Properties
           </h1>
+          {selected.length > 0 && (
+            <div className="w-100 px-3 d-flex align-items-center justify-content-between">
+              <p className="m-2 fs-6 fw-bold">{selected.length} selected</p>
+              <div className="d-flex">
+                <Button
+                  variant="outline-primary"
+                  className="btn-sm my-auto"
+                  onClick={() => setSelected([])}
+                >
+                  Unselect all
+                </Button>
+                <Button
+                  variant="primary"
+                  className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
+                >
+                  Delete Contacts
+                </Button>
+              </div>
+            </div>
+          )}
           <div className="d-flex flex-wrap mb-3">{showData()}</div>
         </Col>
         <Col

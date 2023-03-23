@@ -55,9 +55,10 @@ const NoteModal = ({ agent, client, url, hide, show, add }) => {
 
   return (
     <>
-      <Modal size="lg" show={show} onHide={hide} centered>
+      <Modal show={show} onHide={hide} centered>
         <Modal.Body>
           <Form validated={validated} onSubmit={handleSubmit} noValidate>
+            <p className="text-secondary">Add a note</p>
             <Form.Group>
               <FloatingLabel label="Note">
                 <Form.Control

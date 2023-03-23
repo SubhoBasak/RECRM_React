@@ -24,6 +24,7 @@ import Loading from "../../components/Loading";
 import NotFound from "../../components/NotFound";
 import UserCard from "../../components/UserCard";
 import NoRecords from "../../components/NoRecords";
+import ConfirmModal from "../../components/ConfirmModal";
 import ConnectionLost from "../../components/ConnectionLost";
 import InternalServerError from "../../components/InternalServerError";
 
@@ -270,7 +271,7 @@ const Users = () => {
             <Button
               variant="primary"
               className="ms-2 my-auto btn-sm d-flex align-items-center shadow"
-              onClick={() => optionButtonHandler("DELETE")}
+              onClick={() => setViewState(VIEWSTATE.delete)}
             >
               <MdDeleteSweep className="me-2" />
               Delete
@@ -279,6 +280,12 @@ const Users = () => {
         </div>
       )}
       {showData()}
+      <ConfirmModal
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
+        msg="Do you really want to delete the selected users?"
+        yes={() => optionButtonHandler("DELETE")}
+      />
     </>
   );
 };

@@ -214,7 +214,7 @@ const ClientDetails = () => {
   return (
     <>
       <nav>
-        <p className="text-primary me-auto">Add new contact</p>
+        <p className="text-primary me-auto">Client contact</p>
         {!view && !id && (
           <Button
             variant="outline-primary"
@@ -305,15 +305,15 @@ const ClientDetails = () => {
                 </h5>
                 <ViewField label="Name" value={formData.name} />
                 {formData.email && (
-                  <Col lg="6">
+                  <Col lg="6" className="d-flex flex-column">
                     <label className="text-secondary">Email</label>
-                    <p>{formData.email}</p>
+                    <a href={"mailto:" + formData.email}>{formData.email}</a>
                   </Col>
                 )}
                 {formData.phone && (
-                  <Col lg="6">
+                  <Col lg="6" className="d-flex flex-column">
                     <label className="text-secondary">Phone</label>
-                    <p>{formData.phone}</p>
+                    <a href={"tel:" + formData.phone}>{formData.phone}</a>
                   </Col>
                 )}
                 <ViewField
@@ -581,7 +581,9 @@ const ClientDetails = () => {
                       >
                         <option value="">Select source</option>
                         <option value="1">Direct</option>
-                        <option value="2">Agent</option>
+                        <option value="2" disabled={agents.length === 0}>
+                          Agent
+                        </option>
                         <option value="3">Website</option>
                         <option value="4">Social Media</option>
                         <option value="5">TV & Newspaper</option>
@@ -599,7 +601,7 @@ const ClientDetails = () => {
                           onChange={setField("agent")}
                           required
                         >
-                          <option value="">Select</option>
+                          <option value="">Select agent</option>
                           {agents.map((data, i) => (
                             <option key={i} value={data._id}>
                               {data.name +
@@ -653,9 +655,6 @@ const ClientDetails = () => {
                   onClick={() => setNoteModal(true)}
                 >
                   Add Note
-                </Button>
-                <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
-                  LEAD
                 </Button>
                 <Button
                   variant="primary"

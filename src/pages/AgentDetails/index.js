@@ -118,14 +118,8 @@ const AgentDetails = () => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) {
-          setView(true);
-          setTimestamps(
-            id
-              ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
-              : { createdAt: new Date() }
-          );
-        } else if (res.status === 401)
+        if (res.status === 200) navigate("/all_contacts");
+        else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
         else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
@@ -306,10 +300,7 @@ const AgentDetails = () => {
                     >
                       Personal info
                     </h5>
-                    <Col lg="6">
-                      <label className="text-secondary">Name</label>
-                      <p>{formData.name || "-"}</p>
-                    </Col>
+                    <ViewField label="Name" value={formData.name} />
                     {formData.email && (
                       <Col lg="6" className="d-flex flex-column">
                         <label className="text-secondary">Email</label>
@@ -331,7 +322,7 @@ const AgentDetails = () => {
                       }
                     />
                     <ViewField
-                      label="Date of birth"
+                      label="Date of Birth"
                       value={dateDecorator(formData.dob)}
                     />
                     <h5
@@ -454,7 +445,6 @@ const AgentDetails = () => {
                           <Form.Control
                             type="date"
                             className="d-flex"
-                            min={new Date().toISOString().substring(0, 10)}
                             value={formData.dob}
                             onChange={setField("dob")}
                           />

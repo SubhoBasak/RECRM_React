@@ -96,7 +96,10 @@ const Property = () => {
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
-        if (res.status === 200) navigate("/properties");
+        if (res.status === 200)
+          state?.folder
+            ? navigate("/folder_details/" + state.folder)
+            : navigate("/properties");
         else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
         else setViewState(VIEWSTATE.serverError);
