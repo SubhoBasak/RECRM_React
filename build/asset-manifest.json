@@ -1,0 +1,31 @@
+{
+  "files": {
+    "main.css": "/static/css/main.a8da1ae6.css",
+    "main.js": "/static/js/main.c4c4b30c.js",
+    "static/media/auth.jpg": "/static/media/auth.f2c2c7686000fda03261.jpg",
+    "static/media/Pacifico-Regular.ttf": "/static/media/Pacifico-Regular.c0d735fc04154e03a691.ttf",
+    "static/media/error.svg": "/static/media/error.ddd9e8a7b672eaf2746372c12210582c.svg",
+    "static/media/empty.svg": "/static/media/empty.9ee72d4ba97089f854949e4d3eb25263.svg",
+    "static/media/people.svg": "/static/media/people.960969cc6ba4edecfacc2b4a24d1ffb1.svg",
+    "static/media/repr.svg": "/static/media/repr.ada693272cb55e3d9d4cfd76d39a7c46.svg",
+    "static/media/person.svg": "/static/media/person.3847af7352575aff9e48bdfa4d9ee325.svg",
+    "static/media/note.svg": "/static/media/note.98d8e2da4c5ebd6e0a2e2263728c174b.svg",
+    "static/media/lead.svg": "/static/media/lead.bafca726cfc776cf91d15cb72b2223b7.svg",
+    "static/media/hero.svg": "/static/media/hero.c8f90ca0283a21ade7c493497915ff1d.svg",
+    "static/media/picture.png": "/static/media/picture.74c93fd63c0d22d8c130.png",
+    "static/media/folder.svg": "/static/media/folder.493589ba7cb8371c4f7aa2f64b0955b6.svg",
+    "static/media/lost.svg": "/static/media/lost.4bd894cfc5d16f790a81cb297178f79e.svg",
+    "static/media/deleted.svg": "/static/media/deleted.aeeef35351e3c89de31b71e28f29cec6.svg",
+    "static/media/properties.svg": "/static/media/properties.a40727022d9a3a0f5f0a7b7cb6709a36.svg",
+    "static/media/add.svg": "/static/media/add.2a20e68c0a381c2664670ee2ba4062ea.svg",
+    "static/media/warn.svg": "/static/media/warn.9a152d08f74847cf71480fce79c64429.svg",
+    "static/media/notFound.svg": "/static/media/notFound.69e0caec4058ec164a37690f94fa264a.svg",
+    "static/media/server.svg": "/static/media/server.c8395bea1b4cdd6af3814e497eb0e0d0.svg",
+    "static/media/logo.svg": "/static/media/logo.a606131a1e03d73886decebadc2da4a6.svg",
+    "index.html": "/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.a8da1ae6.css",
+    "static/js/main.c4c4b30c.js"
+  ]
+}
