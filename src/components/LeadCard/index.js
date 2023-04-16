@@ -20,7 +20,7 @@ import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 // components
 import DeleteModal from "../DeleteModal";
 
-const LeadCard = ({ data }) => {
+const LeadCard = ({ data, remove }) => {
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
 
   return (
@@ -126,7 +126,9 @@ const LeadCard = ({ data }) => {
           {data.comment && (
             <>
               <span className="text-secondary">Comment</span>
-              <p className="bg-light p-2 rounded-3 mb-0 text-black-50">{data.comment}</p>
+              <p className="bg-light p-2 rounded-3 mb-0 text-black-50">
+                {data.comment}
+              </p>
             </>
           )}
         </Modal.Body>
@@ -137,6 +139,10 @@ const LeadCard = ({ data }) => {
         url="/lead"
         body={{ id: data._id }}
         msg="Do you really want to delete this call?"
+        remove={() => {
+          setViewState(VIEWSTATE.none);
+          remove();
+        }}
       />
     </>
   );

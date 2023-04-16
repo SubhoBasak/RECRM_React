@@ -52,8 +52,8 @@ const ClientDetails = () => {
     country: state?.country || "",
     zip: state?.zip || "",
     landmark: state?.landmark || "",
-    source: state?.source || "",
-    agent: state?.agent?._id || "",
+    source: state?.source || (state?.agentId ? "2" : "") || "",
+    agent: state?.agent?._id || state?.agentId || "",
   });
   const [timestamps, setTimestamps] = React.useState({
     createdAt: state?.createdAt || "",
@@ -106,8 +106,13 @@ const ClientDetails = () => {
 
     setValidated(false);
 
-    let tmpData = id ? { id } : {};
-    for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
+    let tmpData = {};
+    if (id) {
+      tmpData.id = id;
+      for (let k in formData)
+        if (formData[k]) tmpData[k] = formData[k];
+        else tmpData[k] = null;
+    } else for (let k in formData) if (formData[k]) tmpData[k] = formData[k];
 
     fetch(process.env.REACT_APP_BASE_URL + "/client", {
       method: id ? "PUT" : "POST",
@@ -202,13 +207,27 @@ const ClientDetails = () => {
           else if (res.status === 401)
             return navigate("/auth", { state: { next: pathname } });
         })
-        .catch(() => {
-          setViewState(VIEWSTATE.none);
-        });
+        .catch(() => setViewState(VIEWSTATE.none));
       setViewState(VIEWSTATE.loading);
     }
 
-    id && getDetails();
+    async function getAgents() {
+      fetch(process.env.REACT_APP_BASE_URL + "/agent")
+        .then((res) => {
+          setViewState(VIEWSTATE.none);
+          if (res.status === 200)
+            res
+              .json()
+              .then((data) => setAgents(data))
+              .catch();
+          else if (res.status === 401)
+            return navigate("/auth", { state: { next: pathname } });
+        })
+        .catch(() => setViewState(VIEWSTATE.none));
+      setViewState(VIEWSTATE.loading);
+    }
+
+    id ? getDetails() : getAgents();
   }, []);
 
   return (

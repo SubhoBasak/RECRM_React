@@ -43,7 +43,7 @@ const RequirementCard = ({
       case 1:
         return (
           <Alert
-            className="px-2 py-0"
+            className="text-truncate px-2 py-0"
             variant="primary"
             style={{ maxWidth: "fit-content" }}
           >
@@ -53,7 +53,7 @@ const RequirementCard = ({
       case 2:
         return (
           <Alert
-            className="px-2 py-0"
+            className="text-truncate px-2 py-0"
             variant="success"
             style={{ maxWidth: "fit-content" }}
           >
@@ -63,7 +63,7 @@ const RequirementCard = ({
       case 3:
         return (
           <Alert
-            className="px-2 py-0"
+            className="text-truncate px-2 py-0"
             variant="warning"
             style={{ maxWidth: "fit-content" }}
           >
@@ -73,7 +73,7 @@ const RequirementCard = ({
       default:
         return (
           <Alert
-            className="px-2 py-0"
+            className="text-truncate px-2 py-0"
             variant="secondary"
             style={{ maxWidth: "fit-content" }}
           >
@@ -87,18 +87,23 @@ const RequirementCard = ({
     <>
       <ListGroupItem className="py-3">
         <Row className="w-100">
-          <Col xs={1} className="mb-2 mb-md-0" onClick={showDetails}>
+          <Col xs="1" className="mb-2 mb-md-0" onClick={showDetails}>
             <FormCheck
               checked={selected.findIndex((rqmn) => rqmn === data._id) > -1}
               onChange={selectContact}
             />
           </Col>
-          <Col xs={10} lg={3} className="mb-2 mb-md-0" onClick={showDetails}>
+          <Col
+            xs="10"
+            lg="4"
+            className="text-truncate mb-2 mb-md-0"
+            onClick={showDetails}
+          >
             {data.title}
           </Col>
           <Col
             xs="12"
-            lg="3"
+            lg="2"
             as="a"
             style={{ textDecoration: "none", fontSize: 12 }}
             onClick={showDetails}
@@ -109,21 +114,23 @@ const RequirementCard = ({
             xs="6"
             lg="2"
             as="a"
-            className="text-primary"
+            className={data.budget ? "text-primary" : "text-black-50"}
             style={{ textDecoration: "none", fontSize: 12 }}
             onClick={showDetails}
           >
-            {data.budget ? data.budget + "/-" : "Not mentioned"}
+            {data.budget
+              ? data.budget.toLocaleString() + "/-"
+              : "Not mentioned"}
           </Col>
           <Col
             xs="6"
             lg="2"
             as="a"
-            className="text-secondary"
+            className={data.area ? "text-secondary" : "text-black-50"}
             style={{ textDecoration: "none", fontSize: 12 }}
             onClick={showDetails}
           >
-            {data.area || "Not mentioned"}
+            {data.area ? data.area.toLocaleString() : "Not mentioned"}
           </Col>
           <Col lg="1">
             <ButtonGroup>

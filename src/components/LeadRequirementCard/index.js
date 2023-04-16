@@ -90,7 +90,7 @@ const LeadRequirementCard = ({ data }) => {
           style={{ fontSize: 12 }}
           variant="primary"
         >
-          {data.stage.name}
+          {data.stage}
         </Alert>
       );
     else
@@ -179,7 +179,7 @@ const LeadRequirementCard = ({ data }) => {
                 </Popover>
               }
             >
-              <Button variant="outline-primary" className="p-0 border-0">
+              <Button variant="outline-primary" className="text-truncate p-0 border-0">
                 {data.client ? (
                   <>
                     <FiUser className="me-2" />
@@ -196,7 +196,7 @@ const LeadRequirementCard = ({ data }) => {
           )}
         </Col>
         <Col
-          className="d-flex align-items-center mb-2 mb-md-0"
+          className="text-truncate mb-2 mb-md-0"
           lg={2}
           onClick={showDetails}
         >
@@ -220,10 +220,10 @@ const LeadRequirementCard = ({ data }) => {
         </Col>
         <Col
           className={
-            "d-flex align-items-center" +
+            "text-truncate" +
             (data.budget ? " text-primary" : " text-black-50")
           }
-          style={{ fontSize: data.budget ? 18 : 12 }}
+          style={{ fontSize: data.budget ? 14 : 12 }}
           xs={6}
           lg={2}
           onClick={showDetails}
@@ -232,10 +232,10 @@ const LeadRequirementCard = ({ data }) => {
         </Col>
         <Col
           className={
-            "d-flex align-items-center" +
+            "text-truncate" +
             (data.area ? " text-secondary" : " text-black-50")
           }
-          style={{ fontSize: data.area ? 18 : 12 }}
+          style={{ fontSize: data.area ? 14 : 12 }}
           xs={6}
           lg={2}
           onClick={showDetails}

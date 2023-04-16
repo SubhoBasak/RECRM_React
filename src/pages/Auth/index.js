@@ -23,7 +23,6 @@ const Auth = () => {
   const [viewState, setViewState] = React.useState(VIEWSTATE.none);
   const [validated, setValidated] = React.useState(false);
   const [otpSend, setOtpSend] = React.useState(false);
-  const [timer, setTimer] = React.useState(300);
   const [email, setEmail] = React.useState(localStorage.getItem("email") || "");
   const [otp, setOtp] = React.useState("");
 
@@ -36,19 +35,24 @@ const Auth = () => {
     }
     setValidated(false);
 
-    fetch(process.env.REACT_APP_BASE_URL + "/", {
+    localStorage.setItem("email", email);
+
+    fetch(process.env.REACT_APP_BASE_URL + "/auth", {
       method: otpSend ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
+      credentials: "include",
     })
       .then((res) => {
         setViewState(VIEWSTATE.none);
         if (res.status === 200) {
           if (otpSend) {
-            localStorage.setItem(email);
             navigate(state?.next || "/");
           } else {
+            setOtpSend(true);
           }
+        } else if (res.status === 401) {
+        } else if (res.status === 404) {
         } else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
       .catch(() => setViewState(VIEWSTATE.connLost));
@@ -59,7 +63,7 @@ const Auth = () => {
 
   return (
     <>
-      <Modal show={true} fullscreen className="d-flex">
+      <Modal show={true} fullscreen className="d-flex bg-white">
         <Row className="w-100 m-0 p-0">
           <Col
             lg="7"
@@ -72,7 +76,7 @@ const Auth = () => {
               alt="auth"
             />
             <h1 className="display-1 text-center">
-              Real Estate <span class="text-primary fw-bold">CRM</span>
+              Real Estate <span className="text-primary fw-bold">CRM</span>
             </h1>
           </Col>
           <Col
@@ -89,13 +93,6 @@ const Auth = () => {
               registerd email and verify through the OTP and boom, you are good
               to go!
             </Alert>
-            {otpSend && (
-              <h3 className="display-3">
-                {Math.floor(timer / 60)}
-                <span className="text-secondary">:</span>
-                {String(Math.floor(timer % 60)).padStart(2, "0")}
-              </h3>
-            )}
             <Form
               className="w-75 d-flex flex-column align-items-center justify-content-center"
               onSubmit={formSubmitHandler}

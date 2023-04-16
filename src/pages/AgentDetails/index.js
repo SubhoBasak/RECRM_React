@@ -213,7 +213,7 @@ const AgentDetails = () => {
   return (
     <>
       <nav>
-        <p className="text-primary me-auto">Add new contact</p>
+        <p className="text-primary me-auto">Agent contact</p>
         {!view && !formBlank() && !id && (
           <Button
             variant="outline-primary"
@@ -589,34 +589,42 @@ const AgentDetails = () => {
               alt="person"
               className="my-3"
             />
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => navigate("/client_details")}
-            >
-              Add Client
-            </Button>
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setClientModal(true)}
-            >
-              View Clients
-            </Button>
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setNoteModal(true)}
-            >
-              Add Note
-            </Button>
-            <Button
-              variant="primary"
-              className="btn-sm mt-3 w-75 shadow"
-              onClick={() => setViewState(VIEWSTATE.delete)}
-            >
-              Delete
-            </Button>
+            {id ? (
+              <>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() =>
+                    navigate("/client_details", { state: { agentId: id } })
+                  }
+                >
+                  Add Client
+                </Button>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setClientModal(true)}
+                >
+                  View Clients
+                </Button>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setNoteModal(true)}
+                >
+                  Add Note
+                </Button>
+                <Button
+                  variant="primary"
+                  className="btn-sm mt-3 w-75 shadow"
+                  onClick={() => setViewState(VIEWSTATE.delete)}
+                >
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <p className="fs-4 text-primary mt-4">Add new agent</p>
+            )}
           </div>
         </Col>
       </Row>

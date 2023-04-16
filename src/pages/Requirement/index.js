@@ -131,7 +131,7 @@ const Requirement = () => {
   function getStage() {
     if (formData.finally === 1) return "Canceled";
     else if (formData.finally === 2) return "Completed";
-    else if (formData.stage) return formData.stage.name;
+    else if (formData.stage) return formData.stage;
     else return "Initiated";
   }
 
@@ -240,8 +240,18 @@ const Requirement = () => {
           {view ? (
             <Row className="w-100 m-1 p-3 bg-white rounded-3 mb-3">
               <ViewField label="Title" value={formData.title} />
-              <ViewField label="Budget" value={formData.budget} />
-              <ViewField label="Area" value={formData.area} />
+              <ViewField
+                label="Budget"
+                value={
+                  formData.budget ? formData.budget.toLocaleString() + "/-" : ""
+                }
+              />
+              <ViewField
+                label="Area"
+                value={
+                  formData.area ? formData.area.toLocaleString() + " sqft" : ""
+                }
+              />
               <ViewField
                 label="Category"
                 value={categoryCodedText(formData.category)}
@@ -341,8 +351,8 @@ const Requirement = () => {
                   <Form.Group className="mb-3">
                     <FloatingLabel label="Stage">
                       <FormSelect
-                        value={formData.category}
-                        onChange={setField("category")}
+                        value={formData.stage}
+                        onChange={setField("stage")}
                       >
                         <option value="">Select stage</option>
                         {stages.map((stage, i) => (

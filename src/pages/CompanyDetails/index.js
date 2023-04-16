@@ -118,14 +118,8 @@ const CompanyDetails = () => {
       body: JSON.stringify(tmpData),
     })
       .then((res) => {
-        if (res.status === 200) {
-          setView(true);
-          setTimestamps(
-            id
-              ? { createdAt: timestamps.createdAt, updatedAt: new Date() }
-              : { createdAt: new Date() }
-          );
-        } else if (res.status === 401)
+        if (res.status === 200) navigate("/all_contacts");
+        else if (res.status === 401)
           return navigate("/auth", { state: { next: pathname } });
         else if (res.status === 500) setViewState(VIEWSTATE.serverError);
       })
@@ -397,15 +391,15 @@ const CompanyDetails = () => {
                 </h5>
                 <ViewField label="Name" value={formData.name} />
                 {formData.email && (
-                  <Col lg="6">
+                  <Col lg="6" className="d-flex flex-column">
                     <label className="text-secondary">Email</label>
-                    <p>{formData.email}</p>
+                    <a href={"mailto:" + formData.email}>{formData.email}</a>
                   </Col>
                 )}
                 {formData.phone && (
-                  <Col lg="6">
+                  <Col lg="6" className="d-flex flex-column">
                     <label className="text-secondary">Phone</label>
-                    <p>{formData.phone}</p>
+                    <a href={"tel:" + formData.phone}>{formData.phone}</a>
                   </Col>
                 )}
                 <ViewField label="Industry" value={formData.industry} />

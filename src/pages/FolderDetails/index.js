@@ -22,6 +22,7 @@ import PropertyCard from "../../components/PropertyCard";
 import Loading from "../../components/Loading";
 import ConnectionLost from "../../components/ConnectionLost";
 import InternalServerError from "../../components/InternalServerError";
+import NoRecords from "../../components/NoRecords";
 
 const FolderDetails = () => {
   const navigate = useNavigate();
@@ -46,15 +47,20 @@ const FolderDetails = () => {
     else if (viewState === VIEWSTATE.connLost) return <ConnectionLost />;
     else if (viewState === VIEWSTATE.serverError)
       return <InternalServerError />;
+    else if (properties.length === 0) return <NoRecords />;
     else
-      return properties.map((data, i) => (
-        <PropertyCard
-          key={i}
-          data={data}
-          selected={selected}
-          setSelected={setSelected}
-        />
-      ));
+      return (
+        <div className="d-flex flex-wrap mb-3">
+          {properties.map((data, i) => (
+            <PropertyCard
+              key={i}
+              data={data}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          ))}
+        </div>
+      );
   };
 
   const updateFolder = (e) => {
@@ -260,7 +266,7 @@ const FolderDetails = () => {
               </div>
             </div>
           )}
-          <div className="d-flex flex-wrap mb-3">{showData()}</div>
+          {showData()}
         </Col>
         <Col
           lg="3"

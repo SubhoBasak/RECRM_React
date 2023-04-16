@@ -61,20 +61,7 @@ const RequirementsModal = ({ show, hide, rqmns, setRqmns, client }) => {
     })
       .then((res) => {
         if (res.status === 200)
-          res.json().then((data) => {
-            delete tmpData.client;
-            setRqmns([{ _id: data.id, ...tmpData }, ...rqmns]);
-            setAddNew(false);
-            setFormData({
-              title: "",
-              budget: "",
-              area: "",
-              city: "",
-              state: "",
-              locationDetails: "",
-              otherDetails: "",
-            });
-          });
+          res.json().then((data) => navigate("/requirement/" + data._id));
         else if (res.status === 401)
           navigate("/auth", { state: { next: pathname } });
       })

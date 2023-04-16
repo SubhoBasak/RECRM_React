@@ -7,6 +7,7 @@ import {
   Row,
   Col,
   Spinner,
+  Alert,
 } from "react-bootstrap";
 
 // utils
@@ -27,6 +28,7 @@ import { IoIosSave } from "react-icons/io";
 import { TbArrowBack } from "react-icons/tb";
 
 // components
+import DeleteModal from "../../components/DeleteModal";
 import PermissionToggle from "../../components/PermissionToggle";
 
 const UserModal = () => {
@@ -104,6 +106,23 @@ const UserModal = () => {
     setViewState(VIEWSTATE.loading);
   }
 
+  function updateUserStatus(status) {
+    fetch(process.env.REACT_APP_BASE_URL + "/user/opt", {
+      method: status ? "POST" : "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    })
+      .then((res) => {
+        setViewState(VIEWSTATE.none);
+        if (res.status === 200) navigate("/users");
+        else if (res.status === 401)
+          return navigate("/auth", { state: { next: pathname } });
+        else setViewState(VIEWSTATE.serverError);
+      })
+      .catch(() => setViewState(VIEWSTATE.connLost));
+    setViewState(VIEWSTATE.loading);
+  }
+
   React.useEffect(() => {
     async function getData() {
       fetch(
@@ -130,7 +149,7 @@ const UserModal = () => {
     }
 
     id && !state && getData();
-  }, [id]);
+  }, [id, state]);
 
   return (
     <>
@@ -188,6 +207,15 @@ const UserModal = () => {
             validated={validated}
             noValidate
           >
+            <div className="d-flex justify-content-end text-primary">
+              Status:
+              <Alert
+                variant={active ? "primary" : "warning"}
+                className="ms-2 py-0 px-2"
+              >
+                {active ? "Active" : "Deactive"}
+              </Alert>
+            </div>
             <Form.Group className="mb-3">
               <FloatingLabel label="Name">
                 <Form.Control
@@ -582,15 +610,31 @@ const UserModal = () => {
             <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
               Login history
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => updateUserStatus(!active)}
+            >
               {active ? "Deactive" : "Active"}
             </Button>
-            <Button variant="primary" className="btn-sm mt-3 w-75 shadow">
+            <Button
+              variant="primary"
+              className="btn-sm mt-3 w-75 shadow"
+              onClick={() => setViewState(VIEWSTATE.delete)}
+            >
               Delete
             </Button>
           </div>
         </Col>
       </Row>
+      <DeleteModal
+        show={viewState === VIEWSTATE.delete}
+        hide={() => setViewState(VIEWSTATE.none)}
+        msg="Do you really want to delete the user?"
+        body={{ id }}
+        url="/user"
+        remove={() => navigate("/users")}
+      />
     </>
   );
 };
